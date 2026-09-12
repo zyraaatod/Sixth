@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Metodologi Penetration Testing — jenis pentest, kerangka kerja PTES/WSTG/OSSTMM, aturan engagement, 7 fase PTES, threat modeling, penyusunan laporan, skor CVSS, checklist, dan kuis interaktif.">
+  <title>Metodologi Pentest — CyberGuard Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/></symbol>
+    <symbol id="ic-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="ic-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.8-3.8a6 6 0 01-7.9 7.9l-6.9 6.9a2.1 2.1 0 01-3-3l6.9-6.9a6 6 0 017.9-7.9l-3.8 3.8z"/></symbol>
+    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="ic-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></symbol>
+    <symbol id="ic-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+    <symbol id="ic-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></symbol>
+    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></symbol>
+    <symbol id="ic-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></symbol>
+    <symbol id="ic-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V3"/><path d="M4 4h16l-3 4 3 4H4"/></symbol>
+    <symbol id="ic-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h4a4 4 0 014 4v13a3 3 0 00-3-3H2z"/><path d="M22 4h-4a4 4 0 00-4 4v13a3 3 0 013-3h5z"/></symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  </svg>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+        <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu utama"><svg><use href="#ic-menu"/></svg></button>
+      <div class="nav-right">
+      <ul class="nav-links">
+        <li><a class="nav-link" href="index.html">Beranda</a></li>
+        <li><a class="nav-link" href="fundamentals.html">Fundamental</a></li>
+        <li class="nav-dd">
+          <a class="nav-link active" href="offensive.html">Serangan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="offensive.html"><svg><use href="#ic-right"/></svg>Offensive Security</a>
+            <a href="methodology.html"><svg><use href="#ic-target"/></svg>Metodologi Pentest</a>
+          </div>
+        </li>
+        <li class="nav-dd">
+          <a class="nav-link" href="defensive.html">Pertahanan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="defensive.html"><svg><use href="#ic-shield-check"/></svg>Defensive Security</a>
+            <a href="tools.html"><svg><use href="#ic-wrench"/></svg>Katalog Tools</a>
+          </div>
+        </li>
+        <li><a class="nav-link" href="tools.html">Tools</a></li>
+        <li><a class="nav-link" href="careers.html">Karir</a></li>
+      </ul>
+      <button class="term-btn" type="button" data-term-toggle aria-label="Buka terminal"><svg><use href="#ic-terminal"/></svg></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="ph-kick">modul-05 :: metodologi pentest</div>
+      <h1>Metodologi Penetration Testing</h1>
+      <p>Pentest bukan sekadar menjalankan tools. Ia proses profesional terstruktur: kesepakatan, pelaksanaan, dan laporan yang benar-benar bermanfaat. Kuasai kerangka kerja dunia nyata ini dari kesepakatan awal hingga penyusunan laporan.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="crumb"><a href="index.html">beranda</a><span class="sep">/</span>metodologi pentest</div>
+
+    <div class="layout">
+      <!-- ============ TOC ============ -->
+      <aside class="toc" aria-label="Daftar isi halaman">
+        <p class="toc-title">Daftar Isi</p>
+        <a href="#types"><span>01</span>Jenis-Jenis Pentest</a>
+        <a href="#framework"><span>02</span>Kerangka Kerja</a>
+        <a href="#roe"><span>03</span>Aturan Engagement</a>
+        <a href="#ptes"><span>04</span>7 Fase PTES</a>
+        <a href="#threat"><span>05</span>Threat Modeling</a>
+        <a href="#report"><span>06</span>Penyusunan Laporan</a>
+        <a href="#cvss"><span>07</span>Severity CVSS</a>
+        <a href="#wstg"><span>08</span>Alur WSTG</a>
+        <a href="#checklist"><span>09</span>Checklist Profesional</a>
+        <a href="#quiz"><span>10</span>Kuis</a>
+      </aside>
+
+      <!-- ============ CONTENT ============ -->
+      <div class="layout-main">
+
+        <!-- TYPES -->
+        <section class="section" id="types">
+          <div class="sec-head">
+            <span class="sec-num">01 — sudut pandang</span>
+            <h2 class="sec-title">Jenis-Jenis <span class="accent">Penetration Test</span></h2>
+            <p class="sec-sub">Pentest diklasifikasikan lewat dua dimensi: seberapa banyak informasi yang diberikan, dan apa yang menjadi objek pengujiannya.</p>
+          </div>
+          <div class="grid-4">
+            <div class="card reveal">
+              <h3><span class="tag tag-rec">Info</span> Black Box</h3>
+              <p>Penguji tanpa informasi internal. Paling realistis terhadap serangan luar, namun memakan waktu dan biaya paling besar.</p>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-rec">Info</span> Grey Box</h3>
+              <p>Penguji menerima informasi parsial — kredensial low-privileged, arsitektur, atau skema API. Keseimbangan kedalaman dan efisiensi.</p>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-rec">Info</span> White Box</h3>
+              <p>Penguji mendapat source code, config, dan arsitektur penuh. Fokus pada logika aplikasi dan review kode secara sistematis.</p>
+            </div>
+            <div class="card reveal">
+              <h3><span class="tag tag-off">Simulasi</span> Red Team</h3>
+              <p>Simulasi penuh penyerang nyata: social engineering, evasion, dan pencapaian tujuan akhir tertentu yang disepakati.</p>
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:20px">
+            <div class="card reveal">
+              <h3>Ditinjau dari Objek</h3>
+              <p><strong>Network</strong> (internal/eksternal), <strong>Web application</strong>, <strong>Mobile</strong> (Android/iOS), <strong>API</strong>, <strong>Cloud</strong> (AWS/Azure/GCP), <strong>Wireless</strong>, <strong>Social engineering</strong>, dan <strong>Physical</strong>. Pilih sesuai risiko yang mau diujikan.</p>
+            </div>
+            <div class="card reveal">
+              <h3>Ditinjau dari Tujuan</h3>
+              <ul>
+                <li><strong>Compliance</strong> — memenuhi regulasi: ISO 27001, PCI DSS, kewajiban audit BSSN.</li>
+                <li><strong>Assurance</strong> — memvalidasi keamanan sebelum/periode tertentu.</li>
+                <li><strong>Readiness</strong> — uji sebelum sistem baru go-live.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- FRAMEWORKS -->
+        <section class="section" id="framework">
+          <div class="sec-head">
+            <span class="sec-num">02 — kerangka kerja</span>
+            <h2 class="sec-title">Kerangka Kerja <span class="accent">Standar Industri</span></h2>
+            <p class="sec-sub">Beberapa standar muncul karena kebutuhan berbeda: pentest menyeluruh, fokus aplikasi, atau terukur secara kuantitatif.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Framework</th><th>Penerbit</th><th>Fokus</th><th>Kapan Dipakai</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">PTES</td><td>PTES Project</td><td>7 fase pentest menyeluruh</td><td>Jaringan &amp; infrastruktur</td></tr>
+                <tr><td class="mono">OWASP WSTG</td><td>OWASP</td><td>12 kategori testing aplikasi web</td><td>Web &amp; API testing</td></tr>
+                <tr><td class="mono">OSSTMM</td><td>ISECOM</td><td>Standard keamanan operasional terukur</td><td>Audit akademik / kuantitatif</td></tr>
+                <tr><td class="mono">ISSAF</td><td>ISSA</td><td>Framework assessment berlapis</td><td>Penyanding / pengganti PTES</td></tr>
+                <tr><td class="mono">MITRE ATT&amp;CK</td><td>MITRE</td><td>Pemetaan teknik penyerang</td><td>Adversary simulation &amp; deteksi</td></tr>
+                <tr><td class="mono">PCI DSS / ISO 27001</td><td>Industri</td><td>Persyaratan uji wajib</td><td>Kepatuhan regulasi</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="alert alert-info">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Manakah yang paling populer?</strong><p>Di dunia nyata banyak layanan memakai kombinasi: <strong>PTES</strong> sebagai alur umum berlapis <strong>OWASP WSTG</strong> untuk bagian aplikasi, lalu hasilnya dirangkum ke laporan berstandar internal penyedia.</p></div>
+          </div>
+        </section>
+
+        <!-- RULES OF ENGAGEMENT -->
+        <section class="section" id="roe">
+          <div class="sec-head">
+            <span class="sec-num">03 — sebelum eksekusi</span>
+            <h2 class="sec-title">Aturan Engagement &amp; <span class="accent">Scope</span></h2>
+            <p class="sec-sub">Semua berawal dari dokumen kesepakatan. Tanpa itu, pengujian hanyalah tindakan ilegal — sekalipun niatnya baik.</p>
+          </div>
+          <div class="steps">
+            <div class="step def reveal"><div class="step-num">1</div><div class="step-body"><h4>Statement of Work (SOW)</h4><p>Dokumen resmi memuat target, scope eksplisit (IP/domain), jam operasi pengujian, dan deliverable yang disepakati.</p></div></div>
+            <div class="step def reveal"><div class="step-num">2</div><div class="step-body"><h4>Rules of Engagement</h4><p>Teknik yang boleh/tidak boleh: bolehkah memakai module destructive, bolehkah social engineering, hingga batas waktu dan larangan downtime.</p></div></div>
+            <div class="step def reveal"><div class="step-num">3</div><div class="step-body"><h4>Kontak darurat &amp; backup</h4><p>Nomor kontak para pihak 24/7 dan backup/snapshot target tersedia agar insiden tak sengaja tidak menjadi bencana.</p></div></div>
+            <div class="step def reveal"><div class="step-num">4</div><div class="step-body"><h4>Sign-off legal</h4><p>Izin tertulis dan jelas cakupannya — perlindungan hukum dua arah di depan regulator (di Indonesia: UU ITE dan ketentuan terkait).</p></div></div>
+          </div>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">rules-of-engagement.txt</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-comment"># Bagian yang WAJIB ada dalam dokumen engagement</span>
+[+] Target in scope        : 10.0.0.0/24, app.pelanggan.example
+[-] Out of scope           : 10.0.0.5 (server produksi billing)
+[-] Dilarang               : module exploit yang bersifat destructive
+[+] Waktu pengujian        : 18:00 - 06:00 WIB (jam sepi)
+[+] Kontak darurat         : CSIRT vendor + admin pelanggan
+[+] Deliverable            : laporan eksekutif + teknis dalam 14 hari</pre></div>
+          </div>
+        </section>
+
+        <!-- PTES 7 PHASE -->
+        <section class="section" id="ptes">
+          <div class="sec-head">
+            <span class="sec-num">04 — alur kerja</span>
+            <h2 class="sec-title">7 Fase Pentest <span class="accent">(PTES)</span></h2>
+            <p class="sec-sub">Alur kerja utuh sebuah pentest. Setiap fase memproduksi artefak yang menjadi input fase berikutnya dan bahan laporan akhir.</p>
+          </div>
+          <div class="steps">
+            <div class="step off reveal"><div class="step-num">1</div><div class="step-body"><h4>Pre-Engagement Interactions</h4><p>Kesepakatan scope, rules of engagement, kontak, legal sign-off (SOW), dan deliverable. Fondasi yang menentukan lancarnya seluruh proyek.</p></div></div>
+            <div class="step off reveal"><div class="step-num">2</div><div class="step-body"><h4>Intelligence Gathering</h4><p>Recon pasif (OSINT, WHOIS, DNS, Shodan) dan aktif (ping sweep, service discovery). Output: peta infrastruktur dan permukaan serangan.</p></div></div>
+            <div class="step off reveal"><div class="step-num">3</div><div class="step-body"><h4>Threat Modeling</h4><p>Identifikasi aset penting, vektor yang relevan, dan prioritas risiko. Menjawab pertanyaan: <em>dari mana penyerang nyata akan masuk?</em></p></div></div>
+            <div class="step off reveal"><div class="step-num">4</div><div class="step-body"><h4>Vulnerability Analysis</h4><p>Kombinasi scanner (Nessus/OpenVAS), testing manual, dan analisis konfigurasi. Konfirmasi tiap temuan untuk menekan false positive.</p></div></div>
+            <div class="step off reveal"><div class="step-num">5</div><div class="step-body"><h4>Exploitation</h4><p>Mengeksploitasi celah untuk membuktikan dampak nyata. Dilakukan terukur sesuai aturan engagement — cukup untuk menunjukkan risiko.</p></div></div>
+            <div class="step off reveal"><div class="step-num">6</div><div class="step-body"><h4>Post-Exploitation</h4><p>Menilai nilai aset yang diakses, kedalaman lateral movement, dan umur persistence. Penilaian ini menjadi dasar penetapan severity.</p></div></div>
+            <div class="step off reveal"><div class="step-num">7</div><div class="step-body"><h4>Reporting</h4><p>Laporan eksekutif untuk manajemen + laporan teknis untuk tim IT. Disertai bukti, severity CVSS, dan rekomendasi terprioritas.</p></div></div>
+          </div>
+        </section>
+
+        <!-- THREAT MODELING -->
+        <section class="section" id="threat">
+          <div class="sec-head">
+            <span class="sec-num">05 — berpikir seperti penyerang</span>
+            <h2 class="sec-title">Threat Modeling: Memetakan <span class="accent">Sebelum Menyerang</span></h2>
+            <p class="sec-sub">Menentukan skenario yang paling masuk akal dan berdampak — supaya energi tidak terbuang pada jalur serangan yang tidak realistis.</p>
+          </div>
+          <div class="grid-2">
+            <div>
+              <div class="steps">
+                <div class="step reveal"><div class="step-num">A</div><div class="step-body"><h4>Petakan aset</h4><p>Data, sistem, dan orang yang paling berharga bagi organisasi.</p></div></div>
+                <div class="step reveal"><div class="step-num">B</div><div class="step-body"><h4>Gambarkan aliran data</h4><p>Data movement diagram (DFD): dari input pengguna sampai penyimpanan &amp; integrasi pihak ketiga.</p></div></div>
+                <div class="step reveal"><div class="step-num">C</div><div class="step-body"><h4>Identifikasi vektor</h4><p>Untuk tiap trust boundary: siapa yang bisa menyerang dan lewat jalur apa?</p></div></div>
+                <div class="step reveal"><div class="step-num">D</div><div class="step-body"><h4>Prioritaskan risiko</h4><p>Gabungkan kemungkinan &amp; dampak — pilih skenario yang dieksploitasi dulu di pengujian.</p></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="table-wrap" style="margin-top:0">
+                <table>
+                  <thead><tr><th>Notasi</th><th>Yang Dinilai</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">STRIDE</td><td>Spoofing, Tampering, Repudiation, Info disclosure, DoS, Elevation.</td></tr>
+                    <tr><td class="mono">DREAD</td><td>Damage, Reproducibility, Exploitability, Affected users, Discoverability — untuk skor risiko.</td></tr>
+                    <tr><td class="mono">PASTA</td><td>Pendekatan berlapis menautkan threat model dengan tujuan bisnis.</td></tr>
+                    <tr><td class="mono">ATT&amp;CK</td><td>Memetakan teknik nyata yang paling relevan bagi organisasi.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="alert alert-warn">
+                <svg><use href="#ic-alert"/></svg>
+                <div><strong>Kesalahan umum</strong><p>Score tinggi di CVSS belum tentu berarti didahulukan. Ancaman yang paling mungkin dan merusak bisnis-lah yang diprioritaskan — threat modeling menjembatani kedua hal itu.</p></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- REPORT -->
+        <section class="section" id="report">
+          <div class="sec-head">
+            <span class="sec-num">06 — produk utama</span>
+            <h2 class="sec-title">Struktur <span class="accent">Laporan Pentest</span></h2>
+            <p class="sec-sub">Laporan adalah satu-satunya produk yang dikenang klien. Laporan yang baik membuat pembaca tahu persis apa yang harus diperbaiki dan mengapa.</p>
+          </div>
+          <div class="grid-2">
+            <div class="card reveal">
+              <div class="icon-box"><svg><use href="#ic-file"/></svg></div>
+              <h3>Laporan Eksekutif <span class="tag tag-rec">manajemen</span></h3>
+              <ul>
+                <li>Ringkasan temuan utama dalam bahasa non-teknis.</li>
+                <li>Dampak terhadap bisnis (bukan sekadar kode error).</li>
+                <li>Statistik keparahan &amp; tren.</li>
+                <li>Rekomendasi investasi prioritas.</li>
+              </ul>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--rose)"><svg><use href="#ic-server"/></svg></div>
+              <h3>Laporan Teknis <span class="tag tag-off">tim IT</span></h3>
+              <ul>
+                <li>Setiap temuan: deskripsi, langkah reproduksi, proof-of-concept.</li>
+                <li>Severity bernomor: CVSS v3.1 + rating.</li>
+                <li>Referensi CWE / CVE terkait.</li>
+                <li>Rekomendasi remediasi spesifik &amp; teruji.</li>
+                <li>Scope coverage dan keterbatasan pengujian.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">finding-template.md</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-hot">[CRITICAL] SQL Injection pada /api/order/search</span>
+CVE/CWE : CWE-89 (SQL Injection)
+CVSS    : 9.8 / AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
+Langkah :
+  1. GET /api/order/search?id=1'  <span class="t-dim"># 500 -> error SQL</span>
+  2. Sebelumnya dilakukan untuk memvalidasi perbedaan respons
+Dampak  : penyerang dapat membaca seluruh basis data transaksi
+Remediasi: prepared statement + allowlist params + input validation</pre></div>
+          </div>
+        </section>
+
+        <!-- CVSS -->
+        <section class="section" id="cvss">
+          <div class="sec-head">
+            <span class="sec-num">07 — bahasa keparahan</span>
+            <h2 class="sec-title">Severity &amp; Prioritas: <span class="accent">Skor CVSS</span></h2>
+            <p class="sec-sub">Skor 0–10 membantu tim mengukur ketergesaan. Ingat: skor adalah input, bukan keputusan akhir.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Skor CVSS v3</th><th>Severity</th><th>Prioritas Remediasi</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">9.0 – 10.0</td><td class="tag tag-off">Critical</td><td>Perbaiki segera (24–48 jam)</td></tr>
+                <tr><td class="mono">7.0 – 8.9</td><td class="tag tag-off">High</td><td>Perbaiki di minggu berjalan</td></tr>
+                <tr><td class="mono">4.0 – 6.9</td><td class="tag tag-rec">Medium</td><td>Rencanakan dalam 30 hari</td></tr>
+                <tr><td class="mono">0.1 – 3.9</td><td class="tag tag-def">Low</td><td>Jadwalkan perbaikan rutin</td></tr>
+                <tr><td class="mono">0.0</td><td class="tag tag-rec">Info</td><td>Cacat / rekomendasi penyempurnaan</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="alert alert-info">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Baca vektor CVSS</strong><p>Contoh <code class="inline">AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</code>: serangan dari jaringan (N), kesulitan rendah (L), tanpa privilese (N), tanpa interaksi pengguna (N), scope tetap (U), berdampak tinggi pada Kerahasiaan, Integritas, dan Ketersediaan. Pelengkap CVSS: nilai EPSS untuk kemungkinan eksploitasi di dunia nyata.</p></div>
+          </div>
+        </section>
+
+        <!-- WSTG -->
+        <section class="section" id="wstg">
+          <div class="sec-head">
+            <span class="sec-num">08 — aspek aplikasi</span>
+            <h2 class="sec-title">Cakupan Uji Web: <span class="accent">OWASP WSTG</span></h2>
+            <p class="sec-sub">Kerangka paling praktis saat menguji aplikasi web dan API — kategori ini menjadi peta checklist harian pentester web.</p>
+          </div>
+          <div class="grid-3">
+            <div class="card reveal"><h3>Configuration</h3><p>Security headers, TLS config, directory listing, default credentials, admin interface exposure.</p></div>
+            <div class="card reveal"><h3>Data Validation</h3><p>SQLi, XSS, command injection, XXE, SSRF, LDAP injection, deserialization tak aman.</p></div>
+            <div class="card reveal"><h3>Auth &amp; Session</h3><p>Auth bypass, session fixation/hijack, MFA bypass, remember-me misconfig, cookie flags.</p></div>
+            <div class="card reveal"><h3>Business Logic</h3><p>Manipulasi harga, race condition, mass assignment, abuse workflow, rate-limit bypass.</p></div>
+            <div class="card reveal"><h3>Upload &amp; File</h3><p>Malicious upload, path traversal, symlink, zip-bomb dekompresi, file inclusion.</p></div>
+            <div class="card reveal"><h3>Crypto &amp; API</h3><p>Weak hashing, token predictable, CORS longgar, broken object-level auth pada API (IDOR).</p></div>
+          </div>
+        </section>
+
+        <!-- CHECKLIST -->
+        <section class="section" id="checklist">
+          <div class="sec-head">
+            <span class="sec-num">09 — disiplin</span>
+            <h2 class="sec-title">Checklist yang Sering <span class="accent">Dilupakan Pentester</span></h2>
+            <p class="sec-sub">Hal-hal non-teknis yang membedakan profesional dari sekadar pengguna tools. Salin dan jadikan acuan tiap proyek.</p>
+          </div>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">professional-checklist.md</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-cmd">[ ]</span> SOW &amp; rules of engagement ditandatangani kedua belah pihak
+<span class="t-cmd">[ ]</span> Kontak darurat insiden tersedia 24/7
+<span class="t-cmd">[ ]</span> Backup / snapshot target tersedia
+<span class="t-cmd">[ ]</span> Tidak ada module destructive tanpa izin eksplisit
+<span class="t-cmd">[ ]</span> Semua output disimpan sebagai evidence (log, screenshot)
+<span class="t-cmd">[ ]</span> Scope ditaati; keluar scope hanya setelah izin baru
+<span class="t-cmd">[ ]</span> Kredensial sementara diserahkan &amp; dinonaktifkan seusai uji
+<span class="t-cmd">[ ]</span> Data sensitive tidak keluar dari mesin penguji
+<span class="t-cmd">[ ]</span> Laporan + presentasi temuan diselesaikan tepat waktu
+<span class="t-cmd">[ ]</span> Jadwal re-test / verifikasi setelah remediasi disepakati</pre></div>
+          </div>
+          <div class="alert alert-warn">
+            <svg><use href="#ic-alert"/></svg>
+            <div><strong>Perhatian hukum</strong><p>Di banyak yurisdiksi — termasuk Indonesia (UU ITE dan ketentuan terkait) — aktivitas tanpa izin pemilik sistem adalah tindak pidana sekalipun tidak merusak apa pun. Selalu miliki izin tertulis dengan cakupan yang jelas.</p></div>
+          </div>
+        </section>
+
+        <!-- QUIZ -->
+        <!-- ============ PRAKTIKUM ============ -->
+        <section class="section" id="praktik">
+          <div class="sec-head">
+            <span class="sec-num">sesi praktikum</span>
+            <h2 class="sec-title">Praktik Langsung: <span class="accent">Menjalankan Fase PTES</span></h2>
+            <p class="sec-sub">Metodologi hanya kertas tanpa eksekusi. Di sesi ini kamu mempraktikkan fase intelligence gathering, vulnerability assessment, exploitation, dan dokumentasi bukti — langsung di terminal real-time sandbox.</p>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>1. Pre-engagement dan Intelligence Gathering</h3>
+              <p>Sebelum eksekusi, pastikan scope: baca <code class="inline">targets.txt</code> (daftar host yang diizinkan). Fase Intel Gathering (PTES fase 2): pastikan host hidup dengan <code class="inline">ping</code>. Mengumpulkan data yang salah sejak awal membuat seluruh engagement tidak valid.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && cat targets.txt && ping 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Pre-engagement</button>
+                <code class="run-hint">cd /home/student/lab && cat targets.txt && ping 192.168.1.10</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>2. Vulnerability Assessment dan Scanning</h3>
+              <p>Fase Vulnerability Assessment (PTES fase 4-5) menemukan celah. Dua perintah utama: <code class="inline">nmap -sV</code> untuk memetakan layanan dan versinya, lalu <code class="inline">--open</code> untuk menyaring port yang benar-benar terbuka pada host Windows.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sV 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Scan Versi</button>
+                <code class="run-hint">nmap -sV 192.168.1.10</code>
+                <button class="run-btn" type="button" data-run="nmap 192.168.1.20 --open"><svg><use href="#ic-terminal"/></svg>Hanya Port Terbuka</button>
+                <code class="run-hint">nmap 192.168.1.20 --open</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>3. Exploitation: Membuktikan Dampak</h3>
+              <p>Exploitation bertujuan membuktikan dampak, bukan merusak. SQLMap membuktikan bahwa parameter <code class="inline">id</code> bisa diinjeksi dan data dapat diekstrak — persis bukti yang akan ditulis dalam laporan (PTES fase Exploitation).</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dbs"><svg><use href="#ic-terminal"/></svg>Bukti Injeksi</button>
+                <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dbs</code>
+                <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dump"><svg><use href="#ic-terminal"/></svg>Ekstrak Data</button>
+                <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dump</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>4. Dokumentasi Bukti untuk Laporan</h3>
+              <p>Laporan (PTES fase Reporting) butuh bukti yang utuh. Rekam isi hasil scan, lalu kunci integritasnya dengan <code class="inline">sha256sum</code>. Di laporan profesional, hash semacam ini membuktikan artefak tidak diubah setelah pengambilan.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && cat scan1.txt && sha256sum scan1.txt"><svg><use href="#ic-terminal"/></svg>Bukti dan Hash</button>
+                <code class="run-hint">cd /home/student/lab && cat scan1.txt && sha256sum scan1.txt</code>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="quiz">
+          <div class="sec-head">
+            <span class="sec-num">10 — uji pemahaman</span>
+            <h2 class="sec-title">Kuis Singkat: <span class="accent">Paham Metodologi</span></h2>
+            <p class="sec-sub">Empat pertanyaan inti seputar jenis uji, kerangka kerja, dan proses profesional.</p>
+          </div>
+
+          <div class="quiz reveal" data-correct="0" data-explain="Perbedaan utama black/grey/white box adalah banyaknya informasi yang diberikan kepada penguji — menentukan kedalaman dan biaya." data-explain-wrong="Fokus pada informasi yang diterima penguji, bukan perangkat kerasnya.">
+            <div class="quiz-q"><span class="qnum">Q1</span>Perbedaan utama black box, grey box, dan white box adalah ...</div>
+            <div class="quiz-opt"><span class="ab">A</span>Tingkat informasi yang diberikan kepada penguji</div>
+            <div class="quiz-opt"><span class="ab">B</span>Warna antarmuka tools yang digunakan</div>
+            <div class="quiz-opt"><span class="ab">C</span>Besarnya biaya sertifikasi penguji</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="1" data-explain="Fase pertama PTES adalah Pre-Engagement Interactions: kesepakatan scope, aturan, dan legal sign-off sebelum masuk teknis." data-explain-wrong="Ingat urutan 7 fase PTES: kesepakatan dulu, baru teknis.">
+            <div class="quiz-q"><span class="qnum">Q2</span>Fase pertama dalam alur 7 fase PTES adalah ...</div>
+            <div class="quiz-opt"><span class="ab">A</span>Exploitation</div>
+            <div class="quiz-opt"><span class="ab">B</span>Pre-Engagement Interactions</div>
+            <div class="quiz-opt"><span class="ab">C</span>Reporting</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="0" data-explain="Skor 9.0–10.0 dikategorikan Critical menurut tabel severity CVSS v3." data-explain-wrong="Lihat rentang skor: 9.0–10.0 = Critical.">
+            <div class="quiz-q"><span class="qnum">Q3</span>Skor CVSS 9.4 termasuk kategori ...</div>
+            <div class="quiz-opt"><span class="ab">A</span>Critical</div>
+            <div class="quiz-opt"><span class="ab">B</span>High</div>
+            <div class="quiz-opt"><span class="ab">C</span>Medium</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="1" data-explain="Threat modeling memetakan aset, aliran data, dan vektor untuk memprioritaskan skenario risiko — dasar pemilihan teknik di fase berikutnya." data-explain-wrong="Threat modeling adalah kegiatan analisis dan pemrioritasan, bukan eksekusi serangan.">
+            <div class="quiz-q"><span class="qnum">Q4</span>Apa tujuan utama threat modeling pada pentest?</div>
+            <div class="quiz-opt"><span class="ab">A</span>Mempercepat proses scanning otomatis</div>
+            <div class="quiz-opt"><span class="ab">B</span>Mengidentifikasi aset &amp; vektor untuk memprioritaskan risiko</div>
+            <div class="quiz-opt"><span class="ab">C</span>Menghapus kebutuhan laporan akhir</div>
+            <div class="quiz-feedback"></div>
+          </div>
+        </section>
+
+        <!-- NEXT -->
+        <section class="section">
+          <div class="cta-row">
+            <a class="cta cta-hot reveal" href="offensive.html">
+              <span class="cta-lab">masuk teknik</span>
+              <h3>Terapkan di Modul Offensive</h3>
+              <p>Framework adalah kerangka — sekarang lihat implementasi teknisnya: recon, SQLi walkthrough, AD attack, sampai pivoting.</p>
+            </a>
+            <a class="cta cta-def reveal" href="careers.html">
+              <span class="cta-lab">langkah berikutnya</span>
+              <h3>Rencanakan Karirmu</h3>
+              <p>Roadmap, sertifikasi yang relevan, platform latihan, dan strategi mendapatkan kerja pertama di industri keamanan.</p>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <a href="index.html" class="brand" style="margin-bottom:14px;display:inline-block;">
+          <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+          <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+        </a>
+        <p style="font-size:0.9rem;max-width:340px;">Platform edukasi keamanan siber untuk membangun generasi profesional keamanan digital Indonesia.</p>
+      </div>
+      <div>
+        <h4>Materi Utama</h4>
+        <ul>
+          <li><a href="fundamentals.html">Fundamental</a></li>
+          <li><a href="tools.html">Tools Keamanan</a></li>
+          <li><a href="offensive.html">Offensive Security</a></li>
+          <li><a href="defensive.html">Defensive Security</a></li>
+          <li><a href="methodology.html">Metodologi Pentest</a></li>
+          <li><a href="careers.html">Jalur Karir</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Navigasi</h4>
+        <ul>
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="tools.html">Platform Latihan</a></li>
+          <li><a href="fundamentals.html">Fundamental</a></li>
+          <li><a href="careers.html">Sertifikasi</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-note">CyberGuard Academy &copy; 2026 — Gunakan pengetahuan secara bertanggung jawab.</div>
+  </footer>
+
+  <div class="toast"><svg><use href="#ic-check"/></svg><span>Konten disalin</span></div>
+  <button class="back-top" aria-label="Kembali ke atas"><svg><use href="#ic-up"/></svg></button>
+
+  <!-- ============ GLOBAL TERMINAL (real-time sandbox) ============ -->
+  <div class="term-shell" id="termShell" aria-hidden="true">
+    <div class="term-shell-bar">
+      <span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span>
+      <span class="term-shell-title">sandbox-lab &mdash; terminal real-time</span>
+      <span class="term-shell-status">LIVE &mdash; SANDBOX</span>
+      <button class="term-shell-btn" type="button" data-term-clear>Bersihkan</button>
+      <button class="term-shell-btn" type="button" data-term-copy>Salin</button>
+      <button class="term-shell-btn" type="button" data-term-close>Tutup</button>
+    </div>
+    <div class="term-shell-body" id="termShellBody"></div>
+    <div class="term-shell-input">
+      <span class="ts-prompt" id="termPrompt">student@cyberguard:~$</span>
+      <input type="text" id="termInput" autocomplete="off" spellcheck="false" aria-label="Ketik perintah terminal">
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script src="js/terminal.js"></script>
+</body>
+</html>

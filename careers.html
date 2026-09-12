@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Jalur Karir & Sertifikasi Keamanan Siber — peta profesi, roadmap belajar, skill yang dicari, platform latihan, perbandingan sertifikasi (eJPT, OSCP, CEH, CISSP, BTL1), tips kerja dan kuis.">
+  <title>Jalur Karir &amp; Sertifikasi — CyberGuard Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/></symbol>
+    <symbol id="ic-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="ic-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.8-3.8a6 6 0 01-7.9 7.9l-6.9 6.9a2.1 2.1 0 01-3-3l6.9-6.9a6 6 0 017.9-7.9l-3.8 3.8z"/></symbol>
+    <symbol id="ic-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h4a4 4 0 014 4v13a3 3 0 00-3-3H2z"/><path d="M22 4h-4a4 4 0 00-4 4v13a3 3 0 013-3h5z"/></symbol>
+    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></symbol>
+    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="ic-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></symbol>
+    <symbol id="ic-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+    <symbol id="ic-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></symbol>
+    <symbol id="ic-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V3"/><path d="M4 4h16l-3 4 3 4H4"/></symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/></symbol>
+    <symbol id="ic-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="ic-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  </svg>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+        <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu utama"><svg><use href="#ic-menu"/></svg></button>
+      <div class="nav-right">
+      <ul class="nav-links">
+        <li><a class="nav-link" href="index.html">Beranda</a></li>
+        <li><a class="nav-link" href="fundamentals.html">Fundamental</a></li>
+        <li class="nav-dd">
+          <a class="nav-link" href="offensive.html">Serangan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="offensive.html"><svg><use href="#ic-right"/></svg>Offensive Security</a>
+            <a href="methodology.html"><svg><use href="#ic-target"/></svg>Metodologi Pentest</a>
+          </div>
+        </li>
+        <li class="nav-dd">
+          <a class="nav-link" href="defensive.html">Pertahanan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="defensive.html"><svg><use href="#ic-shield-check"/></svg>Defensive Security</a>
+            <a href="tools.html"><svg><use href="#ic-wrench"/></svg>Katalog Tools</a>
+          </div>
+        </li>
+        <li><a class="nav-link" href="tools.html">Tools</a></li>
+        <li><a class="nav-link active" href="careers.html">Karir</a></li>
+      </ul>
+      <button class="term-btn" type="button" data-term-toggle aria-label="Buka terminal"><svg><use href="#ic-terminal"/></svg></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="ph-kick">modul-06 :: karir &amp; sertifikasi</div>
+      <h1>Jalur Karir &amp; Sertifikasi</h1>
+      <p>Keamanan siber adalah salah satu profesi paling dibutuhkan saat ini. Modul ini memetakan peran, roadmap belajar realistis, skill yang dicari pasar, perbandingan sertifikasi, sampai strategi mendapatkan kerja pertama.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="crumb"><a href="index.html">beranda</a><span class="sep">/</span>jalur karir</div>
+
+    <div class="layout">
+      <!-- ============ TOC ============ -->
+      <aside class="toc" aria-label="Daftar isi halaman">
+        <p class="toc-title">Daftar Isi</p>
+        <a href="#roles"><span>01</span>Peta Profesi</a>
+        <a href="#roadmap"><span>02</span>Roadmap Belajar</a>
+        <a href="#skills"><span>03</span>Skill yang Dicari</a>
+        <a href="#platforms"><span>04</span>Platform Latihan</a>
+        <a href="#certs"><span>05</span>Peta Sertifikasi</a>
+        <a href="#strategy"><span>06</span>Kerja Pertama</a>
+        <a href="#salary"><span>07</span>Gaji &amp; Prospek</a>
+        <a href="#community"><span>08</span>Komunitas &amp; Sumber</a>
+        <a href="#interview"><span>09</span>Persiapan Wawancara</a>
+        <a href="#quiz"><span>10</span>Kuis</a>
+      </aside>
+
+      <!-- ============ CONTENT ============ -->
+      <div class="layout-main">
+
+        <!-- ROLES -->
+        <section class="section" id="roles">
+          <div class="sec-head">
+            <span class="sec-num">01 — peta profesi</span>
+            <h2 class="sec-title">Empat Kuadran <span class="accent">Profesi Keamanan</span></h2>
+            <p class="sec-sub">Secara garis besar peluang kerja terbagi dalam empat keluarga besar. Kenali di mana minatmu paling cocok.</p>
+          </div>
+          <div class="grid-4">
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--rose)"><svg><use href="#ic-target"/></svg></div>
+              <h3><span class="tag tag-off">Red</span> Offensive</h3>
+              <p>Penetration Tester (web/network), Red Teamer, Adversary Simulation, Exploit Developer, Bug Bounty Hunter.</p>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--lime)"><svg><use href="#ic-shield-check"/></svg></div>
+              <h3><span class="tag tag-def">Blue</span> Defensive</h3>
+              <p>SOC Analyst (L1-L3), Incident Responder, Threat Hunter, Malware Analyst, DFIR Specialist.</p>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--cyan)"><svg><use href="#ic-layers"/></svg></div>
+              <h3><span class="tag tag-rec">Grey</span> Governance &amp; Audit</h3>
+              <p>Security Auditor, GRC Analyst, Vulnerability Management Lead, Third-Party Risk, Compliance (ISO 27001/PCI DSS).</p>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--violet)"><svg><use href="#ic-cpu"/></svg></div>
+              <h3><span class="tag tag-perm">Gold</span> Leadership &amp; Architect</h3>
+              <p>Security Architect, CISO, DevSecOps Engineer, Cloud Security Architect, Security Manager.</p>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Realita pasar</strong><p>Posisi paling mudah dimasuki fresh graduate umumnya SOC Analyst (blue) dan Junior Pentester/bug bounty (red). Posisi arsitek dan governance umumnya butuh pengalaman bertahun-tahun terlebih dahulu.</p></div>
+          </div>
+        </section>
+
+        <!-- ROADMAP -->
+        <section class="section" id="roadmap">
+          <div class="sec-head">
+            <span class="sec-num">02 — peta perjalanan</span>
+            <h2 class="sec-title">Roadmap Belajar <span class="accent">dari Nol</span></h2>
+            <p class="sec-sub">Kronologi realistis 0 sampai siap kerja. Percepatan bergantung konsistensi — 10-15 jam per minggu adalah angka yang umum.</p>
+          </div>
+          <div class="timeline">
+            <div class="tl-item reveal"><div class="tl-tag">tahap-01</div><h4>Fondasi (bulan 1-3)</h4><p>Linux &amp; CLI, networking (TCP/IP, OSI), scripting dasar (Python/Bash), dan konsep keamanan — mulai dari <a href="fundamentals.html">modul Fundamental kami</a>.</p></div>
+            <div class="tl-item reveal"><div class="tl-tag">tahap-02</div><h4>Lab &amp; Praktik Dasar (bulan 3-6)</h4><p>Bangun lab VMware/VirtualBox: DVWA, OWASP Juice Shop, Metasploitable. Lanjut path dasar di TryHackMe / HTB Academy.</p></div>
+            <div class="tl-item reveal"><div class="tl-tag">tahap-03</div><h4>Kedalaman Web &amp; Network (bulan 6-12)</h4><p>Kuasai <a href="methodology.html">metodologi pentest</a> dan OWASP Top 10. Selesaikan Web Security Academy, lalu machine HTB easy-medium. Tulis write-up sebagai portofolio.</p></div>
+            <div class="tl-item reveal"><div class="tl-tag">tahap-04</div><h4>Pilih Satu Arah (bulan 9-15)</h4><p>Fokus offense atau defense. Dalami materi di <a href="offensive.html">modul Offensive</a> atau <a href="defensive.html">modul Defensive</a>, gabungkan dengan sertifikasi entry yang relevan.</p></div>
+            <div class="tl-item reveal"><div class="tl-tag">tahap-05</div><h4>Kerja Pertama (bulan 12-18)</h4><p>Lamarkan posisi junior/SOC, ikut program magang keamanan, dan perkuat jejak profesional: blog, GitHub, kontribusi komunitas, dan CTF.</p></div>
+          </div>
+        </section>
+
+        <!-- SKILLS -->
+        <section class="section" id="skills">
+          <div class="sec-head">
+            <span class="sec-num">03 — kemampuan</span>
+            <h2 class="sec-title">Skill yang Paling <span class="accent">Dicari Perusahaan</span></h2>
+            <p class="sec-sub">Hard skills membuka pintu; soft skills yang membuatmu bertahan dan naik level. Kombinasikan keduanya.</p>
+          </div>
+          <div class="grid-2">
+            <div class="card reveal">
+              <h3 class="sec-title" style="font-size:1.1rem">Hard Skills</h3>
+              <div class="skill"><div class="skill-label"><span>Linux &amp; Bash</span><span class="p">kritikal</span></div><div class="skill-bar"><div class="skill-fill" style="width:95%"></div></div></div>
+              <div class="skill"><div class="skill-label"><span>Web Pentesting (OWASP)</span><span class="p">kritikal</span></div><div class="skill-bar"><div class="skill-fill off" style="width:92%"></div></div></div>
+              <div class="skill"><div class="skill-label"><span>SIEM / Log Analysis</span><span class="p">kritikal</span></div><div class="skill-bar"><div class="skill-fill def" style="width:90%"></div></div></div>
+              <div class="skill"><div class="skill-label"><span>Python / Scripting</span><span class="p">tinggi</span></div><div class="skill-bar"><div class="skill-fill" style="width:85%"></div></div></div>
+              <div class="skill"><div class="skill-label"><span>Cloud (AWS/Azure/GCP)</span><span class="p">tinggi</span></div><div class="skill-bar"><div class="skill-fill def" style="width:80%"></div></div></div>
+              <div class="skill"><div class="skill-label"><span>Windows &amp; Active Directory</span><span class="p">tinggi</span></div><div class="skill-bar"><div class="skill-fill off" style="width:78%"></div></div></div>
+            </div>
+            <div class="card reveal">
+              <h3 class="sec-title" style="font-size:1.1rem">Soft Skills</h3>
+              <ul>
+                <li>Komunikasi laporan — mampu menjelaskan ke pihak non-teknis.</li>
+                <li>Problem solving dan rasa ingin tahu (curiosity) yang tinggi.</li>
+                <li>Etika profesional &amp; integritas di bawah tekanan.</li>
+                <li>Kolaborasi lintas tim: red/blue/purple.</li>
+                <li>Continuous learning — teknologi berganti cepat.</li>
+                <li>Pemahaman dampak bisnis dari keputusan keamanan.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- PLATFORMS -->
+        <section class="section" id="platforms">
+          <div class="sec-head">
+            <span class="sec-num">04 — arena latihan</span>
+            <h2 class="sec-title">Platform Latihan <span class="accent">Terbaik</span></h2>
+            <p class="sec-sub">Pilih sesuai level dan arah. Konsistensi jauh lebih berharga daripada mencoba semuanya sekaligus.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Platform</th><th>Jenis</th><th>Kecocokan</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">TryHackMe</td><td>Pembelajaran terpandu</td><td>Pemula — belajar bertahap</td></tr>
+                <tr><td class="mono">HackTheBox</td><td>Machine + Academy</td><td>Intermediate sampai expert</td></tr>
+                <tr><td class="mono">PortSwigger Web Security Academy</td><td>Web lab gratis</td><td>Fokus kerentanan web</td></tr>
+                <tr><td class="mono">PentesterLab</td><td>Exercise labs</td><td>Kombinasi konsep + praktik</td></tr>
+                <tr><td class="mono">VulnHub</td><td>Target bootable</td><td>Latihan tanpa koneksi</td></tr>
+                <tr><td class="mono">CTFtime &amp; platform CTF</td><td>Kompetisi</td><td>Eksplorasi &amp; portofolio</td></tr>
+                <tr><td class="mono">LetsDefend / CyberDefenders</td><td>Simulasi SOC</td><td>Blue team &amp; IR practice</td></tr>
+                <tr><td class="mono">BlueTeamLabs Online</td><td>SOC scenario</td><td>Analis SOC entry level</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="alert alert-warn">
+            <svg><use href="#ic-alert"/></svg>
+            <div><strong>Jangan jatuh ke bingo box</strong><p>Kebanyakan blocker selama proses belajar bukan kurangnya tools, melainkan kurangnya dokumentasi. Tuliskan setiap machine yang kamu selesaikan sebagai write-up — itu yang dibaca perekrut.</p></div>
+          </div>
+        </section>
+
+        <!-- CERTS -->
+        <section class="section" id="certs">
+          <div class="sec-head">
+            <span class="sec-num">05 — sertifikasi</span>
+            <h2 class="sec-title">Peta <span class="accent">Sertifikasi</span></h2>
+            <p class="sec-sub">Sertifikasi bukan segalanya, tetapi mempercepat seleksi dan memberi struktur belajar. Pilih sesuai arah dan budget.</p>
+          </div>
+          <div class="tabs">
+            <div class="tab-nav">
+              <button class="tab-btn active" data-tab="road">Roadmap Umum</button>
+              <button class="tab-btn" data-tab="off">Offensive</button>
+              <button class="tab-btn" data-tab="def">Defensive</button>
+              <button class="tab-btn" data-tab="gov">Governance</button>
+            </div>
+
+            <div class="tab-panel active" id="tab-road">
+              <div class="table-wrap" style="margin-top:0">
+                <table>
+                  <thead><tr><th>Tahap</th><th>Sertifikasi</th><th>Penerbit</th><th>Catatan</th></tr></thead>
+                  <tbody>
+                    <tr><td>Entry</td><td class="mono">Security+</td><td>CompTIA</td><td>Fondasi umum; paling sering muncul di syarat lowongan.</td></tr>
+                    <tr><td>Entry/Mid</td><td class="mono">eJPT</td><td>INE Security</td><td>Pentest praktis entry; hemat dan hands-on.</td></tr>
+                    <tr><td>Mid</td><td class="mono">CEH</td><td>EC-Council</td><td>Dikenal luas HR; cakupan luas, cenderung teori.</td></tr>
+                    <tr><td>Mid/Pro</td><td class="mono">OSCP</td><td>OffSec</td><td>Standar emas pentest praktis; ujian lab 24 jam.</td></tr>
+                    <tr><td>Pro</td><td class="mono">OSEP / OSEE / PNPT</td><td>OffSec / TCM</td><td>Spesialisasi evasion &amp; exploit development.</td></tr>
+                    <tr><td>Blue</td><td class="mono">BTL1 / CySA+</td><td>Security Blue Team / CompTIA</td><td>Fondasi SOC &amp; IR praktis.</td></tr>
+                    <tr><td>Governance</td><td class="mono">CISSP</td><td>ISC2</td><td>Level manajemen &amp; arsitektur.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-off">
+              <div class="grid-3">
+                <div class="card"><h3>eJPT</h3><p>Alternatif murah dan praktis untuk mulai karir pentester. Ujian 100% hands-on di lab.</p></div>
+                <div class="card"><h3>CEH</h3><p>Salah satu yang paling dikenal HR di Asia. Cakupan luas dengan banyak konsep teori.</p></div>
+                <div class="card"><h3>OSCP</h3><p>Ujian penuh praktik 24 jam plus laporan. Standar industri yang paling dihormati.</p></div>
+                <div class="card"><h3>OSEP</h3><p>Advanced adversarial attack: bypass AV/EDR, evasive C2, dan exploitation lanjutan.</p></div>
+                <div class="card"><h3>PNPT</h3><p>TCM Security — pentest realistis end-to-end plus penilaian komunikasi laporan.</p></div>
+                <div class="card"><h3>OSWE</h3><p>Khusus web application exploitation dengan pendekatan white-box.</p></div>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-def">
+              <div class="grid-3">
+                <div class="card"><h3>CySA+</h3><p>Analisis dan respons ancaman — jembatan menuju SOC engineer.</p></div>
+                <div class="card"><h3>BTL1</h3><p>Security Blue Team Level 1 — IR &amp; SOC dengan lab praktis.</p></div>
+                <div class="card"><h3>CCD</h3><p>Certified CyberDefender — segmen pemula untuk jalur SOC.</p></div>
+                <div class="card"><h3>GCFA / GCFE</h3><p>SANS forensik &amp; incident response. Mahal tetapi sangat prestisius.</p></div>
+                <div class="card"><h3>GCIH</h3><p>Incident handling dari perspektif pembela.</p></div>
+                <div class="card"><h3>CKA / Cloud Cert</h3><p>Keamanan Kubernetes &amp; cloud makin diminati sebagai skill penunjang blue team.</p></div>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-gov">
+              <div class="grid-2">
+                <div class="card"><h3>ISO 27001 Lead Implementer/Auditor</h3><p>Dibutuhkan untuk membangun dan mengaudit SMKI organisasi.</p></div>
+                <div class="card"><h3>CISSP</h3><p>Untuk berpindah ke arsitektur atau manajemen keamanan.</p></div>
+                <div class="card"><h3>CCSP / AWS Security</h3><p>Khusus keamanan cloud — permintaan terus naik.</p></div>
+                <div class="card"><h3>CRISC / CISM</h3><p>Manajemen risiko dan tata kelola keamanan informasi.</p></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STRATEGY -->
+        <section class="section" id="strategy">
+          <div class="sec-head">
+            <span class="sec-num">06 — masuk industri</span>
+            <h2 class="sec-title">Strategi Mendapatkan <span class="accent">Kerja Pertama</span></h2>
+            <p class="sec-sub">Di industri keamanan, portofolio terbukti bekerja lebih keras daripada ijazah. Bangun tiga pilar berikut.</p>
+          </div>
+          <div class="grid-3">
+            <div class="card reveal">
+              <div class="icon-box"><svg><use href="#ic-file"/></svg></div>
+              <h3>1. Portofolio Nyata</h3>
+              <p>Tulis write-up CTF/machine di publik, buat blog security, dan simpan repositori lab serta script di GitHub.</p>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--lime)"><svg><use href="#ic-check"/></svg></div>
+              <h3>2. Sertifikasi Entry</h3>
+              <p>Kombo populer pemula: Security+ sebagai fondasi, ditambah eJPT (red) atau CySA+/BTL1 (blue).</p>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--rose)"><svg><use href="#ic-flag"/></svg></div>
+              <h3>3. Komunitas &amp; Bug Bounty</h3>
+              <p>Ikut komunitas keamanan Indonesia, kontribusi program bug bounty resmi, dan jadikan hasilnya portofolio terukur.</p>
+            </div>
+          </div>
+          <div class="alert alert-ok">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Lowongan umum di Indonesia</strong><p>SOC Analyst, Junior Pentester, Security Analyst, Vulnerability Analyst, GRC Officer, Incident Responder, Security Engineer, dan Cloud Security Engineer. Gaji kompetitif dan terus naik seiring kebutuhan — lihat perbandingan di bagian berikut.</p></div>
+          </div>
+        </section>
+
+        <!-- SALARY -->
+        <section class="section" id="salary">
+          <div class="sec-head">
+            <span class="sec-num">07 — kompensasi</span>
+            <h2 class="sec-title">Gaji &amp; <span class="accent">Prospek</span></h2>
+            <p class="sec-sub">Kisaran di bawah adalah gambaran umum pasar Indonesia (data kota besar, non-lokal). Angka aktual sangat bergantung perusahaan, kota, dan negosiasi.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Peran</th><th>Junior / Entry</th><th>Berpengalaman</th><th>Catatan</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">SOC Analyst</td><td>Rp 6-12 juta</td><td>Rp 12-25 juta</td><td>Pintu masuk blue team paling umum.</td></tr>
+                <tr><td class="mono">Penetration Tester</td><td>Rp 8-15 juta</td><td>Rp 18-35 juta</td><td>Premi besar untuk yang memegang OSCP/OSEP.</td></tr>
+                <tr><td class="mono">Security Engineer</td><td>Rp 10-18 juta</td><td>Rp 20-40 juta</td><td>Biasanya dari latar belakang DevOps/admin.</td></tr>
+                <tr><td class="mono">GRC / Auditor</td><td>Rp 8-14 juta</td><td>Rp 15-30 juta</td><td>Perlu pemahaman ISO 27001 &amp; regulasi.</td></tr>
+                <tr><td class="mono">Security Manager / Architect</td><td>—</td><td>Rp 30-70 juta</td><td>Level kepemimpinan &amp; arsitektur.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="quote">Pasar Asia Tenggara kekurangan ratusan ribu profesional keamanan. Mereka yang bisa membuktikan kemampuan lewat praktik — bukan sekadar klaim — selalu memiliki posisi tawar lebih kuat.</div>
+        </section>
+
+        <!-- COMMUNITY -->
+        <section class="section" id="community">
+          <div class="sec-head">
+            <span class="sec-num">08 — jaringan</span>
+            <h2 class="sec-title">Komunitas &amp; <span class="accent">Sumber Daya</span></h2>
+            <p class="sec-sub">Karier keamanan tumbuh dari jaringan. Mulai dari komunitas lokal sampai arena internasional.</p>
+          </div>
+          <div class="grid-3">
+            <div class="card reveal">
+              <div class="icon-box"><svg><use href="#ic-globe"/></svg></div>
+              <h3>Komunitas Indonesia</h3>
+              <ul>
+                <li>Komunitas keamanan Linux &amp; networking (contoh: komunitas Defacer Watch, grup cybersecurity daerah).</li>
+                <li>Meetup dan seminar BSSN, serta ajang cybersecurity Expo tahunan.</li>
+                <li>Chapter OWASP di kota besar — sumber materi &amp; koneksi.</li>
+              </ul>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--rose)"><svg><use href="#ic-flag"/></svg></div>
+              <h3>Bug Bounty &amp; CTF</h3>
+              <ul>
+                <li>Program bug bounty resmi perusahaan &amp; pemerintah Indonesia dengan platform resmi.</li>
+                <li>CTF berkala di CTFtime; dari beginner sampai internasional.</li>
+                <li>Write-up sebagai bukti karya — jangan pernah menyerang tanpa izin.</li>
+              </ul>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--amber)"><svg><use href="#ic-book"/></svg></div>
+              <h3>Belajar Lanjutan</h3>
+              <ul>
+                <li>Kanal belajar: PortSwigger Academy, OWASP Top 10 &amp; WSTG.</li>
+                <li>Dokumentasi resmi tools: Nmap, Burp Suite, Wireshark, Volatility.</li>
+                <li>Blog praktisi dan laporan CTF — baca setiap minggu.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- INTERVIEW -->
+        <section class="section" id="interview">
+          <div class="sec-head">
+            <span class="sec-num">09 — wawancara</span>
+            <h2 class="sec-title">Persiapan <span class="accent">Wawancara</span></h2>
+            <p class="sec-sub">Pertanyaan teknis dan perilaku yang umum muncul saat wawancara posisi junior keamanan — beserta cara menjawab yang baik.</p>
+          </div>
+          <details class="acc reveal"><summary><span class="acc-num">01</span>Ceritakan bagaimana kamu menangani host yang terinfeksi ransomware<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Jawaban ideal menekankan urutan: amankan bukti, isolasi host, beri tahu stakeholder, pahami scope, containment, eradication, recovery dari backup bersih, lalu lessons learned. Sebutkan bahwa kamu tidak akan langsung reinstall karena merusak bukti.</p></div></details>
+          <details class="acc reveal"><summary><span class="acc-num">02</span>Jelaskan perbedaan vulnerability, exploit, dan risk<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Vulnerability adalah celah dalam sistem. Exploit adalah kode/teknik yang memanfaatkan celah itu. Risk adalah peluang threat memanfaatkan celah dikali dampak bisnisnya (Risk = Likelihood x Impact).</p></div></details>
+          <details class="acc reveal"><summary><span class="acc-num">03</span>Bagaimana kamu menguji aplikasi web tanpa tools komersial?<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Sebutkan alur metodis: reconnaissance, mapping aplikasi, uji input (SQLi, XSS) manual dengan payload dasar, cek auth/session, konfigurasi (header, TLS), dan gunakan tools open-source (Burp Community, OWASP ZAP, curl, ffuf) sebagai penguat. Yang terpenting: tunjukkan cara berpikir, bukan hafalan tools.</p></div></details>
+          <details class="acc reveal"><summary><span class="acc-num">04</span>Pernah melakukan sesuatu yang melanggar etika?<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Jawab dengan jujur dan tunjukkan pemahaman etika: selalu izin tertulis, scope ketat, tidak merusak data, dan pelaporan bertanggung jawab. Kisah tentang bug yang ditemukan namun dilaporkan dengan sopan lebih bernilai daripada pamer kemampuan meretas.</p></div></details>
+          <details class="acc reveal"><summary><span class="acc-num">05</span>Ke mana kamu melihat diri dalam 3 tahun?<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Hubungkan dengan posisi yang dilamar: misal mulai sebagai SOC Analyst, lalu menuju Threat Hunter atau Incident Responder; atau mulai junior pentester menuju OSCP dan spesialisasi tertentu. Tunjukkan arah, bukan janji kosong.</p></div></details>
+        </section>
+
+        <!-- QUIZ -->
+        <!-- ============ PRAKTIKUM ============ -->
+        <section class="section" id="praktik">
+          <div class="sec-head">
+            <span class="sec-num">sesi praktikum</span>
+            <h2 class="sec-title">Praktik Langsung: <span class="accent">Skill Terminal yang Dicari Perekrut</span></h2>
+            <p class="sec-sub">Sebelum melamar kerja, pastikan keterampilan dasar terminal lancar. Sesi ini sekaligus membantumu membangun struktur portofolio dan membiasakan diri dengan perintah yang sering diuji di wawancara teknis.</p>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>1. Kenali Sistem: Perintah Jaring Pengaman</h3>
+              <p>Pewawancara sering membuka satu terminal kosong dan menyuruhmu bercerita. Mulai dari dasar: <code class="inline">whoami</code> (identitas), <code class="inline">id</code> (UID/GID), <code class="inline">uname -a</code> (kernel), dan <code class="inline">uptime</code> (lama nyala). Ini membangun kepercayaan diri di depan terminal.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="whoami && id && uname -a && uptime"><svg><use href="#ic-terminal"/></svg>Kenali Sistem</button>
+                <code class="run-hint">whoami && id && uname -a && uptime</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>2. Bangun Struktur Portofolio</h3>
+              <p>Portofolio yang rapi menarik rekruter. Latih manajemen berkas: buat direktori <code class="inline">portfolio</code>, tambahkan README sebagai halaman depan, lalu lihat hasilnya dengan <code class="inline">ls -la</code> dan <code class="inline">tree</code>. Keterampilan ini sederhana, tapi terlihat rapi saat wawancara.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="mkdir /home/student/portfolio && touch /home/student/portfolio/README.md && ls -la /home/student/portfolio && tree /home/student"><svg><use href="#ic-terminal"/></svg>Buat Portofolio</button>
+                <code class="run-hint">mkdir /home/student/portfolio && touch /home/student/portfolio/README.md && ls -la /home/student/portfolio && tree /home/student</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>3. Hashing yang Harus Kamu Bisa Jelaskan</h3>
+              <p>Membandingkan <code class="inline">sha256sum</code> dan <code class="inline">md5sum</code> adalah soal klasik wawancara entry-level. Hitung keduanya pada berkas yang sama, lalu perhatikan beda panjang keluaran — bukti nyata yang akan kamu jelaskan secara lisan.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && sha256sum hashes.txt && md5sum hashes.txt"><svg><use href="#ic-terminal"/></svg>Hash dan Encode</button>
+                <code class="run-hint">cd /home/student/lab && sha256sum hashes.txt && md5sum hashes.txt</code>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="quiz">
+          <div class="sec-head">
+            <span class="sec-num">10 — uji pemahaman</span>
+            <h2 class="sec-title">Kuis Singkat: <span class="accent">Rencanakan Arahmu</span></h2>
+            <p class="sec-sub">Empat pertanyaan untuk menguji pemahamanmu tentang jalur karir dan sertifikasi.</p>
+          </div>
+
+          <div class="quiz reveal" data-correct="2" data-explain="OSCP menekankan praktik: ujian lab 24 jam dengan eksploitasi nyata dan laporan — standar emas pentester." data-explain-wrong="Sertifikasi ini unik karena ujiannya penuh praktik di lab.">
+            <div class="quiz-q"><span class="qnum">Q1</span>Sertifikasi mana yang paling menekankan ujian praktik pentest 24 jam?</div>
+            <div class="quiz-opt"><span class="ab">A</span>CompTIA Security+</div>
+            <div class="quiz-opt"><span class="ab">B</span>CISSP</div>
+            <div class="quiz-opt"><span class="ab">C</span>OSCP</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="0" data-explain="Untuk jalur SOC entry, sertifikasi praktis seputar SOC &amp; IR seperti CySA+, eJPT, atau BTL1 lebih sejalan." data-explain-wrong="Posisi SOC membutuhkan keterampilan monitoring &amp; IR, bukan sertifikat manajemen tingkat lanjut.">
+            <div class="quiz-q"><span class="qnum">Q2</span>Sertifikasi yang paling relevan untuk posisi SOC Analyst junior adalah ...</div>
+            <div class="quiz-opt"><span class="ab">A</span>CySA+, eJPT, atau BTL1</div>
+            <div class="quiz-opt"><span class="ab">B</span>CISA</div>
+            <div class="quiz-opt"><span class="ab">C</span>CISSP</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="1" data-explain="Perekrut membaca portofolio praktik: write-up CTF, dokumentasi lab, dan hasil bug bounty adalah bukti kemampuan yang paling objektif." data-explain-wrong="Bukti praktik nyata jauh lebih meyakinkan perekrut daripada klaim atau jumlah sertifikat.">
+            <div class="quiz-q"><span class="qnum">Q3</span>Komponen portofolio yang paling kuat bagi kandidat junior adalah ...</div>
+            <div class="quiz-opt"><span class="ab">A</span>Foto lulusan dari banyak seminar pelatihan</div>
+            <div class="quiz-opt"><span class="ab">B</span>Write-up CTF, dokumentasi lab, dan hasil kerja nyata</div>
+            <div class="quiz-opt"><span class="ab">C</span>Jumlah pengikut di media sosial</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="1" data-explain="SOC analyst berpengalaman di Indonesia umumnya di kisaran Rp 12-25 juta per bulan, tergantung perusahaan dan kota." data-explain-wrong="Kisaran gaji SOC analyst berpengalaman umumnya jauh di atas fresh graduate.">
+            <div class="quiz-q"><span class="qnum">Q4</span>Kisaran gaji SOC analyst berpengalaman di Indonesia (kota besar) adalah ...</div>
+            <div class="quiz-opt"><span class="ab">A</span>Rp 1-3 juta per bulan</div>
+            <div class="quiz-opt"><span class="ab">B</span>Rp 12-25 juta per bulan</div>
+            <div class="quiz-opt"><span class="ab">C</span>Rp 100 juta lebih untuk semua level</div>
+            <div class="quiz-feedback"></div>
+          </div>
+        </section>
+
+        <!-- NEXT -->
+        <section class="section">
+          <div class="cta-row">
+            <a class="cta cta-def reveal" href="index.html">
+              <span class="cta-lab">kembali</span>
+              <h3>Ulangi dari Awal</h3>
+              <p>Belum siap menentukan arah? Putar kembali ke beranda dan susun ulang prioritas belajarmu secara utuh.</p>
+            </a>
+            <a class="cta cta-hot reveal" href="methodology.html">
+              <span class="cta-lab">bekal teknis</span>
+              <h3>Dalami Metodologi Pentest</h3>
+              <p>Jika arahmu red team, kuasai kerangka kerja profesional sebelum berlatih teknik serangan lebih dalam.</p>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <a href="index.html" class="brand" style="margin-bottom:14px;display:inline-block;">
+          <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+          <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+        </a>
+        <p style="font-size:0.9rem;max-width:340px;">Platform edukasi keamanan siber untuk membangun generasi profesional keamanan digital Indonesia.</p>
+      </div>
+      <div>
+        <h4>Materi Utama</h4>
+        <ul>
+          <li><a href="fundamentals.html">Fundamental</a></li>
+          <li><a href="tools.html">Tools Keamanan</a></li>
+          <li><a href="offensive.html">Offensive Security</a></li>
+          <li><a href="defensive.html">Defensive Security</a></li>
+          <li><a href="methodology.html">Metodologi Pentest</a></li>
+          <li><a href="careers.html">Jalur Karir</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Navigasi</h4>
+        <ul>
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="tools.html">Platform Latihan</a></li>
+          <li><a href="fundamentals.html">Kuis &amp; Sandbox</a></li>
+          <li><a href="careers.html">Sertifikasi</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-note">CyberGuard Academy &copy; 2026 — Gunakan pengetahuan secara bertanggung jawab.</div>
+  </footer>
+
+  <div class="toast"><svg><use href="#ic-check"/></svg><span>Konten disalin</span></div>
+  <button class="back-top" aria-label="Kembali ke atas"><svg><use href="#ic-up"/></svg></button>
+
+  <!-- ============ GLOBAL TERMINAL (real-time sandbox) ============ -->
+  <div class="term-shell" id="termShell" aria-hidden="true">
+    <div class="term-shell-bar">
+      <span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span>
+      <span class="term-shell-title">sandbox-lab &mdash; terminal real-time</span>
+      <span class="term-shell-status">LIVE &mdash; SANDBOX</span>
+      <button class="term-shell-btn" type="button" data-term-clear>Bersihkan</button>
+      <button class="term-shell-btn" type="button" data-term-copy>Salin</button>
+      <button class="term-shell-btn" type="button" data-term-close>Tutup</button>
+    </div>
+    <div class="term-shell-body" id="termShellBody"></div>
+    <div class="term-shell-input">
+      <span class="ts-prompt" id="termPrompt">student@cyberguard:~$</span>
+      <input type="text" id="termInput" autocomplete="off" spellcheck="false" aria-label="Ketik perintah terminal">
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script src="js/terminal.js"></script>
+</body>
+</html>

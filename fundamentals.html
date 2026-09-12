@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fundamental Keamanan Siber — CIA Triad, keamanan jaringan, OSI model, kriptografi, terminologi, klasifikasi ancaman, dan kuis interaktif.">
+  <title>Fundamental Keamanan Siber — CyberGuard Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/></symbol>
+    <symbol id="ic-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-2.9 8.2-7 10-4.1-1.8-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="ic-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M11.8 11.2L22 1m0 0l-4 4m3-6L15.5 4.5 19 8l4-4"/></symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 118 0v4"/></symbol>
+    <symbol id="ic-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/></symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    <symbol id="ic-terminal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="ic-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></symbol>
+    <symbol id="ic-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
+    <symbol id="ic-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="ic-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></symbol>
+    <symbol id="ic-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.8-3.8a6 6 0 01-7.9 7.9l-6.9 6.9a2.1 2.1 0 01-3-3l6.9-6.9a6 6 0 017.9-7.9l-3.8 3.8z"/></symbol>
+    <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  </svg>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+        <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="Menu utama"><svg><use href="#ic-menu"/></svg></button>
+      <div class="nav-right">
+      <ul class="nav-links">
+        <li><a class="nav-link" href="index.html">Beranda</a></li>
+        <li><a class="nav-link active" href="fundamentals.html">Fundamental</a></li>
+        <li class="nav-dd">
+          <a class="nav-link" href="offensive.html">Serangan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="offensive.html"><svg><use href="#ic-right"/></svg>Offensive Security</a>
+            <a href="methodology.html"><svg><use href="#ic-target"/></svg>Metodologi Pentest</a>
+          </div>
+        </li>
+        <li class="nav-dd">
+          <a class="nav-link" href="defensive.html">Pertahanan<svg><use href="#ic-down"/></svg></a>
+          <div class="dd-menu">
+            <a href="defensive.html"><svg><use href="#ic-shield-check"/></svg>Defensive Security</a>
+            <a href="tools.html"><svg><use href="#ic-wrench"/></svg>Katalog Tools</a>
+          </div>
+        </li>
+        <li><a class="nav-link" href="tools.html">Tools</a></li>
+        <li><a class="nav-link" href="careers.html">Karir</a></li>
+      </ul>
+      <button class="term-btn" type="button" data-term-toggle aria-label="Buka terminal"><svg><use href="#ic-terminal"/></svg></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="ph-kick">modul-01 :: fundamentals</div>
+      <h1>Fundamental Keamanan Siber</h1>
+      <p>Sebelum menyentuh tools atau teknik, kuasai pondasinya: prinsip keamanan, cara kerja jaringan, kriptografi, terminologi industri, dan peta ancaman — semuanya menjadi bahasa bersama seluruh profesi keamanan.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="crumb"><a href="index.html">beranda</a><span class="sep">/</span>fundamental</div>
+
+    <div class="layout">
+      <!-- ============ TOC ============ -->
+      <aside class="toc" aria-label="Daftar isi halaman">
+        <p class="toc-title">Daftar Isi</p>
+        <a href="#cia"><span>01</span>CIA Triad</a>
+        <a href="#aaa"><span>02</span>Kontrol Akses AAA</a>
+        <a href="#osi"><span>03</span>OSI &amp; TCP/IP</a>
+        <a href="#ports"><span>04</span>Port Kritis</a>
+        <a href="#crypto"><span>05</span>Kriptografi</a>
+        <a href="#terms"><span>06</span>Terminologi</a>
+        <a href="#actors"><span>07</span>Aktor Ancaman</a>
+        <a href="#threats"><span>08</span>Jenis Ancaman</a>
+        <a href="#cli"><span>09</span>Skill CLI</a>
+        <a href="#quiz"><span>10</span>Kuis</a>
+      </aside>
+
+      <!-- ============ CONTENT ============ -->
+      <div class="layout-main">
+
+        <!-- CIA -->
+        <section class="section" id="cia">
+          <div class="sec-head">
+            <span class="sec-num">01 — prinsip inti</span>
+            <h2 class="sec-title">CIA Triad: Tiga Pilar <span class="accent">Keamanan Informasi</span></h2>
+            <p class="sec-sub">Setiap keputusan keamanan pada akhirnya mengorbankan atau melindungi salah satu dari tiga pilar ini. Pahami betul-betul.</p>
+          </div>
+          <div class="grid-3">
+            <div class="card reveal">
+              <div class="icon-box"><svg><use href="#ic-lock"/></svg></div>
+              <h3>Confidentiality <span class="tag tag-rec">kerahasiaan</span></h3>
+              <p>Data hanya dapat diakses pihak yang berhak. Dijaga dengan enkripsi, kontrol akses, least privilege, dan segmentasi.</p>
+              <div class="pill-row"><span class="tag tag-rec">AES-256</span><span class="tag tag-rec">RBAC</span><span class="tag tag-rec">VPN</span><span class="tag tag-rec">MFA</span></div>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--lime)"><svg><use href="#ic-check"/></svg></div>
+              <h3>Integrity <span class="tag tag-def">keutuhan</span></h3>
+              <p>Data tidak berubah tanpa izin. Dijaga dengan hashing, digital signature, checksum, dan pengendalian perubahan.</p>
+              <div class="pill-row"><span class="tag tag-def">SHA-256</span><span class="tag tag-def">HMAC</span><span class="tag tag-def">fsck</span></div>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--rose)"><svg><use href="#ic-server"/></svg></div>
+              <h3>Availability <span class="tag tag-off">ketersediaan</span></h3>
+              <p>Sistem tersedia saat dibutuhkan. Dijaga dengan redundansi, backup, load balancing, dan proteksi DDoS.</p>
+              <div class="pill-row"><span class="tag tag-off">HA cluster</span><span class="tag tag-off">3-2-1 backup</span></div>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Cara membacanya</strong><p>Serangan selalu menyerang salah satu pilar: ransomware menyerang Availability, kebocoran database menyerang Confidentiality, dan manipulasi log menyerang Integrity. Saat merancang pertahanan, tanyakan: pilar mana yang paling berharga bagi saya?</p></div>
+          </div>
+
+          <h3 style="margin-top:18px">Contoh Kasus per Pilar</h3>
+          <details class="acc reveal"><summary><span class="acc-num">A</span>Kebocoran data pelanggan<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Konfidensialitas jebol. Dampak: gugatan, denda regulasi (UU PDP Indonesia, GDPR), dan kehilangan kepercayaan. Perbaikan: enkripsi at-rest, kontrol akses, dan pengetatan ekspor data sensibel.</p></div></details>
+          <details class="acc reveal"><summary><span class="acc-num">B</span>Ransomware menyandera basis data<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Ketersediaan dihancurkan. Tanpa backup yang baik, dua pilar lain ikut runtuh karena layanan berhenti. Inilah mengapa backup 3-2-1 dan recovery drill adalah kontrol paling hemat biaya.</p></div></details>
+          <details class="acc reveal"><summary><span class="acc-num">C</span>Penyerang menghapus jejak di log<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body"><p>Integritas bukti hilang. Inilah alasan log harus di-append-only atau dikirim ke SIEM terpusat yang tidak bisa diubah oleh host yang terkompromi.</p></div></details>
+        </section>
+
+        <!-- AAA -->
+        <section class="section" id="aaa">
+          <div class="sec-head">
+            <span class="sec-num">02 — kontrol akses</span>
+            <h2 class="sec-title">Model AAA: <span class="accent">Authentication, Authorization, Accounting</span></h2>
+            <p class="sec-sub">Siapa kamu, apa boleh kamu lakukan, dan apa yang telah kamu lakukan — tiga pertanyaan yang menjawab seluruh kendali akses.</p>
+          </div>
+          <div class="steps">
+            <div class="step def reveal"><div class="step-num">A</div><div class="step-body"><h4>Authentication — membuktikan identitas</h4><p>Password, TOTP/MFA, biometric, security key (FIDO2). Semakin kuat faktor yang digunakan, semakin tinggi tingkat kepercayaan.</p></div></div>
+            <div class="step def reveal"><div class="step-num">A</div><div class="step-body"><h4>Authorization — menetapkan hak akses</h4><p>Setelah dikenali, menentukan apa yang boleh diakses: RBAC (berbasis peran) atau ABAC (berbasis atribut). Diterapkan dengan least privilege.</p></div></div>
+            <div class="step def reveal"><div class="step-num">A</div><div class="step-body"><h4>Accounting — mencatat tindakan</h4><p>Log aktivitas, audit trail, dan pelacakan perubahan. Tanpa accounting, investigasi insiden berjalan buta.</p></div></div>
+          </div>
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">/var/log/auth.log &mdash; contoh accounting</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-dim">Jan  12 08:01:22</span> srv sshd[4711]: Failed password for root from <span class="t-hot">45.155.205.x</span> port 53412
+<span class="t-dim">Jan  12 08:04:11</span> srv sshd[4789]: <span class="t-ok">Accepted password for sysadmin from 10.0.0.9</span> port 51234</pre></div>
+          </div>
+        </section>
+
+        <!-- OSI -->
+        <section class="section" id="osi">
+          <div class="sec-head">
+            <span class="sec-num">03 — jaringan</span>
+            <h2 class="sec-title">Peta Serangan: Model <span class="accent">OSI &amp; TCP/IP</span></h2>
+            <p class="sec-sub">Setiap serangan terjadi di lapisan tertentu. Memahami lapisan membantu menentukan di mana harus memantau dan di mana harus bertahan.</p>
+          </div>
+          <div class="tabs">
+            <div class="tab-nav">
+              <button class="tab-btn active" data-tab="osi">OSI 7 Lapisan</button>
+              <button class="tab-btn" data-tab="proto">Protokol Kunci</button>
+            </div>
+            <div class="tab-panel active" id="tab-osi">
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Lap</th><th>Nama</th><th>Fungsi</th><th>Serangan Khas</th><th>Pertahanan Khas</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono">7</td><td>Application</td><td>Antarmuka aplikasi &amp; data</td><td>SQLi, XSS, brute-force login</td><td>WAF, input validation, patching</td></tr>
+                    <tr><td class="mono">6</td><td>Presentation</td><td>Encoding &amp; enkripsi</td><td>SSL stripping</td><td>HSTS preload, TLS 1.2+</td></tr>
+                    <tr><td class="mono">5</td><td>Session</td><td>Manajemen sesi</td><td>Session hijack, fixation</td><td>Cookie secure+HttpOnly, rotasi</td></tr>
+                    <tr><td class="mono">4</td><td>Transport</td><td>Segmentasi TCP/UDP</td><td>SYN flood, port scan</td><td>Stateful firewall, SYN cookies</td></tr>
+                    <tr><td class="mono">3</td><td>Network</td><td>Routing &amp; IP</td><td>Spoofing, MITM, subnet scan</td><td>ACL, anti-spoofing, IPSec</td></tr>
+                    <tr><td class="mono">2</td><td>Data Link</td><td>Frame &amp; MAC</td><td>ARP poisoning, MAC spoof</td><td>Port security, 802.1X</td></tr>
+                    <tr><td class="mono">1</td><td>Physical</td><td>Sinyal &amp; medium</td><td>Tap fisik, piggyback</td><td>Kontrol akses fisik</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="tab-panel" id="tab-proto">
+              <div class="grid-2">
+                <div class="card">
+                  <h3>DNS <span class="tag tag-rec">port 53</span></h3>
+                  <p>Penerjemah nama-ke-IP dan denyut nadi internet. Rentan terhadap poisoning, tunneling exfiltrasi, dan typo-squatting. DNS-over-HTTPS kini menutup pengintaian.</p>
+                </div>
+                <div class="card">
+                  <h3>ARP <span class="tag tag-rec">layer 2</span></h3>
+                  <p>Pemeta IP-ke-MAC dalam satu broadcast domain. ARP spoofing dapat menempatkan penyerang sebagai man-in-the-middle. Inhibit dengan arpwatch dan 802.1X.</p>
+                </div>
+                <div class="card">
+                  <h3>HTTP/HTTPS <span class="tag tag-rec">80/443</span></h3>
+                  <p>Bahasa web. Request/response mudah dimanipulasi: header injection, cookie forgery, dan parameter tampering. HTTPS mengenkripsi, tapi tidak menghentikan serangan aplikasi.</p>
+                </div>
+                <div class="card">
+                  <h3>TLS <span class="tag tag-rec">presentation</span></h3>
+                  <p>Enkripsi transport antara client-server. Rentan terhadap downgrade, cert misissuance, dan bug class seperti Heartbleed/Bleichenbacher. Pin dengan cipher modern.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PORTS -->
+        <section class="section" id="ports">
+          <div class="sec-head">
+            <span class="sec-num">04 — permukaan target</span>
+            <h2 class="sec-title">Port yang Sering Menjadi <span class="accent">Sasaran</span></h2>
+            <p class="sec-sub">Daftar yang harus kamu hafal: port ini yang pertama kali dilihat penyerang saat melakukan scanning.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Port</th><th>Layanan</th><th>Mengapa Rawan</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">22</td><td>SSH</td><td>Brute-force, kredensial lemah, key management buruk</td></tr>
+                <tr><td class="mono">23</td><td>Telnet</td><td>Plaintext penuh — kredensial mudah disadap</td></tr>
+                <tr><td class="mono">80/443</td><td>HTTP/HTTPS</td><td>Permukaan serangan aplikasi paling luas</td></tr>
+                <tr><td class="mono">445</td><td>SMB</td><td>EternalBlue (wannacry), relay attack, exposed shares</td></tr>
+                <tr><td class="mono">3389</td><td>RDP</td><td>Sasaran favorit ransomware dan bluekeep class bugs</td></tr>
+                <tr><td class="mono">3306/5432</td><td>MySQL/PostgreSQL</td><td>Database ke publik, SQLi, brute-force</td></tr>
+                <tr><td class="mono">6379</td><td>Redis</td><td>Misconfig tanpa auth &rarr; RCE &amp; data hijack</td></tr>
+                <tr><td class="mono">9200</td><td>Elasticsearch</td><td>Exposed cluster &rarr; data theft / ransom</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- CRYPTO -->
+        <section class="section" id="crypto">
+          <div class="sec-head">
+            <span class="sec-num">05 — kriptografi</span>
+            <h2 class="sec-title">Kriptografi: <span class="accent">Senjata Rahasia</span></h2>
+            <p class="sec-sub">Enkripsi melindungi kerahasiaan, hashing melindungi integritas, dan tanda tangan digital melindungi keaslian. Pahami kapan memakai yang mana.</p>
+          </div>
+          <div class="grid-3">
+            <div class="card reveal">
+              <div class="icon-box"><svg><use href="#ic-key"/></svg></div>
+              <h3>Simetris</h3>
+              <p>Satu kunci untuk enkripsi dan dekripsi. Cepat, ideal untuk data berukuran besar. Masalahnya: distribusi kunci aman.</p>
+              <div class="pill-row"><span class="tag tag-rec">AES-256</span><span class="tag tag-rec">ChaCha20</span><span class="tag tag-rec">3DES (usang)</span></div>
+              <code class="inline" style="margin-top:10px;display:inline-block">openssl enc -aes-256-cbc</code>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--lime)"><svg><use href="#ic-lock"/></svg></div>
+              <h3>Asimetris</h3>
+              <p>Sepasang public &amp; private key. Dasar TLS, SSH, dan GPG. Private key tak pernah dibagikan; public key bebas disebar.</p>
+              <div class="pill-row"><span class="tag tag-rec">RSA-4096</span><span class="tag tag-rec">ECC</span><span class="tag tag-rec">Ed25519</span></div>
+              <code class="inline" style="margin-top:10px;display:inline-block">ssh-keygen -t ed25519</code>
+            </div>
+            <div class="card reveal">
+              <div class="icon-box" style="color:var(--amber)"><svg><use href="#ic-globe"/></svg></div>
+              <h3>Hashing</h3>
+              <p>Fungsi satu arah — tidak bisa dibalik. Untuk penyimpanan password dan verifikasi integritas file.</p>
+              <div class="pill-row"><span class="tag tag-rec">SHA-256</span><span class="tag tag-rec">Argon2</span><span class="tag tag-rec">bcrypt</span></div>
+              <code class="inline" style="margin-top:10px;display:inline-block">sha256sum file.iso</code>
+            </div>
+          </div>
+          <div class="alert alert-warn">
+            <svg><use href="#ic-alert"/></svg>
+            <div><strong>Kesalahan Fatal</strong><p>Menyimpan password dengan MD5/SHA1 tanpa salt bisa ditembus dalam hitungan detik dengan rainbow table. Selalu gunakan hashing ber-slow-hash (Argon2, bcrypt, scrypt) dengan salt unik tiap pengguna. Jangan pernah mendesain kriptografi sendiri.</p></div>
+          </div>
+
+          <h3 style="margin-top:18px">Bagaimana Satu Bekerja dengan yang Lain: TLS Handshake</h3>
+          <details class="acc reveal"><summary><span class="acc-num">TLS</span>Urutan jabat tangan TLS 1.3 (disederhanakan)<svg class="acc-ic"><use href="#ic-down"/></svg></summary><div class="acc-body">
+            <p><strong>1.</strong> Client mengirim ClientHello (supported cipher &amp; versi). <strong>2.</strong> Server membalas ServerHello + sertifikat (asimetris: public key server). <strong>3.</strong> Kedua pihak menghitung kunci sesi bersama (key exchange dapat dilakukan via ECDHE). <strong>4.</strong> Semua komunikasi berikutnya dienkripsi dengan kunci sesi <strong>simetris</strong> (misal AES-GCM). Ringkasnya: kriptografi asimetris untuk pertukaran kunci, simetris untuk data, dan hashing untuk integritas.</p>
+          </div></details>
+        </section>
+
+        <!-- TERMS -->
+        <section class="section" id="terms">
+          <div class="sec-head">
+            <span class="sec-num">06 — bahasa umum</span>
+            <h2 class="sec-title">Terminologi yang <span class="accent">Harus Kamu Hafal</span></h2>
+            <p class="sec-sub">Bahasa bersama di seluruh industri — wajib saat wawancara kerja maupun membaca laporan keamanan.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Istilah</th><th>Definisi</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">Vulnerability</td><td>Celah dalam sistem, aplikasi, atau proses yang dapat dieksploitasi.</td></tr>
+                <tr><td class="mono">Exploit</td><td>Kode/teknik yang memanfaatkan vulnerability untuk menjalankan aksi.</td></tr>
+                <tr><td class="mono">Payload</td><td>Muatan yang dikirim exploit — mis. reverse shell, keylogger.</td></tr>
+                <tr><td class="mono">Threat / Threat Actor</td><td>Aktor atau kondisi berbahaya yang berpotensi mengeksploitasi celah.</td></tr>
+                <tr><td class="mono">Risk</td><td>Peluang threat mengeksploitasi celah dikali dampaknya. Risk = Likelihood x Impact.</td></tr>
+                <tr><td class="mono">Zero-day</td><td>Celah yang belum diketahui vendor / tersedia patch-nya.</td></tr>
+                <tr><td class="mono">CVE</td><td>ID standar kerentanan publik, contoh CVE-2021-44228 (Log4Shell).</td></tr>
+                <tr><td class="mono">CWE</td><td>Katalog kelemahan umum yang mendasari sebuah CVE.</td></tr>
+                <tr><td class="mono">CVSS</td><td>Skor keparahan 0-10 dengan vektor; 10 = paling kritis.</td></tr>
+                <tr><td class="mono">EPSS</td><td>Nilai kemungkinan eksploitasi di dunia nyata — penambah CVSS.</td></tr>
+                <tr><td class="mono">IOC</td><td>Indicator of Compromise — jejak bahwa sistem telah dibobol (hash, IP, domain).</td></tr>
+                <tr><td class="mono">TTP</td><td>Tactics, Techniques, and Procedures — cara penyerang bekerja.</td></tr>
+                <tr><td class="mono">Lateral Movement</td><td>Bergerak dari satu host ke host lain setelah akses awal.</td></tr>
+                <tr><td class="mono">Persistence</td><td>Mekanisme agar akses tetap bertahan setelah reboot/patch.</td></tr>
+                <tr><td class="mono">Red / Blue / Purple</td><td>Penyerang uji / pembela / kolaborasi keduanya.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ACTORS -->
+        <section class="section" id="actors">
+          <div class="sec-head">
+            <span class="sec-num">07 — siapa penyerang</span>
+            <h2 class="sec-title">Klasifikasi <span class="accent">Aktor Ancaman</span></h2>
+            <p class="sec-sub">Motivasi, kemampuan, dan target berbeda menentukan gaya serangan. Memahami aktor membantu memprioritaskan pertahanan.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Aktor</th><th>Motivasi</th><th>Tingkat Kemampuan</th><th>Contoh Target</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">Script Kiddie</td><td>Rebel, sensasi, vandalisme</td><td>Rendah — pakai tools siap pakai</td><td>Situs kecil, deface</td></tr>
+                <tr><td class="mono">Hacktivist</td><td>Ideologi, protes politik</td><td>Menengah</td><td>Organisasi yang dipandang tidak etis</td></tr>
+                <tr><td class="mono">Cybercriminal</td><td>Keuntungan finansial</td><td>Tinggi &amp; terorganisasi</td><td>Ransomware, pencurian kartu, data</td></tr>
+                <tr><td class="mono">Insider</td><td>Dendam, keserakahan, kelalaian</td><td>Bervariasi (punya akses sah!)</td><td>Pembocoran data internal</td></tr>
+                <tr><td class="mono">State-Sponsored (APT)</td><td>Espionase, geopolitik, sabotase</td><td>Sangat tinggi, terdokumentasi dalam MITRE ATT&amp;CK</td><td>Kritikal infrastruktur, pemerintah, korporasi</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- THREATS -->
+        <section class="section" id="threats">
+          <div class="sec-head">
+            <span class="sec-num">08 — jenis ancaman</span>
+            <h2 class="sec-title">Jenis Ancaman <span class="accent">di Lapangan</span></h2>
+            <p class="sec-sub">Kategori besar serangan yang kamu temui — dan selalu Bayesian: di mana kamu menginvestasikan pertahanan.</p>
+          </div>
+          <div class="grid-3">
+            <div class="card reveal"><h3>Malware</h3><p>Virus, worm, trojan, ransomware, spyware, rootkit, wiper. Modern malware modular, dibangun dengan kit, dan sering diplug-in ke platform langsung.</p><div class="pill-row"><span class="tag tag-off">Ransomware</span><span class="tag tag-off">Trojan</span><span class="tag tag-off">Zip-bomb</span></div></div>
+            <div class="card reveal"><h3>Social Engineering</h3><p>Manipulasi manusia: phishing, spear-phishing, vishing, smishing, baiting, pretexting, BEC. Diperkuat AI: deepfake video, email hyper-personal.</p><div class="pill-row"><span class="tag tag-off">Phishing</span><span class="tag tag-off">BEC</span><span class="tag tag-off">Deepfake</span></div></div>
+            <div class="card reveal"><h3>Web Attacks</h3><p>Serangan lapisan paling produktif: SQLi, XSS, CSRF, SSRF, RCE deserialization, IDOR, auth bypass — dirangkum OWASP Top 10.</p><div class="pill-row"><span class="tag tag-off">SQLi</span><span class="tag tag-off">XSS</span><span class="tag tag-off">SSRF</span></div></div>
+            <div class="card reveal"><h3>Network Attack</h3><p>Menyergap trafik: MITM, ARP/DNS poisoning, DDoS, sniffing, BGP hijack, port hijacking. Menjadi lebih sulit karena Enkripsi TLS.</p><div class="pill-row"><span class="tag tag-off">MITM</span><span class="tag tag-off">DDoS</span><span class="tag tag-off">BGP hijack</span></div></div>
+            <div class="card reveal"><h3>Identity &amp; Cloud</h3><p>Credential stuffing, password spraying, MFA bypass, cloud misconfig (bucket publik), OAuth abuse, token theft. Era zero-trust dibangun karena ini.</p><div class="pill-row"><span class="tag tag-off">Stuffing</span><span class="tag tag-off">MFA bypass</span></div></div>
+            <div class="card reveal"><h3>Supply Chain</h3><p>Kompromi software sebelum sampai ke pengguna: dependency poisoning (typosquatting npm/PyPI), CI/CD injection, update compromise (SolarWinds).</p><div class="pill-row"><span class="tag tag-off">Log4Shell</span><span class="tag tag-off">Typosquat</span></div></div>
+          </div>
+        </section>
+
+        <!-- CLI -->
+        <section class="section" id="cli">
+          <div class="sec-head">
+            <span class="sec-num">09 — keterampilan</span>
+            <h2 class="sec-title">Skill CLI &amp; Linux yang <span class="accent">Wajib Lancar</span></h2>
+            <p class="sec-sub">75% pekerjaan keamanan terjadi di terminal. Coba perintah berikut di <strong>sandbox interaktif</strong> dan di lab virtualmu sendiri.</p>
+          </div>
+          <div class="grid-2">
+            <div class="terminal">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">linux-basics.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-cmd">$</span> whoami
+<span class="t-ok">root</span>
+<span class="t-cmd">$</span> cat /etc/os-release | head -2
+<span class="t-dim">PRETTY_NAME="Kali GNU/Linux Rolling"</span>
+<span class="t-cmd">$</span> ip a show eth0 | grep inet
+<span class="t-dim">inet 192.168.1.100/24 scope global eth0</span>
+<span class="t-cmd">$</span> curl -I https://example.com
+<span class="t-ok">HTTP/2 200</span></pre></div>
+            </div>
+            <div>
+              <h3 style="margin-bottom:8px">Coba sendiri: sandbox terminal</h3>
+              <p style="font-size:0.9rem;color:var(--dim);margin-bottom:4px">Ketik <code class="inline">whoami</code>, <code class="inline">uname -a</code>, atau <code class="inline">ip a</code> pada terminal interaktif di bawah.</p>
+              <div class="demo-term" data-profile="generic">
+                <div class="demo-term-head">
+                  <span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span>
+                  <span class="dt-title">sandbox@cyberguard: ~</span>
+                  <span class="dt-status">online</span>
+                </div>
+                <div class="demo-term-body">
+                  <div class="line t-comment"># Ketik perintah lalu tekan Enter. Coba: whoami | uname -a | ip a | help</div>
+                  <div class="dt-input-line"><span class="prompt">$</span><input class="dt-input" type="text" autocomplete="off" spellcheck="false" aria-label="Input terminal demo"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- QUIZ -->
+        <!-- ============ PRAKTIKUM ============ -->
+        <section class="section" id="praktik">
+          <div class="sec-head">
+            <span class="sec-num">sesi praktikum</span>
+            <h2 class="sec-title">Praktik Langsung: <span class="accent">Seperti di Kelas dengan Dosen</span></h2>
+            <p class="sec-sub">Konsep yang baru kamu baca, kini dijalankan nyata. Buka terminal (tombol di kanan atas) lalu klik <b>Jalankan</b> pada tiap langkah — atau ketik sendiri perintahnya dan amati hasilnya.</p>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>1. Orientasi: Inilah Lingkungan Kerjamu</h3>
+              <p>Dosen memulai dengan memeriksa di mana kita berada. <code class="inline">pwd</code> menampilkan direktori aktif, <code class="inline">ls -la</code> menampilkan detail berkas, dan <code class="inline">cat readme.md</code> membuka petunjuk lab. Biasakan mengecek isi direktori sebelum bekerja — reconnaissance bukan hanya untuk penyerang, tapi juga untuk administrator.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && pwd && ls -la && cat readme.md"><svg><use href="#ic-terminal"/></svg>Jalankan</button>
+                <code class="run-hint">cd /home/student/lab && pwd && ls -la && cat readme.md</code>
+              </div>
+              <p class="run-hint">Petunjuk: gunakan tombol Tab untuk autocomplete, panah atas untuk riwayat perintah.</p>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>2. Port Sasaran: Enumerasi Layanan</h3>
+              <p>Pada bagian <em>Port yang Sering Menjadi Sasaran</em> kita belajar bahwa SSH (22), web (80/443), dan database (3306) adalah titik masuk favorit. Sekarang lihat buktinya: <code class="inline">nmap -sV 192.168.1.10</code> memperlihatkan layanan yang terbuka di lab-web-01. Perhatikan juga scan ke host Windows <code class="inline">192.168.1.20</code> untuk membandingkan karakter port kedua sistem operasi.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sV 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Scan Linux</button>
+                <code class="run-hint">nmap -sV 192.168.1.10</code>
+                <button class="run-btn" type="button" data-run="nmap 192.168.1.20 --open"><svg><use href="#ic-terminal"/></svg>Scan Windows</button>
+                <code class="run-hint">nmap 192.168.1.20 --open</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>3. Kriptografi: Hash sebagai Sidik Jari</h3>
+              <p>Teori hash kini dibuktikan: <code class="inline">sha256sum hashes.txt</code> menghasilkan 64 karakter hex (SHA-256), sedangkan <code class="inline">md5sum</code> hanya 32 (MD5, yang rapuh). Keduanya dihitung sungguhan oleh browser, bukan simulasi. Hash ini dipakai untuk memastikan integritas berkas saat ditransfer.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && sha256sum hashes.txt && sha1sum hashes.txt && md5sum hashes.txt"><svg><use href="#ic-terminal"/></svg>Hitung Tiga Algoritma</button>
+                <code class="run-hint">cd /home/student/lab && sha256sum hashes.txt && sha1sum hashes.txt && md5sum hashes.txt</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>4. Menganalisis Jejak Serangan di Log</h3>
+              <p>Klasifikasi ancaman pada bagian <em>Jenis Ancaman</em> menyebut brute force. Buktinya ada di <code class="inline">/var/log/auth.log</code>. Gunakan <code class="inline">grep</code> untuk memfilter baris yang relevan. Kemampuan membaca log inilah yang membedakan analis yang sekadar tahu teori.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>Filter Brute Force</button>
+                <code class="run-hint">grep 'Failed password' /var/log/auth.log</code>
+                <button class="run-btn" type="button" data-run="grep 'Accepted password' /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>Cari Login Sukses</button>
+                <code class="run-hint">grep 'Accepted password' /var/log/auth.log</code>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="quiz">
+          <div class="sec-head">
+            <span class="sec-num">10 — uji pemahaman</span>
+            <h2 class="sec-title">Kuis Singkat: <span class="accent">Seberapa Paham Kamu?</span></h2>
+            <p class="sec-sub">Empat pertanyaan untuk menguji fondasimu. Klik jawaban dan dapatkan umpan balik instan.</p>
+          </div>
+
+          <div class="quiz reveal" data-correct="2" data-explain="Ransomware mengunci data sehingga tidak bisa diakses — itu serangan terhadap penyediaan (availability).">
+            <div class="quiz-q"><span class="qnum">Q1</span>Serangan ransomware yang mengenkripsi seluruh database menyerang pilar CIA yang mana?</div>
+            <div class="quiz-opt"><span class="ab">A</span>Confidentiality</div>
+            <div class="quiz-opt"><span class="ab">B</span>Integrity</div>
+            <div class="quiz-opt"><span class="ab">C</span>Availability</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="1" data-explain="Tiga lapisan: transport menangani segment & port (TCP/UDP). Serangan SYN flood terjadi di lapisan transport.">
+            <div class="quiz-q"><span class="qnum">Q2</span>SYN flood menargetkan lapisan OSI yang mana?</div>
+            <div class="quiz-opt"><span class="ab">A</span>Application</div>
+            <div class="quiz-opt"><span class="ab">B</span>Transport</div>
+            <div class="quiz-opt"><span class="ab">C</span>Data Link</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="0" data-explain="SHA-256 adalah fungsi hash satu arah — tidak dapat dibalik menjadi plaintext.">
+            <div class="quiz-q"><span class="qnum">Q3</span>Manakah dari berikut yang merupakan fungsi HASH (satu arah)?</div>
+            <div class="quiz-opt"><span class="ab">A</span>SHA-256</div>
+            <div class="quiz-opt"><span class="ab">B</span>AES-256</div>
+            <div class="quiz-opt"><span class="ab">C</span>RSA-2048</div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz reveal" data-correct="2" data-explain="CVE-2021-44228 adalah Log4Shell — kerentanan pada library logging Java yang dieksploitasi luas di supply chain.">
+            <div class="quiz-q"><span class="qnum">Q4</span>CVE-2021-44228 dikenal sebagai ...</div>
+            <div class="quiz-opt"><span class="ab">A</span>EternalBlue</div>
+            <div class="quiz-opt"><span class="ab">B</span>Heartbleed</div>
+            <div class="quiz-opt"><span class="ab">C</span>Log4Shell</div>
+            <div class="quiz-feedback"></div>
+          </div>
+        </section>
+
+        <!-- NEXT -->
+        <section class="section">
+          <div class="cta-row">
+            <a class="cta cta-hot reveal" href="tools.html">
+              <span class="cta-lab">langkah berikutnya</span>
+              <h3>Lanjut ke Katalog Tools</h3>
+              <p>Setelah fondasi kuat, kenali senjata yang akan kamu pakai: 60+ tools offense dan defense dengan contoh perintah nyata.</p>
+            </a>
+            <a class="cta cta-def reveal" href="offensive.html">
+              <span class="cta-lab">langkah berikutnya</span>
+              <h3>Atau Langsung ke Offensive</h3>
+              <p>Ingin lebih cepat berlatih? Pelajari alur serangan end-to-end di modul Offensive Security.</p>
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <a href="index.html" class="brand" style="margin-bottom:14px;display:inline-block;">
+          <span class="brand-mark"><svg><use href="#ic-shield"/></svg></span>
+          <span class="brand-name">CYBER<span class="c">GUARD</span></span>
+        </a>
+        <p style="font-size:0.9rem;max-width:340px;">Platform edukasi keamanan siber untuk membangun generasi profesional keamanan digital Indonesia.</p>
+      </div>
+      <div>
+        <h4>Materi Utama</h4>
+        <ul>
+          <li><a href="fundamentals.html">Fundamental</a></li>
+          <li><a href="tools.html">Tools Keamanan</a></li>
+          <li><a href="offensive.html">Offensive Security</a></li>
+          <li><a href="defensive.html">Defensive Security</a></li>
+          <li><a href="methodology.html">Metodologi Pentest</a></li>
+          <li><a href="careers.html">Jalur Karir</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Navigasi</h4>
+        <ul>
+          <li><a href="index.html">Beranda</a></li>
+          <li><a href="tools.html">Platform Latihan</a></li>
+          <li><a href="methodology.html">Kerangka Kerja</a></li>
+          <li><a href="careers.html">Sertifikasi</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-note">CyberGuard Academy &copy; 2026 — Gunakan pengetahuan secara bertanggung jawab.</div>
+  </footer>
+
+  <div class="toast"><svg><use href="#ic-check"/></svg><span>Konten disalin</span></div>
+  <button class="back-top" aria-label="Kembali ke atas"><svg><use href="#ic-up"/></svg></button>
+
+  <!-- ============ GLOBAL TERMINAL (real-time sandbox) ============ -->
+  <div class="term-shell" id="termShell" aria-hidden="true">
+    <div class="term-shell-bar">
+      <span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span>
+      <span class="term-shell-title">sandbox-lab &mdash; terminal real-time</span>
+      <span class="term-shell-status">LIVE &mdash; SANDBOX</span>
+      <button class="term-shell-btn" type="button" data-term-clear>Bersihkan</button>
+      <button class="term-shell-btn" type="button" data-term-copy>Salin</button>
+      <button class="term-shell-btn" type="button" data-term-close>Tutup</button>
+    </div>
+    <div class="term-shell-body" id="termShellBody"></div>
+    <div class="term-shell-input">
+      <span class="ts-prompt" id="termPrompt">student@cyberguard:~$</span>
+      <input type="text" id="termInput" autocomplete="off" spellcheck="false" aria-label="Ketik perintah terminal">
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script src="js/terminal.js"></script>
+</body>
+</html>
