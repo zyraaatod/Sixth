@@ -21,6 +21,7 @@
     <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
     <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
     <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="ic-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V3"/><path d="M4 4h16l-3 4 3 4H4"/></symbol>
     <symbol id="ic-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></symbol>
     <symbol id="ic-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
     <symbol id="ic-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
@@ -95,7 +96,8 @@
         <a href="#framework"><span>08</span>Framework Blue Team</a>
         <a href="#soclab"><span>09</span>Simulasi SOC</a>
         <a href="#praktik"><span>10</span>Lab Blue Team</a>
-        <a href="#quiz"><span>11</span>Kuis</a>
+        <a href="#studikasus"><span>11</span>Studi Kasus Penuh</a>
+        <a href="#quiz"><span>12</span>Kuis</a>
       </aside>
 
       <!-- ============ CONTENT ============ -->
@@ -643,9 +645,129 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
           </div>
         </section>
 
+        <section class="section" id="studikasus">
+          <div class="sec-head">
+            <span class="sec-num">11 — studi kasus penuh</span>
+            <h2 class="sec-title">Contoh Penuh: Satu Insiden di <span class="accent">Tujuh Lapis OSI</span></h2>
+            <p class="sec-sub">Skenario yang sama — SQL injection dari <code class="inline">45.155.205.11</code> terhadap <code class="inline">lab-web-01</code> — kini ditelusuri <b>naik dari kabel sampai aplikasi</b> dari sisi pertahanan. Tidak seperti penyerang, analis blue team harus menggali bukti di setiap lapis: frame di kabel, MAC, firewall, port C2, sesi SSH, integritas bukti, hingga baris log aplikasi. Klik <b>Jalankan</b> pada tiap lapis berurutan untuk menyaksikan forensiknya.</p>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 1 · Physical — Investigasi Juga Dimulai di Kabel</h3>
+              <p>Investigasi dimulai dari kabel: <code class="inline">tcpdump</code> menangkap lalu lintas mentah lewat <code class="inline">eth0</code> dan memperlihatkan percakapan jaringan yang benar-benar terjadi — frame mengalir menuju host C2 <code class="inline">45.155.205.11:4444</code>. Lapisan physical tidak peduli IP atau aplikasi; ia hanya membuktikan <strong>terjadinya komunikasi</strong>, fondasi semua forensik berikutnya.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="tcpdump -i eth0 -c 4"><svg><use href="#ic-terminal"/></svg>Forensik Kabel</button>
+                <code class="run-hint">tcpdump -i eth0 -c 4</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 2 · Data Link — Attibusi lewat MAC</h3>
+              <p>Alamat MAC membantu atribusi host: NIC kita <code class="inline">00:0c:29:3a:2b:1e</code> (VMware), dan <code class="inline">nmap -sn</code> memperlihatkan MAC host dalam scope lab. Di lapis ini blue team juga mewaspadai <strong>ARP spoofing</strong> — penanda man-in-the-middle berupa MAC ganjil pada tabel ARP gateway, atau lonjakan frame aneh dari satu sumber. Sniffing pasif dan tcpdump untuk membuka frame rahasia bekerja di sini.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ip a && nmap -sn 192.168.1.10"><svg><use href="#ic-terminal"/></svg>MAC: Host vs Target</button>
+                <code class="run-hint">ip a && nmap -sn 192.168.1.10</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 3 · Network — Firewall &amp; Deteksi IDS</h3>
+              <p>Batasan jaringan adalah kontrol pertama: <code class="inline">iptables</code> menunjukkan aturan yang membolehkan/melarang lalu lintas di lapisan network. Di lapis yang sama, <strong>IDS Suricata</strong> yang membaca arus lalu lintas mencentang <code class="inline">ET SCAN Potential SSH Scan</code> dari alamat <code class="inline">45.155.205.11</code> — bukti sejak dini bahwa serangan datang dari luar jaringan.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat /var/log/suricata/fast.log"><svg><use href="#ic-terminal"/></svg>Alert IDS (Jaringan)</button>
+                <code class="run-hint">cat /var/log/suricata/fast.log</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="iptables -L -n"><svg><use href="#ic-terminal"/></svg>Firewall Kernel</button>
+                <code class="run-hint">iptables -L -n</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 4 · Transport — C2 di Telemetri Port</h3>
+              <p>Telemetri transport mengungkap koneksi aktif: <code class="inline">ss</code> dan <code class="inline">netstat</code> menampilkan sesi <strong>ESTABLISHED</strong> menuju <code class="inline">45.155.205.11:4444</code> — celah beaconing command-and-control. Port asing + koneksi persisten ke host tak dikenal adalah sinyal C2 paling nyata di lapisan transport, dan alasan mengapa monitoring port wajib diaktifkan.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ss && netstat"><svg><use href="#ic-terminal"/></svg>Cek Koneksi Transport</button>
+                <code class="run-hint">ss && netstat</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 5 · Session — Sejarah Sesi SSH</h3>
+              <p>Journalctl mencatat sesi SSH sampai menit/detik: sesi <code class="inline">webadmin</code> dibuka <code class="inline">03:17:01</code>, ditutup <code class="inline">03:17:04</code>, lalu ada login lagi dari IP berbeda. Sambungkan dengan <code class="inline">lastlog</code> dan <code class="inline">last</code> — baris <code class="inline">webadmin</code> dari IP penyerang adalah jendela di mana penyerang bergerak di dalam host. Lapisan session adalah titik tertangkapnya sesi nakal untuk diputus.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="lastlog && last && journalctl -u ssh | tail -5"><svg><use href="#ic-terminal"/></svg>Riwayat Sesi</button>
+                <code class="run-hint">lastlog && last && journalctl -u ssh | tail -5</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 6 · Presentation — Integritas &amp; Payload Tersandi</h3>
+              <p>Bukti harus dijaga: <code class="inline">sha256sum</code> memberi sidik jari kriptografis pada log forensik sehingga tidak ada yang menyangkal isinya. Di lapis presentation, peneliti juga menghadapi <strong>penyamaran data</strong>: request sqlmap datang sebagai <code class="inline">%27%20OR%201%3D1%20--</code> (URL/percent-encoding) di akses log — bentuk netral yang menyembunyikan niat serangan aplikasi.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sha256sum /var/log/auth.log && sha256sum /var/log/access.log"><svg><use href="#ic-terminal"/></svg>Integritas Bukti</button>
+                <code class="run-hint">sha256sum /var/log/auth.log && sha256sum /var/log/access.log</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="grep sqlmap /var/log/access.log"><svg><use href="#ic-terminal"/></svg>Payload URL-Encoded</button>
+                <code class="run-hint">grep sqlmap /var/log/access.log</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 7 · Application — Korelasi Log &amp; Containment</h3>
+              <p>Kulminasi analisis di lapisan aplikasi: baris log membuktikan brute force <code class="inline">webadmin</code> satu-arah dari IP penyerang (<code class="inline">awk | sort | uniq -c</code>), daftar IOC menegaskan indikator lengkap, lalu <strong>containment</strong> diterapkan langsung di firewall. Insiden ditutup dengan rekap skor — misi blue team tuntas dari kabel sampai aplikasi.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c"><svg><use href="#ic-terminal"/></svg>Korelasi IP Brute</button>
+                <code class="run-hint">grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ufw deny from 45.155.205.11 && iptables -A INPUT -s 45.155.205.11 -j DROP"><svg><use href="#ic-terminal"/></svg>Containment</button>
+                <code class="run-hint">ufw deny from 45.155.205.11 && iptables -A INPUT -s 45.155.205.11 -j DROP</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="flag FLAG{blue-team} && score"><svg><use href="#ic-terminal"/></svg>Klaim &amp; Rekap</button>
+                <code class="run-hint">flag FLAG{blue-team} && score</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warn" style="margin-top:26px">
+            <svg><use href="#ic-flag"/></svg>
+            <div><strong>Tidak Ada Titik Gagal Tunggal</strong><p>Insiden ini terlihat dari tujuh lapis sekaligus: frame di kabel, MAC host, alert IDS dan firewall di network, port C2 di transport, sesi SSH, integrity check, serta log aplikasi. Itulah esensi <strong>defense in depth</strong> — kalau satu lapis gagal (validasi input), lapis lain (monitoring, kontrol jaringan) tetap menangkap dan mempersempit pergerakan penyerang.</p></div>
+          </div>
+        </section>
+
         <section class="section" id="quiz">
           <div class="sec-head">
-            <span class="sec-num">11 — uji pemahaman</span>
+            <span class="sec-num">12 — uji pemahaman</span>
             <h2 class="sec-title">Kuis Singkat: <span class="accent">Seberapa Siap Bertahan?</span></h2>
             <p class="sec-sub">Lima pertanyaan untuk memvalidasi pemahamanmu tentang operasi blue team. Pilih jawaban dan baca umpan baliknya.</p>
           </div>

@@ -462,16 +462,83 @@
     return out;
   }
 
-  /* ================= hash tools (real, browser crypto) ================= */
-  function shaOf(str, algo) {
-    if (typeof TextEncoder === 'undefined') return Promise.resolve('');
-    var enc = new TextEncoder().encode(str);
-    if (crypto && crypto.subtle) {
-      return crypto.subtle.digest({ name: algo }, enc).then(function (buf) {
-        return hex(buf);
-      });
+  /* ================= hash tools (real, browser crypto + fallback) ================= */
+  function sha256Sync(msg) {
+    var u = typeof TextEncoder !== 'undefined' ? Array.prototype.slice.call(new TextEncoder().encode(msg)) : [];
+    if (!u.length) { for (var mi = 0; mi < msg.length; mi++) { var mk = msg.charCodeAt(mi); if (mk < 128) u.push(mk); else if (mk < 2048) u.push(192 | (mk >> 6), 128 | (mk & 63)); else u.push(224 | (mk >> 12), 128 | ((mk >> 6) & 63), 128 | (mk & 63)); } }
+    var bitLenHi = Math.floor(u.length / 536870912), bitLenLo = (u.length * 8) >>> 0;
+    u.push(0x80);
+    while (u.length % 64 !== 56) u.push(0);
+    function toBE(n) { return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255]; }
+    u = u.concat(toBE(bitLenHi), toBE(bitLenLo));
+    var K = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
+    var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    function rotr(x, n) { return (x >>> n) | (x << (32 - n)); }
+    for (var off = 0; off < u.length; off += 64) {
+      var w = new Array(64);
+      for (var i = 0; i < 16; i++) { var j = off + i * 4; w[i] = ((u[j] << 24) | (u[j + 1] << 16) | (u[j + 2] << 8) | u[j + 3]) >>> 0; }
+      for (var t = 16; t < 64; t++) {
+        var s0 = rotr(w[t - 15], 7) ^ rotr(w[t - 15], 18) ^ (w[t - 15] >>> 3);
+        var s1 = rotr(w[t - 2], 17) ^ rotr(w[t - 2], 19) ^ (w[t - 2] >>> 10);
+        w[t] = (w[t - 16] + s0 + w[t - 7] + s1) >>> 0;
+      }
+      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (var t2 = 0; t2 < 64; t2++) {
+        var S1 = rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25);
+        var ch = (e & f) ^ (~e & g);
+        var temp1 = (h + S1 + ch + K[t2] + w[t2]) >>> 0;
+        var S0 = rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22);
+        var maj = (a & b) ^ (a & c) ^ (b & c);
+        var temp2 = (S0 + maj) >>> 0;
+        h = g; g = f; f = e; e = (d + temp1) >>> 0; d = c; c = b; b = a; a = (temp1 + temp2) >>> 0;
+      }
+      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+      H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
     }
-    return Promise.resolve('');
+    var out = '';
+    for (var k = 0; k < 8; k++) out += ('00000000' + (H[k] >>> 0).toString(16)).slice(-8);
+    return out;
+  }
+  function sha1Sync(msg) {
+    var u = typeof TextEncoder !== 'undefined' ? Array.prototype.slice.call(new TextEncoder().encode(msg)) : [];
+    if (!u.length) { for (var mi = 0; mi < msg.length; mi++) { var mk = msg.charCodeAt(mi); if (mk < 128) u.push(mk); else if (mk < 2048) u.push(192 | (mk >> 6), 128 | (mk & 63)); else u.push(224 | (mk >> 12), 128 | ((mk >> 6) & 63), 128 | (mk & 63)); } }
+    var bitLenHi = Math.floor(u.length / 536870912), bitLenLo = (u.length * 8) >>> 0;
+    u.push(0x80);
+    while (u.length % 64 !== 56) u.push(0);
+    function toBE(n) { return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255]; }
+    u = u.concat(toBE(bitLenHi), toBE(bitLenLo));
+    var H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+    function rol(x, n) { return (x << n) | (x >>> (32 - n)); }
+    for (var off = 0; off < u.length; off += 64) {
+      var w = new Array(80);
+      for (var i = 0; i < 16; i++) { var j = off + i * 4; w[i] = ((u[j] << 24) | (u[j + 1] << 16) | (u[j + 2] << 8) | u[j + 3]) >>> 0; }
+      for (var t = 16; t < 80; t++) { var x = w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16]; w[t] = rol(x, 1) >>> 0; }
+      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4];
+      for (var t2 = 0; t2 < 80; t2++) {
+        var f, K;
+        if (t2 < 20) { f = (b & c) | (~b & d); K = 0x5a827999; }
+        else if (t2 < 40) { f = b ^ c ^ d; K = 0x6ed9eba1; }
+        else if (t2 < 60) { f = (b & c) | (b & d) | (c & d); K = 0x8f1bbcdc; }
+        else { f = b ^ c ^ d; K = 0xca62c1d6; }
+        var temp = (rol(a, 5) + f + e + K + w[t2]) >>> 0;
+        e = d; d = c; c = rol(b, 30) >>> 0; b = a; a = temp >>> 0;
+      }
+      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0; H[4] = (H[4] + e) >>> 0;
+    }
+    var out = '';
+    for (var k = 0; k < 5; k++) out += ('00000000' + (H[k] >>> 0).toString(16)).slice(-8);
+    return out;
+  }
+  function shaOf(str, algo) {
+    var sync = function () { return algo === 'SHA-1' ? sha1Sync(str) : sha256Sync(str); };
+    try {
+      if (typeof TextEncoder !== 'undefined' && crypto && crypto.subtle) {
+        return crypto.subtle.digest({ name: algo }, new TextEncoder().encode(str)).then(function (buf) {
+          return hex(buf);
+        }).catch(function () { return sync(); });
+      }
+    } catch (e) {}
+    return Promise.resolve(sync());
   }
   function hex(buf) {
     return Array.prototype.map.call(new Uint8Array(buf), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');

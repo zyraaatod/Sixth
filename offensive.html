@@ -24,6 +24,7 @@
     <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/></symbol>
     <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
     <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="ic-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22V3"/><path d="M4 4h16l-3 4 3 4H4"/></symbol>
     <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
     <symbol id="ic-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></symbol>
     <symbol id="ic-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></symbol>
@@ -93,7 +94,8 @@
         <a href="#pivoting"><span>09</span>Pivoting</a>
         <a href="#cheatsheet"><span>10</span>Cheatsheet</a>
         <a href="#praktik"><span>11</span>Lab Serangan</a>
-        <a href="#checklist"><span>12</span>Checklist</a>
+        <a href="#studikasus"><span>12</span>Studi Kasus Penuh</a>
+        <a href="#checklist"><span>13</span>Checklist</a>
       </aside>
 
       <div class="layout-main">
@@ -635,9 +637,129 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
           </div>
         </section>
 
+        <section class="section" id="studikasus">
+          <div class="sec-head">
+            <span class="sec-num">12 — studi kasus penuh</span>
+            <h2 class="sec-title">Contoh Penuh: Satu Engagement di <span class="accent">Tujuh Lapis OSI</span></h2>
+            <p class="sec-sub">Step-by-step super lengkap untuk satu skenario utuh: pentest terhadap <code class="inline">lab-web-01</code> (192.168.1.10) yang kamu ikuti <b>naik dari kabel sampai aplikasi</b> mengikuti model OSI. Tiap lapis menyumbang satu mata rantai serangan — physical, data link, network, transport, session, presentation, application. Klik <b>Jalankan</b> pada tiap lapis berurutan dan biarkan terminal sandbox membuktikan setiap langkahnya.</p>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 1 · Physical — Bit di Kabel</h3>
+              <p>Semua lalu lintas dimulai sebagai sinyal listrik di kabel tembaga. Lapisan physical mengurus sinyal, konektor, dan byte rate — ia tidak tahu soal IP maupun port, tetapi di sinilah setiap serangan dan setiap forensik <em>benar-benar</em> terjadi. Tujuan penyerang: memastikan host merespons di lapisan terendah. <code class="inline">tcpdump</code> menangkap paket mentah untuk membuktikan percakapan jaringan sungguhan mengalir lewat kartu <code class="inline">eth0</code>.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="tcpdump -i eth0 -c 4"><svg><use href="#ic-terminal"/></svg>Tangkap di Kabel</button>
+                <code class="run-hint">tcpdump -i eth0 -c 4</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 2 · Data Link — MAC &amp; Frame</h3>
+              <p>Frame Ethernet membawa alamat MAC — identitas kartu jaringan milik kita dan target. MAC kamu <code class="inline">00:0c:29:3a:2b:1e</code> (kartu virtual VMware), dan <code class="inline">nmap -sn</code> mengungkap MAC host target hingga <em>bukan</em> milik kita. Serangan seperti ARP spoofing / man-in-the-middle bekerja persis di lapis ini; begitu pula sniffing pasif ala Wireshark/bettercap.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ip a"><svg><use href="#ic-terminal"/></svg>MAC NIC Sendiri</button>
+                <code class="run-hint">ip a</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sn 192.168.1.10"><svg><use href="#ic-terminal"/></svg>MAC Host Target</button>
+                <code class="run-hint">nmap -sn 192.168.1.10</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 3 · Network — IP, Routing, Reachability</h3>
+              <p>Lapisan network menghubungkan host lewat <strong>IP, subnet, dan rute</strong>: jaringan <code class="inline">192.168.1.0/24</code> dengan gateway <code class="inline">192.168.1.1</code>, ditambah host rekan yang terdaftar di <code class="inline">/etc/hosts</code>. Di lapis ini penyerang membangun peta: <code class="inline">ip route</code> menunjukkan jalur keluar, dan <code class="inline">ping</code> (ICMP) memastikan <code class="inline">lab-web-01</code> hidup sebelum engagemen berlanjut.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ip route && cat /etc/hosts && ping 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Rute + Peta + Probe ICMP</button>
+                <code class="run-hint">ip route && cat /etc/hosts && ping 192.168.1.10</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 4 · Transport — Port &amp; Handshake TCP</h3>
+              <p>Lapisan transport adalah <em>pintu</em>: TCP/UDP + nomor port, lengkap dengan handshake tiga langkah dan retransmisi. Port tertutup berarti pintu terkunci; port terbuka berarti pintu masuk. <code class="inline">nmap -sV</code> menemukan <strong>port 22 (SSH), 80 (HTTP), 443 (HTTPS), 3306 (MySQL), 6379 (Redis)</strong> berikut versi layanannya — amunisi untuk langkah berikutnya.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sV 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Scan Port &amp; Versi</button>
+                <code class="run-hint">nmap -sV 192.168.1.10</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 5 · Session — Menjalin Sesi SSH</h3>
+              <p>Lapisan session mengatur kapan percakapan dibuka, dipertahankan, dan ditutup — SSH adalah contoh sempurna: ia juga mengenkripsi, tetapi yang menonjol adalah <strong>autentikasi dan state sesi</strong>. Penyerang menjalin sesi sebagai <code class="inline">webadmin</code> (kredensial hasil cracking), lalu menggunakan skrip <code class="inline">/opt/backup.sh</code> yang salah izin untuk <strong>menaikkan sesi yang sama menjadi root</strong>.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ssh webadmin@lab-web-01"><svg><use href="#ic-terminal"/></svg>Buka Sesi SSH</button>
+                <code class="run-hint">ssh webadmin@lab-web-01</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="id && sudo /opt/backup.sh && whoami"><svg><use href="#ic-terminal"/></svg>Naikkan ke Root</button>
+                <code class="run-hint">id && sudo /opt/backup.sh && whoami</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 6 · Presentation — Hash, Encoding, Enkripsi</h3>
+              <p>Lapisan presentation mengatur <strong>bentuk data</strong>: encoding, hashing, enkripsi, kompresi. Kredensial tidak pernah disimpan apa adanya — <code class="inline">webadmin:chicken</code> tersimpan sebagai hash MD5 yang kita pecahkan dengan John. Payload pun dikodekan <code class="inline">base64</code> agar lolos pemfilteran. Menangani "representasi data" adalah pekerjaan penuh di tiap engagement.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="john lab/hashes.txt"><svg><use href="#ic-terminal"/></svg>Pecah Hash MD5</button>
+                <code class="run-hint">john lab/hashes.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="base64 chicken && base64 -d Y2hpY2tlbg=="><svg><use href="#ic-terminal"/></svg>Encode ↔ Decode</button>
+                <code class="run-hint">base64 chicken && base64 -d Y2hpY2tlbg==</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>Lapis 7 · Application — SQLi Meruntuhkan Web</h3>
+              <p>Puncak rantai: semua lapisan di bawah bekerja agar serangan berhasil sampai di <strong>aplikasi web</strong>. Injeksi pada parameter <code class="inline">id</code> dieksploitasi penuh oleh <code class="inline">sqlmap</code> — seluruh database runtuh. Di lapis ini bukti kemenangan diambil, flag diklaim, dan misi direkap. Pentesting web bukan hanya soal payload: ia berdiri di atas tujuh lapis sekaligus.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dump"><svg><use href="#ic-terminal"/></svg>Eksekusi SQLi</button>
+                <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dump</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/flag-web.txt && flag FLAG{lab-web-01} && score"><svg><use href="#ic-terminal"/></svg>Bukti &amp; Klaim Misi</button>
+                <code class="run-hint">cat lab/flag-web.txt && flag FLAG{lab-web-01} && score</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-success" style="margin-top:26px">
+            <svg><use href="#ic-flag"/></svg>
+            <div><strong>Satu Rantai, Tujuh Lapis</strong><p>Engagement ini merentang dari bit di kabel (physical) sampai SQLi di aplikasi web (application): pemetaan MAC dan network, scanning transport, sesi SSH, cracking hash, hingga encoding payload. Tiap lapis menyumbang satu mata rantai. Kekuatan blue team justru kebalikannya — mereka menutup lubang di setiap lapis, dari firewall hingga validasi input, sehingga tidak ada satu lapis pun yang bisa dimanfaatkan.</p></div>
+          </div>
+        </section>
+
         <section class="section" id="checklist">
           <div class="sec-head">
-            <span class="sec-num">12 — prosedur</span>
+            <span class="sec-num">13 — prosedur</span>
             <h2 class="sec-title">Checklist Offensive <span class="accent">Workflow</span></h2>
           </div>
           <div class="grid-3">
