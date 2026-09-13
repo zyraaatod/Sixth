@@ -649,7 +649,35 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
           <div class="sec-head">
             <span class="sec-num">11 — studi kasus penuh</span>
             <h2 class="sec-title">Contoh Penuh: Satu Insiden di <span class="accent">Tujuh Lapis OSI</span></h2>
-            <p class="sec-sub">Skenario yang sama — SQL injection dari <code class="inline">45.155.205.11</code> terhadap <code class="inline">lab-web-01</code> — kini ditelusuri <b>naik dari kabel sampai aplikasi</b> dari sisi pertahanan. Tidak seperti penyerang, analis blue team harus menggali bukti di setiap lapis: frame di kabel, MAC, firewall, port C2, sesi SSH, integritas bukti, hingga baris log aplikasi. Klik <b>Jalankan</b> pada tiap lapis berurutan untuk menyaksikan forensiknya.</p>
+            <p class="sec-sub">Skenario yang sama — SQL injection dari <code class="inline">45.155.205.11</code> terhadap <code class="inline">lab-web-01</code> — kini ditelusuri <b>dari awal sampai akhir</b>, naik dari kabel menuju aplikasi, dari sisi pertahanan: <b>frame di kabel (physical) → MAC (data link) → alert IDS &amp; firewall (network) → port C2 (transport) → sesi SSH penyerang (session) → integritas &amp; payload tersandi (presentation) → korelasi log &amp; containment (application)</b>. Seluruh investigasinya tertulis utuh di <b>transkrip penuh</b> di bawah — bukti asli dari log sandbox — dan kamu boleh menjalankan ulang tiap langkah lewat tombol <b>Jalankan</b> pada tiap lapis.</p>
+          </div>
+
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">transkrip-penuh — insiden IR #19 · SQLi lab-web-01 (awal→akhir)</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-comment"># ===== AWAL — alert SIEM 03:19: SQL injection lab-web-01, IP 45.155.205.11 =====</span>
+<span class="t-prompt">student@cyberguard:~$</span> tcpdump -i eth0 -c 4                    <span class="t-comment"># L1 physical</span>
+<span class="t-dim">IP 192.168.1.100.53218 &gt; 45.155.205.11.4444: Flags [S.] · 4 packets captured</span>
+<span class="t-prompt">student@cyberguard:~$</span> ip a &amp;&amp; nmap -sn 192.168.1.10              <span class="t-comment"># L2 data link</span>
+<span class="t-dim">eth0 ether 00:0c:29:3a:2b:1e (VMware) · target MAC 00:0C:29:3A:2B:1E</span>
+<span class="t-prompt">student@cyberguard:~$</span> cat /var/log/suricata/fast.log             <span class="t-comment"># L3 network</span>
+<span class="t-hot">[1:2026807] ET MALWARE Metasploit x86 Mettle 192.168.1.100 -&gt; 45.155.205.11:4444</span>
+<span class="t-prompt">student@cyberguard:~$</span> iptables -L -n
+<span class="t-dim">Chain INPUT (policy DROP) · Chain FORWARD (policy DROP) · OUTPUT ACCEPT</span>
+<span class="t-prompt">student@cyberguard:~$</span> ss &amp;&amp; netstat                              <span class="t-comment"># L4 transport</span>
+<span class="t-hot">ESTAB 192.168.1.100:53218 -&gt; 45.155.205.11:4444  [attacker/C2]</span>
+<span class="t-prompt">student@cyberguard:~$</span> lastlog &amp;&amp; last &amp;&amp; journalctl -u ssh | tail -5  <span class="t-comment"># L5 session</span>
+<span class="t-hot">webadmin pts/1 45.155.205.11 12/Feb 03:16:55  [ATTACKER] — sesi 03:17-03:17</span>
+<span class="t-prompt">student@cyberguard:~$</span> sha256sum /var/log/auth.log &amp;&amp; sha256sum /var/log/access.log  <span class="t-comment"># L6 presentation</span>
+<span class="t-dim">976e758b...7fb5 auth.log · 453e103d...6bf1 access.log (integritas aman)</span>
+<span class="t-prompt">student@cyberguard:~$</span> grep sqlmap /var/log/access.log
+<span class="t-dim">GET /index.php?id=1%27%20OR%20%271%27=%271 · "sqlmap/1.7" · 03:18:02</span>
+<span class="t-prompt">student@cyberguard:~$</span> grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c
+<span class="t-hot">8 45.155.205.11 — satu-satunya asal brute force &amp; login sukses</span>
+<span class="t-prompt">student@cyberguard:~$</span> ufw deny from 45.155.205.11 &amp;&amp; iptables -A INPUT -s 45.155.205.11 -j DROP
+<span class="t-ok">IP 45.155.205.11 diblok · DROP semua lalu lintas dari IP tersebut</span>
+<span class="t-prompt">student@cyberguard:~$</span> flag FLAG{blue-team} &amp;&amp; score
+<span class="t-ok">FLAG{blue-team} — DIKLAIM  (+1 poin: Deteksi Bruteforce SOC) · Flag 1/4</span>
+<span class="t-comment"># ===== AKHIR — containment selesai &amp; misi blue team tercatat =====</span></pre></div>
           </div>
 
           <div class="praktik">

