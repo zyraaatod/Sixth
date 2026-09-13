@@ -20,6 +20,7 @@ Dari **nol** sampai **profesional**: fundamental, katalog 60+ tools, teknik *off
 </p>
 
 <p>
+  <a href="https://zyraaatod.github.io/Sixth/" target="_blank"><img src="https://img.shields.io/badge/🌐%20Dekat%20Situs%20Live-00E5A0?style=for-the-badge&logo=githubpages&logoColor=white" alt="Situs Live GitHub Pages" /></a>
   <a href="#-mulai-cepat"><img src="https://img.shields.io/badge/🚀%20Mulai%20Belajar-00E5A0?style=for-the-badge" alt="Mulai" /></a>
   <a href="#-terminal-sandbox"><img src="https://img.shields.io/badge/💻%20Coba%20Terminal-111827?style=for-the-badge" alt="Terminal" /></a>
   <a href="https://github.com/zyraaatod/Sixth/issues"><img src="https://img.shields.io/badge/🐛%20Laporkan%20Bug-dc2626?style=for-the-badge" alt="Laporkan Bug" /></a>
