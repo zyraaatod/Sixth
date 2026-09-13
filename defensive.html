@@ -62,6 +62,7 @@
           </div>
         </li>
         <li><a class="nav-link" href="tools.html">Tools</a></li>
+        <li><a class="nav-link" href="quiz.html">Kuis</a></li>
         <li><a class="nav-link" href="careers.html">Karir</a></li>
       </ul>
       <button class="term-btn" type="button" data-term-toggle aria-label="Buka terminal"><svg><use href="#ic-terminal"/></svg></button>
@@ -93,7 +94,8 @@
         <a href="#malware"><span>07</span>Malware &amp; Forensik</a>
         <a href="#framework"><span>08</span>Framework Blue Team</a>
         <a href="#soclab"><span>09</span>Simulasi SOC</a>
-        <a href="#quiz"><span>10</span>Kuis</a>
+        <a href="#praktik"><span>10</span>Lab Blue Team</a>
+        <a href="#quiz"><span>11</span>Kuis</a>
       </aside>
 
       <!-- ============ CONTENT ============ -->
@@ -467,7 +469,7 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
         <!-- SOC LAB -->
         <section class="section" id="soclab">
           <div class="sec-head">
-            <span class="sec-num">09 — praktik</span>
+            <span class="sec-num">09 — simulasi SOC</span>
             <h2 class="sec-title">Simulasi Kerja <span class="accent">Analis SOC</span></h2>
             <p class="sec-sub">Ketik perintah di terminal interaktif di bawah — sebagian besar adalah query dan perintah yang berulang dipakai analis saat triage dan hunting.</p>
           </div>
@@ -498,20 +500,22 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
         <!-- ============ PRAKTIKUM ============ -->
         <section class="section" id="praktik">
           <div class="sec-head">
-            <span class="sec-num">sesi praktikum</span>
-            <h2 class="sec-title">Praktik Langsung: <span class="accent">Hari Pertamamu sebagai Analis SOC</span></h2>
-            <p class="sec-sub">Ini simulasi tugas analis: telusuri jejak brute force di log, verifikasi integritas bukti, dan petakan aset jaringan. Klik <b>Jalankan</b> atau ketik sendiri — sumber datanya tersedia di sandbox.</p>
+            <span class="sec-num">10 — lab blue team</span>
+            <h2 class="sec-title">Lab Blue Team: <span class="accent">Satu Skema Insiden End-to-End</span></h2>
+            <p class="sec-sub">Jam 03:19. SIEM kamu membunyikan alarm: <strong>SQL injection</strong> terhadap lab-web-01 dari IP asing. Kamu analis SOC shift malam — tangani dari triage sampai laporan, noktah demi noktah: <b>alert → analisis → bukti → IOC → containment → forensik → pulih &amp; belajar</b>. Klik <b>Jalankan</b> berurutan di terminal sandbox; semua data berasal dari log lab.</p>
           </div>
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>1. Deteksi: Membaca Jejak Brute Force</h3>
-              <p>Analis SOC mulai dari log. Filter <code class="inline">/var/log/auth.log</code> dengan <code class="inline">grep</code> untuk baris <code class="inline">Failed password</code>: IP, user yang dicoba, dan port asal. Lalu bandingkan dengan baris <code class="inline">Accepted password</code> untuk mengetahui apakah penyerang pernah berhasil login.</p>
+              <h3>1. Triage Alert — Gagal Login Membanjir</h3>
+              <p>Tier 1 mulai dari memvalidasi alert, bukan langsung percaya jumlah flashing. <code class="inline">grep 'Failed password'</code> di <code class="inline">/var/log/auth.log</code> memperlihatkan serangan brute force SSH dari <strong>satu sumber IP</strong>; lalu periksa <code class="inline">Accepted password</code> — satu baris untuk <code class="inline">webadmin</code> dari IP yang sama berarti penyerang <strong>berhasil masuk</strong>. Alert naik kelas jadi insiden.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>Jejak Gagal</button>
+                <button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>Jejak Login Gagal</button>
                 <code class="run-hint">grep 'Failed password' /var/log/auth.log</code>
+              </div>
+              <div class="run-line">
                 <button class="run-btn" type="button" data-run="grep 'Accepted password' /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>Login Berhasil?</button>
                 <code class="run-hint">grep 'Accepted password' /var/log/auth.log</code>
               </div>
@@ -520,72 +524,128 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>2. Verifikasi Integritas Forensik</h3>
-              <p>Setiap artefak bukti harus utuh sejak dikumpulkan. Hitung <code class="inline">sha256sum</code> atas berkas bukti. Cek juga peta aset jaringan lewat <code class="inline">/etc/hosts</code> — dasar tim response untuk mengisolasi sistem yang terinfeksi.</p>
+              <h3>2. Analisis Korelasi — Siapa &amp; dari Mana</h3>
+              <p>Komposisi shell mengubah log mentah menjadi temuan: ekstrak kolom user (<code class="inline">awk '{print $9}'</code>) dan IP asal (<code class="inline">awk '{print $11}'</code>), lalu <code class="inline">sort | uniq -c</code> untuk menghitung kekerapan. Kesimpulan Triage: akun <code class="inline">root</code> paling banyak ditebak, semua berasal dari <code class="inline">45.155.205.11</code> — satu-satunya IP yang juga berhasil login.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="sha256sum /var/log/auth.log && cat /etc/hosts"><svg><use href="#ic-terminal"/></svg>Hash dan Hosts</button>
-                <code class="run-hint">sha256sum /var/log/auth.log && cat /etc/hosts</code>
+                <button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log | awk '{print $9}' | sort | uniq -c"><svg><use href="#ic-terminal"/></svg>Hitung per User</button>
+                <code class="run-hint">grep 'Failed password' /var/log/auth.log | awk '{print $9}' | sort | uniq -c</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c"><svg><use href="#ic-terminal"/></svg>Hitung per IP</button>
+                <code class="run-hint">grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c</code>
               </div>
             </div>
           </div>
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>3. Asset dan User Enumeration Pihak Pertahanan</h3>
-              <p>Untuk mengukur risiko, tim blue juga mengenal lingkungan: user di <code class="inline">/etc/passwd</code>, sesi logon aktif via <code class="inline">who</code>, dan identitas kita sendiri via <code class="inline">id</code>. Mengetahui siapa yang boleh login adalah dasar kontrol akses — berkaitan dengan hardening identitas.</p>
+              <h3>3. Bukti Lapisan Web &amp; IDS — Serangan Bukan Cuma SSH</h3>
+              <p>Perluas pencarian lintas silo. <code class="inline">/var/log/access.log</code> menangkap UA <code class="inline">sqlmap/1.7</code> pada <code class="inline">?id=</code> — injeksi SQL sungguhan. <code class="inline">suricata/fast.log</code> menambah dua sinyal: <em>scan</em> ke MySQL dan — yang lebih serius — <code class="inline">Metasploit stage1</code> keluar dari host <code class="inline">192.168.1.100</code> ke <code class="inline">45.155.205.11:4444</code>. Sesuatu di jaringan sudah terkoneksi ke penyerang.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="cat /etc/passwd && who && id"><svg><use href="#ic-terminal"/></svg>Enum User</button>
-                <code class="run-hint">cat /etc/passwd && who && id</code>
+                <button class="run-btn" type="button" data-run="grep sqlmap /var/log/access.log"><svg><use href="#ic-terminal"/></svg>Log Web</button>
+                <code class="run-hint">grep sqlmap /var/log/access.log</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat /var/log/suricata/fast.log"><svg><use href="#ic-terminal"/></svg>Alert IDS</button>
+                <code class="run-hint">cat /var/log/suricata/fast.log</code>
               </div>
             </div>
           </div>
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>4. Telemetri: Mengukur dan Memetakan Permukaan</h3>
-              <p>SIEM tidak muncul begitu saja — telemetri berasal dari host. Periksa ukuran log (<code class="inline">wc -l</code>) sebagai indikator volume aktivitas. (Di dunia nyata gunakan netflow/EDR untuk deteksi, bukan scan agresif seperti contoh <code class="inline">nmap -sn</code> berikut.)</p>
+              <h3>4. Riwayat Login &amp; Koneksi Aktif — Konfirmasi Scope</h3>
+              <p>Analis Tier 2 menetapkan jangkauan kompromi. <code class="inline">lastlog</code> dan <code class="inline">last</code> menunjukkan <code class="inline">webadmin@pts/1</code> dari IP penyerang; <code class="inline">ss</code> (<code class="inline">journalctl -u ssh</code> sebagai pembanding) menampilkan koneksi <strong>ESTABLISHED ke 45.155.205.11:4444</strong> — kanal C2 yang masih hidup. Scope: akun webadmin terkompromi + host 192.168.1.100 punya koneksi keluar mencurigakan.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="wc -l /var/log/auth.log /var/log/syslog && nmap -sn 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Ukur dan Deteksi</button>
-                <code class="run-hint">wc -l /var/log/auth.log /var/log/syslog && nmap -sn 192.168.1.10</code>
+                <button class="run-btn" type="button" data-run="lastlog && last"><svg><use href="#ic-terminal"/></svg>Riwayat Login</button>
+                <code class="run-hint">lastlog && last</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ss && journalctl -u ssh | tail -5"><svg><use href="#ic-terminal"/></svg>Koneksi + Log SSH</button>
+                <code class="run-hint">ss && journalctl -u ssh | tail -5</code>
               </div>
             </div>
           </div>
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>5. SOC: Cari Jejak Serangan &amp; Klaim Flag</h3>
-              <p>Setelah deteksi, SOC profesional menelusuri <em>jejak</em>: siapa penyerang, dari jam berapa, berapa kali mencoba. <code class="inline">wc -l</code> di defensive sudah muncul — kini runtut dengan <code class="inline">grep</code> pola bruteforce dan <code class="inline">lastb</code>; buktikan flag SOC dengan <code class="inline">flag FLAG{blue-team}</code>.</p>
+              <h3>5. Indicator of Compromise — Rangkum Supaya Bisa Tindak Lanjut</h3>
+              <p>IOC adalah satu set bukti yang "diketikkan" ke dalam SIEM/EDR/firewall: IP sumber, daftar user yang ditebak, timestamp keberhasilan, dan pola aktivitas web. <code class="inline">lab/ioc-list.txt</code> merangkum temuan skema ini — jadikan contoh bagaimana kamu menyusun daftar IOC milikmu sendiri saat insiden nyata.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log | head -20"><svg><use href="#ic-terminal"/></svg>Jejak Bruteforce</button>
-                <code class="run-hint">grep 'Failed password' /var/log/auth.log | head -20</code>
-              </div>
-              <div class="run-line">
-                <button class="run-btn" type="button" data-run="lastb"><svg><use href="#ic-terminal"/></svg>Login Gagal Terakhir</button>
-                <code class="run-hint">lastb</code>
-              </div>
-              <div class="run-line">
-                <button class="run-btn" type="button" data-run="flag FLAG{blue-team}"><svg><use href="#ic-terminal"/></svg>Klaim Flag SOC</button>
-                <code class="run-hint">flag FLAG{blue-team}</code>
-              </div>
-              <div class="run-line">
-                <button class="run-btn" type="button" data-run="score"><svg><use href="#ic-terminal"/></svg>Lihat Skor</button>
-                <code class="run-hint">score</code>
+                <button class="run-btn" type="button" data-run="cat lab/ioc-list.txt"><svg><use href="#ic-terminal"/></svg>Baca Daftar IOC</button>
+                <code class="run-hint">cat lab/ioc-list.txt</code>
               </div>
             </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>6. Containment — Pangkas Akses Penyerang</h3>
+              <p>Fase containment menghentikan perdarahan tanpa menghancurkan bukti. Blokir seluruh lalu lintas dari IP penyerang di dua lapis sekaligus: <code class="inline">ufw deny from</code> (host) dan <code class="inline">iptables -A INPUT</code> (edge). Verifikasi aturan aktif dengan <code class="inline">ufw status verbose</code> dan <code class="inline">iptables -L -n</code> sebelum melanjutkan ke pembersihan.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ufw deny from 45.155.205.11"><svg><use href="#ic-terminal"/></svg>Blokir via UFW</button>
+                <code class="run-hint">ufw deny from 45.155.205.11</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="iptables -A INPUT -s 45.155.205.11 -j DROP"><svg><use href="#ic-terminal"/></svg>Blokir via IPTABLES</button>
+                <code class="run-hint">iptables -A INPUT -s 45.155.205.11 -j DROP</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ufw status verbose && iptables -L -n"><svg><use href="#ic-terminal"/></svg>Verifikasi Aturan</button>
+                <code class="run-hint">ufw status verbose && iptables -L -n</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>7. Forensik &amp; Pemulihan — Bukti Utuh, Lalu Belajar</h3>
+              <p>Segel bukti sebelum membersihkan: <code class="inline">sha256sum</code> atas log memberi sidik jari integritas untuk chain of custody. Rencana pulih mengikuti siklus IR: reset kredensial, patch, restore dari backup bersih, lalu <em>lessons learned</em> — kerangka laporannya sudah tersedia di <code class="inline">lab/ir-report-template.md</code>.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sha256sum /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>Integritas Bukti</button>
+                <code class="run-hint">sha256sum /var/log/auth.log</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/ir-report-template.md"><svg><use href="#ic-terminal"/></svg>Kerangka Laporan</button>
+                <code class="run-hint">cat lab/ir-report-template.md</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>8. Klaim Flag SOC &amp; Rekap</h3>
+              <p>Skema tuntas: deteksi terkonfirmasi (akun webadmin dari 45.155.205.11), bukti lengkap, containment aktif, dan pemulihan direncanakan. Klaim <code class="inline">FLAG{blue-team}</code> sebagai penanda kamu berhasil menuntaskan misi deteksi, lalu <code class="inline">score</code> untuk menilik keseluruhan papan skor lab.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/flag-blue.txt && flag FLAG{blue-team} && score"><svg><use href="#ic-terminal"/></svg>Baca &amp; Klaim Flag</button>
+                <code class="run-hint">cat lab/flag-blue.txt && flag FLAG{blue-team} && score</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warn" style="margin-top:26px">
+            <svg><use href="#ic-alert"/></svg>
+            <div><strong>Golden Rule IR</strong><p>Jangan reinstall atau mematikan host sebelum forensik selesai — memory, proses, dan koneksi aktif adalah bukti paling rapuh. Containment yang baik (blokir di jaringan, seperti contoh di atas) menghentikan penyerang tanpa menghancurkan jejak.</p></div>
           </div>
         </section>
 
         <section class="section" id="quiz">
           <div class="sec-head">
-            <span class="sec-num">10 — uji pemahaman</span>
+            <span class="sec-num">11 — uji pemahaman</span>
             <h2 class="sec-title">Kuis Singkat: <span class="accent">Seberapa Siap Bertahan?</span></h2>
             <p class="sec-sub">Lima pertanyaan untuk memvalidasi pemahamanmu tentang operasi blue team. Pilih jawaban dan baca umpan baliknya.</p>
           </div>
@@ -669,6 +729,7 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
           <li><a href="defensive.html">Defensive Security</a></li>
           <li><a href="methodology.html">Metodologi Pentest</a></li>
           <li><a href="careers.html">Jalur Karir</a></li>
+          <li><a href="quiz.html">Kuis Interaktif</a></li>
         </ul>
       </div>
       <div>

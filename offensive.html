@@ -60,6 +60,7 @@
           </div>
         </li>
         <li><a class="nav-link" href="tools.html">Tools</a></li>
+        <li><a class="nav-link" href="quiz.html">Kuis</a></li>
         <li><a class="nav-link" href="careers.html">Karir</a></li>
       </ul>
       <button class="term-btn" type="button" data-term-toggle aria-label="Buka terminal"><svg><use href="#ic-terminal"/></svg></button>
@@ -91,7 +92,8 @@
         <a href="#network"><span>08</span>Serangan Jaringan</a>
         <a href="#pivoting"><span>09</span>Pivoting</a>
         <a href="#cheatsheet"><span>10</span>Cheatsheet</a>
-        <a href="#checklist"><span>11</span>Checklist</a>
+        <a href="#praktik"><span>11</span>Lab Serangan</a>
+        <a href="#checklist"><span>12</span>Checklist</a>
       </aside>
 
       <div class="layout-main">
@@ -432,19 +434,32 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
         <!-- ============ PRAKTIKUM ============ -->
         <section class="section" id="praktik">
           <div class="sec-head">
-            <span class="sec-num">sesi praktikum</span>
-            <h2 class="sec-title">Praktik Langsung: <span class="accent">Menelusuri Kill Chain di Terminal</span></h2>
-            <p class="sec-sub">Empat fase inti penetrasi kini kamu eksekusi sendiri: reconnaissance, scanning, vulnerability assessment, dan pengumpulan bukti. Klik <b>Jalankan</b> di tiap langkah — semua aktivitas legal karena berjalan di lab sandbox terisolasi.</p>
+            <span class="sec-num">11 — lab serangan</span>
+            <h2 class="sec-title">Lab Serangan: <span class="accent">10 Langkah Estafet Penetrasi</span></h2>
+            <p class="sec-sub">Jalur serangan utuh dari otorisasi sampai laporan, langkah demi langkah di terminal sandbox. Klik <b>Jalankan</b> pada tiap noktah dan ikuti alurnya berurutan — tiap langkah mewarisi hasil langkah sebelumnya, persis engagement sungguhan. Semua legal: target adalah host lab di <code class="inline">roa.txt</code>.</p>
           </div>
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>1. Reconnaissance: Kenali Host Sebelum Menyerang</h3>
-              <p>Fase pertama kill chain dimulai dari buku alamat. <code class="inline">cat</code> pada daftar target dan <code class="inline">ping</code> untuk memastikan host hidup. Perhatikan: <code class="inline">kali-recon</code> (192.168.1.30) menolak ping — tanda bahwa jangan mengganggu host lain di lab.</p>
+              <h3>1. Rules of Engagement — Legalitas Dulu, Baru Menyerang</h3>
+              <p>Sebelum menyentuh target, seorang profesional membaca kontraknya: siapa pemilik aset, target mana yang masuk scope, dan apa yang dilarang. Di sandbox, <code class="inline">lab/roa.txt</code> memegang peran itu — catat bahwa <code class="inline">kali-recon</code> (192.168.1.30) <strong>dilarang</strong> disentuh. Tanpa otorisasi tertulis, insiden di atas hanyalah pelanggaran hukum.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="cd /home/student/lab && cat targets.txt && ping 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Recon Target</button>
+                <button class="run-btn" type="button" data-run="cat lab/roa.txt"><svg><use href="#ic-terminal"/></svg>Baca Otorisasi</button>
+                <code class="run-hint">cat lab/roa.txt</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>2. Reconnaissance — Kenali Medan Terlebih Dahulu</h3>
+              <p>Recon pasif dulu: <code class="inline">cat lab/targets.txt</code> memberi peta host latihan (mana target web, AD, dan DMZ). Lalu aktif: <code class="inline">ping</code> memastikan host hidup sebelum berlanjut. Perhatikan kalau <code class="inline">kali-recon</code> menolak ping — itu dirancang mengingatkanmu agar tidak menyapu host di luar scope.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cd /home/student/lab && cat targets.txt && ping 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Peta + Cek Host</button>
                 <code class="run-hint">cd /home/student/lab && cat targets.txt && ping 192.168.1.10</code>
               </div>
             </div>
@@ -452,13 +467,15 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>2. Scanning dan Enumeration: Peta Layanan</h3>
-              <p>Setelah target hidup, petakan layanannya. <code class="inline">nmap -sV</code> mengungkap versi layanan di port terbuka; bocoran versi adalah pintu masuk ke exploit yang cocok. Scan ke host Windows memperlihatkan port SMB (445) dan RDP (3389) — sasaran umum lateral movement.</p>
+              <h3>3. Scanning — Petakan Layanan &amp; Versi</h3>
+              <p>Prinsip emas pentest: <em>enumeration is everything</em>. <code class="inline">nmap -sV</code> mengungkap port terbuka berikut versi layanannya — versi adalah kunci menuju exploit yang cocok (nanti dipasangkan lewat <code class="inline">searchsploit</code>). Scan kedua menyasar host AD <code class="inline">win-srv-01</code>: SMB (445) dan RDP (3389) adalah dua sasaran paling umum di lingkungan korporat.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
                 <button class="run-btn" type="button" data-run="nmap -sV 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Scan Web Server</button>
                 <code class="run-hint">nmap -sV 192.168.1.10</code>
+              </div>
+              <div class="run-line">
                 <button class="run-btn" type="button" data-run="nmap -p 135,139,445,3389,5985 192.168.1.20"><svg><use href="#ic-terminal"/></svg>Scan AD Server</button>
                 <code class="run-hint">nmap -p 135,139,445,3389,5985 192.168.1.20</code>
               </div>
@@ -467,13 +484,32 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>3. Vulnerability Assessment: Bukti Injeksi SQL</h3>
-              <p>Pemindaian versi memperlihatkan aplikasi web. Langkah berikutnya menguji parameter untuk SQL injection dengan SQLMap: mendata database (<code class="inline">--dbs</code>), lalu mengekstrak data (<code class="inline">--dump</code>) sebagai bukti terdokumentasi — mirip seri walkthrough SQLi di atas.</p>
+              <h3>4. Enumerasi Web — Buka Permukaannya</h3>
+              <p>Web app adalah pintu masuk paling umum. <code class="inline">gobuster</code> memetakan direktori tersembunyi; <code class="inline">nikto</code> menebar masalah konfigurasi (directory listing terbuka, security headers hilang). Hasil cisplang ini menentukan langkah berikut: parameter <code class="inline">?id=</code> pada search tampak dinamis — kandidat ideal uji injeksi.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt"><svg><use href="#ic-terminal"/></svg>Gobuster Dir</button>
+                <code class="run-hint">gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nikto -h http://lab-web-01"><svg><use href="#ic-terminal"/></svg>Nikto</button>
+                <code class="run-hint">nikto -h http://lab-web-01</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>5. Exploit — Buktikan SQL Injection</h3>
+              <p>Parameter <code class="inline">id</code> digabung mentah ke query SQL (lihat <code class="inline">/opt/lab/index.php</code>). <code class="inline">sqlmap</code> menguji otomatis: mendata database (<code class="inline">--dbs</code>), lalu mengekstrak sampel (<code class="inline">--dump</code>) yang berisi <em>hash kredensial</em> user <code class="inline">admin</code> dan <code class="inline">webadmin</code>. Ingat batas profesional: cukup membuktikan dampak, <strong>bukan</strong> membawa seluruh data — sampel ini sudah menjadi bukti temuan.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
                 <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dbs --batch"><svg><use href="#ic-terminal"/></svg>SQLMap --dbs</button>
                 <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dbs --batch</code>
+              </div>
+              <div class="run-line">
                 <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dump"><svg><use href="#ic-terminal"/></svg>SQLMap --dump</button>
                 <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dump</code>
               </div>
@@ -482,54 +518,126 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>4. Pengumpulan Bukti yang Dapat Dipertanggungjawabkan</h3>
-              <p>Pentester profesional merekam setiap langkah dan menjaga integritas bukti. Hash memastikan berkas bukti tidak berubah sejak diambil: <code class="inline">sha256sum</code> menjadi sidik jari bukti, dan catatan scan di <code class="inline">scan1.txt</code> menjadi lampiran laporan.</p>
+              <h3>6. Cracking &amp; Klaim Flag Pertama</h3>
+              <p>Simpan output dump sebagai <em>evidence</em> (<code class="inline">&gt; lab/sqli-dump.txt</code>), lalu <code class="inline">john</code> menyelesaikan hash MD5 di dalamnya — <code class="inline">webadmin</code> ternyata memakai kata sandi <code class="inline">chicken</code>. Sekaligus uji <code class="inline">john lab/hashes.txt</code> untuk bukti hash lain. Misi web tuntas: baca flag lalu klaim dengan <code class="inline">flag FLAG{lab-web-01}</code>.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="cd /home/student/lab && cat scan1.txt && sha256sum scan1.txt"><svg><use href="#ic-terminal"/></svg>Bukti dan Hash</button>
-                <code class="run-hint">cd /home/student/lab && cat scan1.txt && sha256sum scan1.txt</code>
+                <button class="run-btn" type="button" data-run="cat lab/hashes.txt && john lab/hashes.txt"><svg><use href="#ic-terminal"/></svg>Crack Bukti Hash</button>
+                <code class="run-hint">cat lab/hashes.txt && john lab/hashes.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dump > lab/sqli-dump.txt && john lab/sqli-dump.txt"><svg><use href="#ic-terminal"/></svg>Simpan Dump + Crack</button>
+                <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dump > lab/sqli-dump.txt && john lab/sqli-dump.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/flag-web.txt && flag FLAG{lab-web-01} && score"><svg><use href="#ic-terminal"/></svg>Baca &amp; Klaim Flag</button>
+                <code class="run-hint">cat lab/flag-web.txt && flag FLAG{lab-web-01} && score</code>
               </div>
             </div>
           </div>
 
           <div class="praktik">
             <div class="praktik-explain">
-              <h3>5. Serangan Kredensial &amp; Klaim Flag</h3>
-              <p>Kredensial adalah sasaran paling sering dalam pentest realistis. <code class="inline">hydra</code> menguji kombinasi user + kata sandi terhadap SSH lab-web-01 dengan wordlist internal; <code class="inline">gobuster</code> memetakan direktori layanan web untuk menemukan path tersembunyi. Setelah bukti di tangan, klaim flag legal: <code class="inline">flag FLAG{lab-web-01}</code> — penanda kamu menyelesaikan misi dengan sah dan terdokumentasi (lampiran ROA).</p>
+              <h3>7. SSH &amp; Post-Exploitation — Masuk dengan Kredensial Hasil Crack</h3>
+              <p>Kredensial <code class="inline">chicken</code> hasil cracking kita pakai untuk masuk: <code class="inline">ssh webadmin@lab-web-01</code>. Di dalam, kumpulan <em>nilaian akses</em>: <code class="inline">id</code> (uid 1001), <code class="inline">cat ~/.backup.config</code> (sebuah bocoran kata sandi database — sumber masalah kredensial yang dikelola buruk), dan <code class="inline">sudo -l</code> yang menampilkan hak spesial: <code class="inline">NOPASSWD: /opt/backup.sh</code>. Itu halaman menu menuju privesc.</p>
             </div>
             <div class="praktik-play">
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="hydra -l webadmin -P /opt/lab/wordlists/passwords.txt ssh://lab-web-01"><svg><use href="#ic-terminal"/></svg>Hydra SSH</button>
-                <code class="run-hint">hydra -l webadmin -P /opt/lab/wordlists/passwords.txt ssh://lab-web-01</code>
+                <button class="run-btn" type="button" data-run="ssh webadmin@lab-web-01"><svg><use href="#ic-terminal"/></svg>Login SSH</button>
+                <code class="run-hint">ssh webadmin@lab-web-01</code>
               </div>
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt"><svg><use href="#ic-terminal"/></svg>Gobuster Dir</button>
-                <code class="run-hint">gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt</code>
+                <button class="run-btn" type="button" data-run="id && cat /home/webadmin/.backup.config"><svg><use href="#ic-terminal"/></svg>Identitas + Bocoran</button>
+                <code class="run-hint">id && cat /home/webadmin/.backup.config</code>
               </div>
               <div class="run-line">
-                <button class="run-btn" type="button" data-run="cat lab/flag-web.txt"><svg><use href="#ic-terminal"/></svg>Baca Flag</button>
-                <code class="run-hint">cat lab/flag-web.txt</code>
-              </div>
-              <div class="run-line">
-                <button class="run-btn" type="button" data-run="flag FLAG{lab-web-01}"><svg><use href="#ic-terminal"/></svg>Klaim Flag</button>
-                <code class="run-hint">flag FLAG{lab-web-01}</code>
-              </div>
-              <div class="run-line">
-                <button class="run-btn" type="button" data-run="score"><svg><use href="#ic-terminal"/></svg>Lihat Skor</button>
-                <code class="run-hint">score</code>
-              </div>
-              <div class="run-line">
-                <button class="run-btn" type="button" data-run="missions"><svg><use href="#ic-terminal"/></svg>Misi Terbuka</button>
-                <code class="run-hint">missions</code>
+                <button class="run-btn" type="button" data-run="sudo -l"><svg><use href="#ic-terminal"/></svg>Cek Hak Sudo</button>
+                <code class="run-hint">sudo -l</code>
               </div>
             </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>8. Privilege Escalation — Dari webadmin ke Root</h3>
+              <p>Enumerasi dulu: <code class="inline">linpeas</code> menyoroti dua temuan — <code class="inline">/opt/backup.sh</code> <em>world-writable</em> dan dijalankan <code class="inline">cron</code> sebagai root; konfirmasikan lewat <code class="inline">cat /etc/crontab</code>. Dengan hak sudo NOPASSWD kamu langsung bisa eksekusi: <code class="inline">sudo /opt/backup.sh</code>. Begitu <code class="inline">id</code> menunjukkan <code class="inline">uid=0(root)</code>, baca <code class="inline">/root/root.txt</code> yang hanya terbaca root, lalu klaim <code class="inline">FLAG{pwn-root}</code>. Rujuk GTFOBins untuk teknik tambahan seperti <code class="inline">find -exec</code>.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="linpeas"><svg><use href="#ic-terminal"/></svg>Enumerasi LinPEAS</button>
+                <code class="run-hint">linpeas</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat /etc/crontab"><svg><use href="#ic-terminal"/></svg>Lihat Cron Root</button>
+                <code class="run-hint">cat /etc/crontab</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sudo /opt/backup.sh"><svg><use href="#ic-terminal"/></svg>Eskalasi via Sudo</button>
+                <code class="run-hint">sudo /opt/backup.sh</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="id && whoami && cat /root/root.txt"><svg><use href="#ic-terminal"/></svg>Konfirmasi Root</button>
+                <code class="run-hint">id && whoami && cat /root/root.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="flag FLAG{pwn-root} && score"><svg><use href="#ic-terminal"/></svg>Klaim Flag Root</button>
+                <code class="run-hint">flag FLAG{pwn-root} && score</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>9. Pivoting — Jembatan ke Segmen DMZ</h3>
+              <p>Host yang kamu kuasai menjadi batu loncatan. Dari posisi ini petakan DMZ korporat <code class="inline">10.0.5.7</code>: <code class="inline">nmap -sV</code> memperlihatkan <code class="inline">ftp (vsftpd 3.0.3)</code> yang terpapar. Uji kredensial lemah standar dengan <code class="inline">hydra</code> — <code class="inline">guest:guest123</code> ternyata valid. Baca <code class="inline">lab/flag-internal.txt</code> dan klaim <code class="inline">FLAG{dmz-internal}</code>. Disiplin tetap berlaku: gerakan lateral di luar scope kontrak adalah pelanggaran serius.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sV 10.0.5.7"><svg><use href="#ic-terminal"/></svg>Scan Host DMZ</button>
+                <code class="run-hint">nmap -sV 10.0.5.7</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="hydra -l guest -P /opt/lab/wordlists/passwords.txt ftp://10.0.5.7"><svg><use href="#ic-terminal"/></svg>Hydra FTP</button>
+                <code class="run-hint">hydra -l guest -P /opt/lab/wordlists/passwords.txt ftp://10.0.5.7</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/flag-internal.txt && flag FLAG{dmz-internal} && score"><svg><use href="#ic-terminal"/></svg>Baca &amp; Klaim Flag DMZ</button>
+                <code class="run-hint">cat lab/flag-internal.txt && flag FLAG{dmz-internal} && score</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>10. Bukti &amp; Laporan — Produk Terpenting Pentester</h3>
+              <p>Engagement ditutup dengan catatan yang dapat dipertanggungjawabkan: rekam isi bukti temuan (<code class="inline">lab/evidence-sqli.txt</code>), jaga integritasnya dengan <code class="inline">sha256sum</code> sebagai sidik jari bukti, lalu rekap via <code class="inline">score</code>. Lihat <code class="inline">lab/ir-report-template.md</code> sebagai kerangka laporan final yang memuat temuan, severity, dan rekomendasi perbaikan yang dapat diuji.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ls -la lab && cat lab/evidence-sqli.txt"><svg><use href="#ic-terminal"/></svg>Rekap Bukti</button>
+                <code class="run-hint">ls -la lab && cat lab/evidence-sqli.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sha256sum lab/flag-web.txt && sha256sum lab/flag-internal.txt"><svg><use href="#ic-terminal"/></svg>Integritas Bukti</button>
+                <code class="run-hint">sha256sum lab/flag-web.txt && sha256sum lab/flag-internal.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="score && missions"><svg><use href="#ic-terminal"/></svg>Rekap Misi</button>
+                <code class="run-hint">score && missions</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warn" style="margin-top:26px">
+            <svg><use href="#ic-alert"/></svg>
+            <div><strong>Disiplin Scope</strong><p>Kesepuluh langkah sah karena berjalan di host yang terdaftar di <code class="inline">roa.txt</code>. Di engagement nyata kamu menghentikan pengujian begitu dampak terbukti, mendokumentasikan temuan, dan tidak pernah bergerak melewati batas kontrak.</p></div>
           </div>
         </section>
 
         <section class="section" id="checklist">
           <div class="sec-head">
-            <span class="sec-num">11 — prosedur</span>
+            <span class="sec-num">12 — prosedur</span>
             <h2 class="sec-title">Checklist Offensive <span class="accent">Workflow</span></h2>
           </div>
           <div class="grid-3">
@@ -603,6 +711,7 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
           <li><a href="defensive.html">Defensive Security</a></li>
           <li><a href="methodology.html">Metodologi Pentest</a></li>
           <li><a href="careers.html">Jalur Karir</a></li>
+          <li><a href="quiz.html">Kuis Interaktif</a></li>
         </ul>
       </div>
       <div>

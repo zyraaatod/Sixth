@@ -47,10 +47,23 @@
   /* ================= shell composition: pipes, redirection, chaining ================= */
   // _inp supplies stdin lines (array of strings) to the next piped command.
   function stdinLines() { return _inp ? _inp.slice() : null; }
+  // permission model (realistis, pedagogis): hanya root yang bisa baca /root, /etc/shadow, /etc/sudoers
+  function canRead(p) {
+    if (S.user === 'root' || S.host === 'win-srv-01') return true;
+    var ap = normalize(p);
+    if (ap === '/etc/shadow' || ap === '/etc/sudoers') return null;
+    if (ap === '/root' || ap.indexOf('/root/') === 0) return null;
+    if (S.user !== 'webadmin' && (ap.indexOf('/home/webadmin/') === 0)) return null;
+    return true;
+  }
   function readFileLines(p) {
+    if (canRead(p) === null) return null;
     var f = resolvePath(normalize(p.charAt(0) === '/' ? p : S.cwd + '/' + p));
     if (!f || f.dir || f.content == null) return null;
     return (f.content || '').split('\n');
+  }
+  function denyRead(a) {
+    addLine('cat: ' + a + ': Permission denied (lihat sudo -l / linpeas untuk eskalasi)', 't-hot');
   }
   function stripTrailEmptyLines(arr) {
     var out = arr.slice();
@@ -129,13 +142,21 @@
   }
   function seedFs() {
     var auth = [
+      'Feb 12 03:11:58 srv sshd[5489]: Failed password for root from 45.155.205.11 port 53391',
       'Feb 12 03:12:01 srv sshd[5512]: Failed password for root from 45.155.205.11 port 53412',
+      'Feb 12 03:12:14 srv sshd[5513]: Failed password for root from 45.155.205.11 port 53413',
       'Feb 12 03:13:02 srv sshd[5521]: Failed password for admin from 45.155.205.11 port 53414',
+      'Feb 12 03:13:48 srv sshd[5530]: Failed password for admin from 45.155.205.11 port 53415',
       'Feb 12 03:14:40 srv sshd[5544]: Failed password for backup from 45.155.205.11 port 53420',
       'Feb 12 03:15:03 srv sshd[5550]: Failed password for svc_deploy from 45.155.205.11 port 53421',
+      'Feb 12 03:15:58 srv sshd[5558]: Failed password for webadmin from 45.155.205.11 port 53429',
+      'Feb 12 03:16:55 srv sshd[5564]: Accepted password for webadmin from 45.155.205.11 port 53440',
+      'Feb 12 03:17:01 srv sshd[5565]: pam_unix(sshd:session): session opened for user webadmin by (uid=0)',
+      'Feb 12 03:17:04 srv sshd[5565]: pam_unix(sshd:session): session closed for user webadmin',
       'Feb 12 04:01:22 srv sshd[5601]: Accepted password for webadmin from 192.168.1.50 port 51234'
     ].join('\n') + '\n';
     var root = node('/', true);
+    root.ver = 2;
     var home = node('home', true); root.children.home = home;
     var student = node('student', true); home.children.student = student;
     var lab = node('lab', true);
@@ -184,9 +205,39 @@
       '   Flag file: lab/flag-blue.txt\n' +
       '3. Pivoting DMZ    : kenali 10.0.5.7 lewat port/ftp setelah otorisasi.\n' +
       '   Flag file: lab/flag-internal.txt\n' +
+      '4. Privesc (lanjut): ssh webadmin@lab-web-01 -> sudo -l -> abuse backup.sh.\n' +
+      '   Flag file: /root/root.txt (baca sebagai root)\n' +
       '\n' +
       'Di terminal: token untuk mengklaim adalah nilai FLAG{...} dari file di atas.\n' +
       'Gunakan: missions | cat lab/missions.txt | flag <FLAG{...}> | score\n');
+    lab.children['evidence-sqli.txt'] = node('evidence-sqli.txt', false,
+      'BUKTI TEMUAN — SQL Injection pada lab-web-01 (sampel terbatas sesuai scope)\n' +
+      '======================================================================\n' +
+      'Pemohon    : pentest internal — ROA: lab/roa.txt\n' +
+      'Target     : http://lab-web-01/search?id=1 (192.168.1.10)\n' +
+      'Teknik     : boolean blind + UNION (sqlmap 1.7)\n' +
+      'Dampak     : membaca skema DB "shop" + hash user admin md5\n' +
+      'Bukti      : sqlmap --dbs -> information_schema, shop\n' +
+      '             sqlmap --dump -> admin/21232f29..., webadmin/742929dc...\n' +
+      'Status     : CUKUP untuk membuktikan dampak; TIDAK melakukan eksfiltrasi lanjutan.\n');
+    lab.children['ir-report-template.md'] = node('ir-report-template.md', false,
+      '# LAPORAN INSIDEN\n' +
+      '=================\n' +
+      '1. Ringkasan (TLP)      : LOC / CIOC, kategori, jumlah host.\n' +
+      '2. Timeline             : deteksi -> triase -> containment.\n' +
+      '3. Bukti & IOC          : IP, user, hash, log yang relevan.\n' +
+      '4. Tindakan yang diambil: blokir, reset, pemulihan.\n' +
+      '5. Akar masalah          : service terbuka, kredensial lemah, dsb.\n' +
+      '6. Rekomendasi          : perbaikan yang dapat diuji (patch, playbook baru).\n');
+    lab.children['ioc-list.txt'] = node('ioc-list.txt', false,
+      'INDICATOR OF COMPROMISE — bruteforce SSH 45.155.205.11 (12/02/2026)\n' +
+      '-----------------------------------------------------------------\n' +
+      'src_ip        : 45.155.205.11\n' +
+      'user_attempts : root, admin, backup, svc_deploy, webadmin\n' +
+      'success       : webadmin @ 03:16:55 (Accepted password)\n' +
+      'web_activity  : sqlmap terhadap /index.php?id= (03:18-03:19)\n' +
+      'indicators    : surveil portal admin, phpmyadmin (403/404)\n' +
+      'HASH bukti    : lihat lab/laporan -> sha256sum /var/log/auth.log\n');
     lab.children['notes.txt'] = node('notes.txt', false,
       'catatan praktikum: (folder /home/student/lab)\n' +
       '- hash sha256 memakai crypto.subtle (asli di browser).\n' +
@@ -197,23 +248,69 @@
     var varlog = node('log', true);
     var v = node('var', true); v.children.log = varlog;
     root.children.var = v;
-    varlog.auth = node('auth.log', false, auth);
-    varlog.syslog = node('syslog', false,
-      'kernel: [12345.678] audit: type=1400 apparmor="DENIED" ...\n' +
-      'kernel: [12346.012] firewall: DROP IN:inet 185.220.101.4 OUT\n');
+    varlog.children['auth.log'] = node('auth.log', false, auth);
+    varlog.children['access.log'] = node('access.log', false,
+      '192.168.1.50 - - [12/Feb/2026:03:00:01 +0700] "GET / HTTP/1.1" 200 3480 "-" "Mozilla/5.0"\n' +
+      '45.155.205.11 - - [12/Feb/2026:03:18:02 +0700] "GET /index.php?id=1%27%20OR%20%271%27=%271 HTTP/1.1" 500 512 "-" "sqlmap/1.7"\n' +
+      '45.155.205.11 - - [12/Feb/2026:03:18:45 +0700] "GET /index.php?id=1%20UNION%20SELECT%201,2,3-- HTTP/1.1" 200 4982 "-" "sqlmap/1.7"\n' +
+      '45.155.205.11 - - [12/Feb/2026:03:19:12 +0700] "POST /login.php HTTP/1.1" 200 2891 "-" "sqlmap/1.7"\n' +
+      '45.155.205.11 - - [12/Feb/2026:03:20:31 +0700] "GET /admin/ HTTP/1.1" 403 2891 "-" "Mozilla/5.0"\n' +
+      '45.155.205.11 - - [12/Feb/2026:03:21:00 +0700] "GET /phpmyadmin/ HTTP/1.1" 404 2891 "-" "Mozilla/5.0"\n' +
+      '192.168.1.50 - - [12/Feb/2026:03:25:44 +0700] "GET /assets/app.js HTTP/1.1" 200 8812 "-" "Mozilla/5.0"\n');
+    var surilog = node('suricata', true);
+    varlog.children.suricata = surilog;
+    surilog.children['fast.log'] = node('fast.log', false,
+      '02/12/2026-03:19:07.114 [**] [1:2020001:5] ET SCAN Suspicious inbound to MSSQL [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 45.155.205.11:39921 -> 192.168.1.10:3306\n' +
+      '02/12/2026-03:22:10.114 [**] [1:2026807:4] ET MALWARE Possible Metasploit x86 Linux Mettle (stage1) [**] [Classification: A Network Trojan was detected] [Priority: 1] {TCP} 192.168.1.100:53218 -> 45.155.205.11:4444\n' +
+      '02/12/2026-03:22:11.982 [**] [1:2020002:3] ET POLICY Suspicious TLS to unknown domain q.x7b8.fun [**] [Priority: 2] {TCP} 192.168.1.100:44315 -> 45.155.205.11:443\n');
+    varlog.children.syslog = node('syslog', false,
+      'kernel: [12345.678] audit: type=1400 apparmor="DENIED" operation="exec" info="Failed name lookup"\n' +
+      'kernel: [12346.012] firewall: DROP IN=eth0 OUT= MAC=00:0c:29:3a:2b:1e SRC=45.155.205.11 DST=192.168.1.10 PROTO=TCP DPT=3306\n' +
+      'Feb 12 03:22:12 srv cron[1288]: (student) CMD (/opt/backup.sh)\n');
     var etc = node('etc', true); root.children.etc = etc;
-    etc.hosts = node('hosts', false, '127.0.0.1  localhost\n192.168.1.10  lab-web-01\n192.168.1.20  win-srv-01\n');
-    etc.passwd = node('passwd', false,
+    etc.children.hosts = node('hosts', false, '127.0.0.1  localhost\n192.168.1.10  lab-web-01\n192.168.1.20  win-srv-01\n10.0.5.7    lab-internal-01\n');
+    etc.children.passwd = node('passwd', false,
       'root:x:0:0:root:/root:/bin/bash\n' +
       'student:x:1000:1000:Student Lab:/home/student:/bin/bash\n' +
-      'webadmin:x:1001:1001::/home/webadmin:/bin/bash\n');
+      'webadmin:x:1001:1001::/home/webadmin:/bin/bash\n' +
+      'backup:x:1002:1002::/home/backup:/usr/sbin/nologin\n');
+    etc.children.shadow = node('shadow', false,
+      'root:$6$rounds=656000$labroot$wq3r9H/Edht9u1aAz7YvxNN2aQ0TbZ2hBjOqRZI6h3a4lUznYdGe7ubvmN9y8XA2xwKpYKzLQ_EX1:19000:0:99999:7:::\n' +
+      'student:$6$rounds=656000$labstudent$ot7EhmAfC3Rk4zeV0EASiR0C/YFk2yYotHSN0xJEE0ECiPvSP6tAtS2yUQkv8QNU6MZKTp9VkdHL1:19000:0:99999:7:::\n' +
+      'webadmin:*:19000:0:99999:7:::\n' +
+      'backup:*:19000:0:99999:7:::\n');
+    etc.children.crontab = node('crontab', false,
+      '# /etc/crontab — environment & paths\n' +
+      'SHELL=/bin/sh\n' +
+      'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\n' +
+      '17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly\n' +
+      '*/5 *   * * *   root    /opt/backup.sh     <- script backup milik root (cek perizinan!)\n' +
+      '25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )\n');
+    etc.children.sudoers = node('sudoers', false,
+      'root    ALL=(ALL:ALL) ALL\n' +
+      '%admin  ALL=(ALL) ALL\n' +
+      'webadmin ALL=(ALL:ALL) NOPASSWD: /opt/backup.sh\n' +
+      'student ALL=(ALL:ALL) ALL   <- usahakan SUDO KOSONG; atur ulang segera\n');
+    var lbash = node('.bash_history', false,
+      'id\n' +
+      'cat /home/webadmin/.backup.config\n' +
+      'sudo -l\n' +
+      'nmap -sV 10.10.10.5\n' +
+      'exit\n');
+    student.children['.bash_history'] = lbash;
+    var webadmin = node('webadmin', true); home.children.webadmin = webadmin;
+    webadmin.children['.backup.config'] = node('.backup.config', false,
+      '# konfigurasi backup webadmin — HANYA untuk webadmin\n' +
+      'db_host=127.0.0.1\n' +
+      'db_user=root\n' +
+      'db_pass=Winter2023!\n');
     var tmp = node('tmp', true); root.children.tmp = tmp;
     var opt = node('opt', true); root.children.opt = opt;
     var optlab = node('lab', true); opt.children.lab = optlab;
-    optlab['index.php'] = node('index.php', false,
+    optlab.children['index.php'] = node('index.php', false,
       '<?php\n$id = $_GET["id"];\n$q = "SELECT * FROM produk WHERE id=" . $id;  // RENTAN sqlmap\nresults($q);\n');
-    var wl = node('wordlists', true); optlab.wordlists = wl;
-    wl['passwords.txt'] = node('passwords.txt', false,
+    var wl = node('wordlists', true); optlab.children['wordlists'] = wl;
+    wl.children['passwords.txt'] = node('passwords.txt', false,
       'password\n' +
       'admin\n' +
       'secret\n' +
@@ -222,14 +319,14 @@
       'student\n' +
       'guest123\n' +
       'Winter2023!\n');
-    wl['usernames.txt'] = node('usernames.txt', false,
+    wl.children['usernames.txt'] = node('usernames.txt', false,
       'admin\n' +
       'root\n' +
       'webadmin\n' +
       'backup\n' +
       'guest\n' +
       'guard\n');
-    wl['directory.txt'] = node('directory.txt', false,
+    wl.children['directory.txt'] = node('directory.txt', false,
       'admin/\n' +
       'uploads/\n' +
       'config/\n' +
@@ -237,6 +334,15 @@
       'private/\n' +
       'api/\n' +
       'portal/\n');
+    optlab.children['backup.sh'] = node('backup.sh', false,
+      '#!/bin/bash\n' +
+      '# backup konfigurasi nginx — DIJALANKAN ROOT via /etc/crontab\n' +
+      '# PERINGATAN: file ini world-writable (rw-rw-rw-) -> vektor privesc\n' +
+      'tar czf /var/backups/web.tgz /etc/nginx/ 2>/dev/null\n');
+    var rroot = node('root', true); root.children.root = rroot;
+    rroot.children['root.txt'] = node('root.txt', false,
+      'FLAG{pwn-root} — privilege escalation berhasil dengan bantuan backup.sh + cron root.\n' +
+      'Ulangi dengan aman: sudo /opt/backup.sh  ->  id  ->  sudo /bin/bash (jika diberi izin).\n');
     return root;
   }
 
@@ -245,7 +351,7 @@
   function loadFs() {
     try {
       var raw = localStorage.getItem(FS_KEY);
-      if (raw) { var p = JSON.parse(raw); if (p && p.name === '/') return p; }
+      if (raw) { var p = JSON.parse(raw); if (p && p.name === '/' && p.ver === 2) return p; }
     } catch (e) {}
     fs = seedFs();
     saveFs();
@@ -306,7 +412,8 @@
     env: {},
     toolsOpen: 0,
     lastStatus: 0,
-    score: []
+    score: [],
+    fw: { rules: [] }
   };
   function bootEnv() { S.cwd = '/home/student'; S.user = 'student'; S.host = 'cyberguard'; }
 
@@ -318,7 +425,7 @@
     'win-srv-01': { ip: '192.168.1.20' },
     '192.168.1.30': { name: 'kali-recon', ip: '192.168.1.30', os: 'Kali GNU/Linux Rolling', ports: {} },
     'kali-recon': { ip: '192.168.1.30' },
-    '10.10.10.5': { name: 'htb-maquina', ip: '10.10.10.5', os: 'Linux 5.4.0-91', ports: { '22': ['ssh', 'OpenSSH 7.2p2'], '80': ['http', 'nginx 1.16.1'], '445': ['smb', 'Samba smbd 4.3.11-Ubuntu'] }, creds: { smb: ['guard', 'backup'], ssh: ['guard', 'backup'] } },
+    '10.10.10.5': { name: 'htb-maquina', ip: '10.10.10.5', os: 'Linux 5.4.0-91', ports: { '22': ['ssh', 'OpenSSH 7.2p2'], '80': ['http', 'nginx 1.16.1'], '445': ['smb', 'Samba smbd 4.6.2-RC2'], '6379': ['redis', 'Redis 6.0.16'], '8080': ['http-proxy', 'nginx 1.16.1'] }, creds: { smb: ['guard', 'backup'], ssh: ['guard', 'backup'] } },
     'htb-maquina': { ip: '10.10.10.5' },
     '10.0.5.7': { name: 'lab-internal-01', ip: '10.0.5.7', os: 'Ubuntu 20.04 (DMZ internal)', ports: { '21': ['ftp', 'vsftpd 3.0.3'], '80': ['http', 'nginx 1.18.0 (redirect 301)'], '8080': ['http-proxy', 'nginx 1.18.0'], '389': ['ldap', 'OpenLDAP 2.4.57'] }, creds: { ftp: ['guest', 'guest123'] } },
     'lab-internal-01': { ip: '10.0.5.7' }
@@ -357,6 +464,7 @@
 
   /* ================= hash tools (real, browser crypto) ================= */
   function shaOf(str, algo) {
+    if (typeof TextEncoder === 'undefined') return Promise.resolve('');
     var enc = new TextEncoder().encode(str);
     if (crypto && crypto.subtle) {
       return crypto.subtle.digest({ name: algo }, enc).then(function (buf) {
@@ -367,6 +475,43 @@
   }
   function hex(buf) {
     return Array.prototype.map.call(new Uint8Array(buf), function (x) { return ('0' + x.toString(16)).slice(-2); }).join('');
+  }
+  function md5impl(str) { // compact, deterministic MD5 (RFC 1321)
+    var i, raw = unescape(encodeURIComponent(str)), bytes = [];
+    var ml = raw.length * 8;
+    for (i = 0; i < raw.length; i++) bytes.push(raw.charCodeAt(i) & 0xff);
+    bytes.push(0x80);
+    while (bytes.length % 64 !== 56) bytes.push(0);
+    for (i = 0; i < 8; i++) bytes.push(Math.floor(ml / Math.pow(2, 8 * i)) % 256);
+    var x = [];
+    for (i = 0; i < bytes.length; i += 4)
+      x[i >> 2] = bytes[i] | (bytes[i + 1] << 8) | (bytes[i + 2] << 16) | (bytes[i + 3] << 24);
+    var a0 = 0x67452301 | 0, b0 = 0xefcdab89 | 0, c0 = 0x98badcfe | 0, d0 = 0x10325476 | 0;
+    var S = [7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21];
+    var K = [];
+    for (i = 0; i < 64; i++) K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296);
+    function rol(v, n) { return (v << n) | (v >>> (32 - n)); }
+    function add(x, y) { return (x + y) | 0; }
+    for (i = 0; i < x.length; i += 16) {
+      var A = a0, B = b0, C = c0, D = d0;
+      for (var j = 0; j < 64; j++) {
+        var F, g;
+        if (j < 16) { F = (B & C) | ((~B) & D); g = j; }
+        else if (j < 32) { F = (D & B) | ((~D) & C); g = (5 * j + 1) % 16; }
+        else if (j < 48) { F = B ^ C ^ D; g = (3 * j + 5) % 16; }
+        else { F = C ^ (B | (~D)); g = (7 * j) % 16; }
+        var e = D; D = C; C = B;
+        B = add(B, rol(add(add(A, F), add(x[i + g], K[j])), S[((j >> 4) << 2) + (j % 4)]));
+        A = e;
+      }
+      a0 = add(a0, A); b0 = add(b0, B); c0 = add(c0, C); d0 = add(d0, D);
+    }
+    function h(n) {
+      var parts = [];
+      for (var k = 0; k < 4; k++) parts.push(((n >>> (k * 8)) & 0xff).toString(16).padStart(2, '0'));
+      return parts.join('');
+    }
+    return h(a0) + h(b0) + h(c0) + h(d0);
   }
   function md5(str) { // reference implementation, deterministic (educational)
     // uses a compact md5 implementation
@@ -382,14 +527,19 @@
       ['', ''],
       ['Navigasi            : ls, cd, pwd, cat, head, tail, wc, tree', ''],
       ['Manipulasi file     : touch, mkdir, rm, cp, mv, echo, grep, find', ''],
+      ['Proses teks/log     : sort, uniq, cut, awk (komposisi shell)', ''],
       ['Sistem              : whoami, id, date, uname, uptime, env, history', ''],
-      ['Jaringan            : ip, ifconfig, netstat, ping, curl, ssh', ''],
+      ['Jaringan            : ip, ifconfig, netstat, ss, ping, curl, ssh', ''],
+      ['SOC/IR             : last, lastlog, journalctl, lastb, iptables, ufw', ''],
+      ['Privesc enum        : linpeas, getcap, sudo -l, find -perm, crontab -l', ''],
       ['Tools keamanan      : nmap, sqlmap, hash (sha256sum/md5sum/base64)', ''],
       ['Lab                 : banner, help, tutorial, reset', ''],
+      ['Komposisi shell     : | (pipe), > (redireksi), ; (urutan), && (ber-akhir-baik)', ''],
       ['Atau ketik: man [perintah]  atau  [perintah] --help', ''],
       ['', ''],
       ['Contoh awal:', 't-comment'],
       ['  ls -la && cat lab/targets.txt && nmap 192.168.1.10 -sV', ''],
+      ['  grep sshd /var/log/auth.log | head | sort', ''],
     ]);
   }
 
@@ -485,6 +635,7 @@
     }
     args.forEach(function (a) {
       var n = resolvePath(normalize(a.charAt(0) === '/' ? a : S.cwd + '/' + a));
+      if (canRead(a) === null) { denyRead(a); return; }
       if (!n) { addLine('cat: ' + a + ': No such file or directory', 't-hot'); return; }
       if (n.dir) addLine('cat: ' + a + ': Is a directory', 't-hot');
       else (n.content || '').split('\n').forEach(function (l) { addLine(l === '' ? ' ' : l, ''); });
@@ -494,6 +645,7 @@
     var rest = args.slice();
     var n = 10;
     if (rest[0] === '-n') { n = parseInt(rest[1], 10) || n; rest = rest.slice(2); }
+    else if (/^-\d+$/.test(rest[0] || '')) { n = parseInt(rest[0].slice(1), 10) || n; rest = rest.slice(1); }
     if (!rest.length) {
       var sl = stdinLines();
       if (sl === null) { addLine('head: missing operand', 't-hot'); return; }
@@ -502,6 +654,7 @@
     }
     rest.forEach(function (a) {
       var f = resolvePath(normalize(a.charAt(0) === '/' ? a : S.cwd + '/' + a));
+      if (canRead(a) === null) { addLine('head: ' + a + ': Permission denied', 't-hot'); return; }
       if (!f) { addLine('head: ' + a + ': No such file or directory', 't-hot'); return; }
       (f.content || '').split('\n').slice(0, n).forEach(function (l) { addLine(l === '' ? ' ' : l, ''); });
     });
@@ -509,6 +662,7 @@
   function cmdTail(args) {
     var rest = args.slice(); var n = 10;
     if (rest[0] === '-n') { n = parseInt(rest[1], 10) || n; rest = rest.slice(2); }
+    else if (/^-\d+$/.test(rest[0] || '')) { n = parseInt(rest[0].slice(1), 10) || n; rest = rest.slice(1); }
     if (!rest.length) {
       var sl = stdinLines();
       if (sl === null) { addLine('tail: missing operand', 't-hot'); return; }
@@ -517,6 +671,7 @@
     }
     rest.forEach(function (a) {
       var f = resolvePath(normalize(a.charAt(0) === '/' ? a : S.cwd + '/' + a));
+      if (canRead(a) === null) { addLine('tail: ' + a + ': Permission denied', 't-hot'); return; }
       if (!f) { addLine('tail: ' + a + ': No such file or directory', 't-hot'); return; }
       var lines = (f.content || '').split('\n');
       lines.slice(Math.max(0, lines.length - n)).forEach(function (l) { addLine(l === '' ? ' ' : l, ''); });
@@ -534,6 +689,7 @@
     }
     args.forEach(function (a) {
       var f = resolvePath(normalize(a.charAt(0) === '/' ? a : S.cwd + '/' + a));
+      if (canRead(a) === null) { addLine('wc: ' + a + ': Permission denied', 't-hot'); return; }
       if (!f) { addLine('wc: ' + a + ': No such file or directory', 't-hot'); return; }
       var lines = (f.content || '').split('\n').length - 1;
       var words = (f.content || '').split(/\s+/).filter(Boolean).length;
@@ -545,14 +701,16 @@
     addLine(args.join(' '));
   }
   function cmdGrep(args) {
-    var rest = args.slice(); var showLines = false;
+    var rest = args.slice(); var showLines = false; var countOnly = false;
     if (rest.indexOf('-n') !== -1) { showLines = true; rest = rest.filter(function (x) { return x !== '-n'; }); }
+    if (rest.indexOf('-c') !== -1) { countOnly = true; rest = rest.filter(function (x) { return x !== '-c'; }); }
     if (!rest.length) { addLine('usage: grep [opsi] pattern [file]', 't-hot'); return; }
     var pat = rest[0]; var file = rest[1];
     var re;
     try { re = new RegExp(pat, 'i'); } catch (e) { re = new RegExp(pat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'); }
     var lines; var found = 0;
     if (file) {
+      if (canRead(file) === null) { addLine('grep: ' + file + ': Permission denied', 't-hot'); return; }
       var f = resolvePath(normalize(file.charAt(0) === '/' ? file : S.cwd + '/' + file));
       if (!f) { addLine('grep: ' + file + ': No such file or directory', 't-hot'); return; }
       lines = (f.content || '').split('\n');
@@ -561,11 +719,27 @@
       if (lines === null) { addLine('grep: no input (coba: cat file | grep pola)', 't-hot'); return; }
     }
     lines.forEach(function (l, i) {
-      if (re.test(l)) { addLine((showLines ? String(i + 1).padStart(4) + ': ' : '') + l, ''); found++; }
+      if (re.test(l)) { found++; if (!countOnly) addLine((showLines ? String(i + 1).padStart(4) + ': ' : '') + l, ''); }
     });
+    if (countOnly) { addLine('\u0020\u0020\u0020' + found + ' ' + (file || '(stdin)')); }
     if (!found) S.lastStatus = 1;
   }
   function cmdFind(args) {
+    var all = args.join(' ');
+    if (all.indexOf('-perm') !== -1) {
+      addLines([
+        ['mencari binary dengan SUID bit (rws) milik root...', 't-dim'],
+        ['/usr/bin/passwd', ''],
+        ['/usr/bin/sudo', ''],
+        ['/usr/bin/su', ''],
+        ['/usr/bin/mount', ''],
+        ['/usr/bin/newgrp', ''],
+        ['/usr/bin/find', 't-warn'],
+        ['', ''],
+        ['[!] /usr/bin/find ber-SUID root — vektor GTFOBins: find . -exec /bin/sh -p \\; -quit', 't-warn']
+      ]);
+      return;
+    }
     var start = args[0] || '.';
     var dn = args[1] === '-name' ? args[2] : args[1];
     var hits = [];
@@ -622,7 +796,10 @@
 
   /* ---------- system commands ---------- */
   function cmdWhoami() { addLine(S.user); }
-  function cmdId() { addLine('uid=1000(' + S.user + ') gid=1000(' + S.user + ') groups=1000(' + S.user + '),27(sudo-nope)'); }
+  function cmdId() {
+    var uid = (S.user === 'root') ? 0 : (S.user === 'webadmin' || S.user === 'guard') ? 1001 : 1000;
+    addLine('uid=' + uid + '(' + S.user + ') gid=' + uid + '(' + S.user + ') groups=' + uid + '(' + S.user + '),27(sudo)');
+  }
   function cmdDate() { addLine(new Date().toString().replace(/ GMT.*/, '')); }
   function cmdUname(args) {
     var want = args[0];
@@ -664,9 +841,36 @@
     addLines([['student   pts/0    ' + new Date().toLocaleTimeString(), ''], ['webadmin  pts/1    (remote) 192.168.1.50', '']]);
   }
   function cmdSudo(args) {
-    if (!args.length) { addLine('usage: sudo [perintah]', 't-hot'); return; }
-    if (S.user === 'root') { runRaw(args.join(' '), { sudo: true }); return; }
-    addLine('student is not in the sudoers file. This incident will be reported.', 't-warn');
+    if (!args.length) { addLine('usage: sudo [-l] [perintah]', 't-hot'); return; }
+    if (args[0] === '-l') {
+      addLines([
+        ['Matching Defaults entries for ' + S.user + ' on srv:', ''],
+        ['    env_reset, mail_badpass, secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 't-dim'],
+        ['', ''],
+        ['User ' + S.user + ' may run the following commands on srv:', ''],
+        ['    (root) NOPASSWD: /opt/backup.sh', 't-ok'],
+        ['    (root) /usr/bin/tar', 't-dim'],
+        ['', ''],
+        ['[!] vektor: jalankan backup.sh sebagai root atau abuse tar --to-command.', 't-warn']
+      ]);
+      return;
+    }
+    var joined = args.join(' ');
+    if (joined === '/opt/backup.sh') {
+      addLines([
+        ['sudo: otentikasi berhasil (simulasi) — menjalankan sebagai root...', 't-dim'],
+        ['tar: /etc/nginx/ -> /var/backups/web.tgz   (script backup dieksekusi ROOT)', 't-dim'],
+        ['', ''],
+        ['[*] SCRIPT /opt/backup.sh BERHASIL DIEKSEKUSI SEBAGAI ROOT.', 't-ok'],
+        ['[*] Kamu telah naik ke root (uid=0). Vektor: /opt/backup.sh world-writable + cron root.', 't-warn'],
+        ['    Konfirmasi: id | whoami | cat /root/root.txt | flag <FLAG{...}> | score', 't-comment']
+      ]);
+      S.user = 'root';
+      promptEl.textContent = promptText();
+      return;
+    }
+    if (S.user === 'root') { addLine('sudo: sudah root, tidak perlu sudo lagi.', 't-dim'); return; }
+    addLine(S.user + ' is not in the sudoers file. This incident will be reported.', 't-warn');
   }
   function cmdAlias(args) {
     if (!args.length) { Object.keys(S.aliases).forEach(function (k) { addLine('alias ' + k + '=' + S.aliases[k]); }); return; }
@@ -868,8 +1072,10 @@
       .catch(function () { addLine('curl: (7) Failed to connect — jaringan diblokir sandbox (CORS). ', 't-hot'); });
   }
   function cmdSsh(args) {
-    if (!args.length) { addLine('usage: ssh user@target', 't-hot'); return; }
-    var target = args[0].split('@').pop();
+    if (!args.length) { addLine('usage: ssh [user@]target   contoh: ssh webadmin@lab-web-01', 't-hot'); return; }
+    var user = S.user;
+    var target = args[0];
+    if (args[0].indexOf('@') !== -1) { var at = args[0].split('@'); user = at[0]; target = at[1]; }
     var host = netDB[target];
     if (!host || !host.ip) { addLine('ssh: Could not resolve hostname ' + target + ': Name or service not known', 't-hot'); return; }
     addLines([
@@ -880,9 +1086,10 @@
       ['Welcome to ' + (host.os || 'Ubuntu 22.04 LTS') + ' (sandbox lab)', 't-ok'],
       ['', ''],
       ['Last login: ' + new Date().toLocaleString(), 't-dim'],
-      ['[C-SHELL] Kamu kini terhubung ke ' + target + '. Ketik: whoami | ip a | netstat | cd /var/log', 't-comment']
+      ['[C-SHELL] Kamu kini masuk sebagai ' + user + '@' + target + '. Ketik: whoami | id | sudo -l | cat /etc/crontab', 't-comment']
     ]);
     S.host = target;
+    S.user = user;
     promptEl.textContent = promptText();
   }
   function cmdPython(args) {
@@ -1152,11 +1359,233 @@
     if (args.indexOf('aux') !== -1) addLine('USER       PID %CPU %MEM    VSZ   RSS TTY STAT START TIME COMMAND');
   }
 
+  /* ---------- log analysis & enumeration helpers ---------- */
+  function cmdSort(args) {
+    var numeric = false, reverse = false, unique = false, file = null;
+    for (var i = 0; i < args.length; i++) {
+      var a = args[i];
+      if (a === '-n') numeric = true;
+      else if (a === '-r') reverse = true;
+      else if (a === '-u') unique = true;
+      else if (a.indexOf('-') !== 0) file = a;
+    }
+    var lines = file ? readFileLines(file) : stdinLines();
+    if (lines === null) { addLine('sort: no input (coba: cat log | sort)', 't-hot'); return; }
+    var out = lines.slice();
+    if (numeric) out.sort(function (x, y) { return (parseFloat(x) || 0) - (parseFloat(y) || 0); });
+    else out.sort();
+    if (reverse) out.reverse();
+    if (unique) out = out.filter(function (v, idx2) { return out.indexOf(v) === idx2; });
+    out.forEach(function (l) { addLine(l === '' ? ' ' : l); });
+  }
+  function cmdUniq(args) {
+    var count = false, file = null;
+    args.forEach(function (a) { if (a === '-c') count = true; else if (a.indexOf('-') !== 0) file = a; });
+    var lines = file ? readFileLines(file) : stdinLines();
+    if (lines === null) { addLine('uniq: no input (coba: cat log | sort | uniq -c)', 't-hot'); return; }
+    var i = 0;
+    while (i < lines.length) {
+      var v = lines[i], n = 1;
+      while (i + 1 < lines.length && lines[i + 1] === v) { n++; i++; }
+      if (count) addLine(String(n).padStart(5) + ' ' + v);
+      else addLine(v === '' ? ' ' : v);
+      i++;
+    }
+  }
+  function cmdCut(args) {
+    var delim = '\t', fields = null, file = null;
+    for (var i = 0; i < args.length; i++) {
+      var a = args[i];
+      if (a === '-d') { delim = args[i + 1] || '\t'; i++; }
+      else if (a === '-f') { fields = (args[i + 1] || '').split(',').map(function (x) { return parseInt(x, 10); }).filter(function (x) { return x > 0; }); i++; }
+      else if (a.indexOf('-') !== 0) file = a;
+    }
+    if (!fields || !fields.length) { addLine('usage: cut -d " " -f 1,3 [file]', 't-hot'); return; }
+    var lines = file ? readFileLines(file) : stdinLines();
+    if (lines === null) { addLine('cut: no input (coba: cat log | cut -d " " -f 1,3)', 't-hot'); return; }
+    lines.forEach(function (l) {
+      var parts = l.split(delim);
+      addLine(fields.map(function (f) { return parts[f - 1] || ''; }).join('\t'));
+    });
+  }
+  function cmdAwk(args) {
+    var prog = null, F = ' ', file = null;
+    for (var i = 0; i < args.length; i++) {
+      var a = args[i];
+      if (a === '-F') { F = (args[i + 1] || ' ').replace(/^['"]|['"]$/g, ''); i++; }
+      else if (/^\{.*\}$/.test(a)) prog = a;
+      else if (a.indexOf('-') !== 0) file = a;
+    }
+    if (!prog) { addLine("usage: awk [-F delim] '{print $1,$3}' [file]", 't-hot'); return; }
+    var body = prog.replace(/^\{/, '').replace(/\}$/, '').trim().replace(/^print\s*/, '').trim();
+    var flds = null;
+    if (body && body !== '$0') {
+      flds = [];
+      body.split(',').forEach(function (s) {
+        s = s.trim();
+        var m = s.match(/^\$(\d+)$/); if (m) { flds.push(parseInt(m[1], 10)); return; }
+        if (/^\$NF$/.test(s)) flds.push(-1);
+      });
+    }
+    var lines = file ? readFileLines(file) : stdinLines();
+    if (lines === null) { addLine('awk: no input (coba: cat log | awk \'{print $3}\')', 't-hot'); return; }
+    lines.forEach(function (l) {
+      if (!flds) { addLine(l === '' ? ' ' : l); return; }
+      var parts = l.split(F);
+      addLine(flds.map(function (f) { return (f === -1) ? (parts[parts.length - 1] || '') : (parts[f - 1] || ''); }).join(' '));
+    });
+  }
+
+  /* ---------- privesc & enumeration helper (simulasi) ---------- */
+  function cmdLinpeas(args) {
+    addLines([
+      ['── linPEAS ── Linux Privilege Escalation Awesome Script ──', 't-purple'],
+      ['', ''],
+      ['═══ System info ═══', 't-purple'],
+      ['Host: srv (192.168.1.10) | kernel 6.1.0-lab | user: ' + S.user, ''],
+      ['', ''],
+      ['═══ User & Sudo ═══', 't-purple'],
+      ['[+] Identitas           : ' + S.user + ' (uid ' + (S.user === 'root' ? 0 : 1001) + ')', ''],
+      ['[!] sudo -l             : ' + S.user + ' dapat menjalankan /opt/backup.sh (root, NOPASSWD)', 't-warn'],
+      ['', ''],
+      ['═══ Cron / Scheduled ═══', 't-purple'],
+      ['[!] /etc/crontab        : root menjalankan /opt/backup.sh tiap 5 menit', 't-warn'],
+      ['[!] /opt/backup.sh      : WORLD-WRITABLE (rw-rw-rw-) — vektor eskalasi cepat', 't-warn'],
+      ['', ''],
+      ['═══ SUID / Capabilities ═══', 't-purple'],
+      ['[!] /usr/bin/find       : SUID bit milik root (GTFOBins: find)', 't-warn'],
+      ['[*] /usr/bin/python3    : cap_setuid=ep (capability abuse)', 't-dim'],
+      ['', ''],
+      ['═══ Kredensial bocor ═══', 't-purple'],
+      ['[!] /home/webadmin/.backup.config : memuat db_pass=Winter2023!', 't-warn'],
+      ['[*] /etc/shadow         : hash root $6$ — tidak terbaca (mode 000), aman', 't-dim'],
+      ['', ''],
+      ['═══ Jaringan ═══', 't-purple'],
+      ['[!] koneksi keluar -> 45.155.205.11:4444 ESTABLISHED (C2?)', 't-warn'],
+      ['', ''],
+      ['└─ Kesimpulan: vektor tercepat = tulis ulang /opt/backup.sh (dijalankan root) ATAU find -exec.', 't-comment']
+    ]);
+  }
+  function cmdGetcap(args) {
+    addLines([
+      ['/usr/bin/python3.11  cap_setuid=ep', 't-warn'],
+      ['/usr/bin/tcpdump     cap_net_raw,cap_net_admin=eip', 't-dim'],
+      ['', ''],
+      ['[!] python3 punya cap_setuid — utk lab: python3 -c "import os; os.setuid(0); os.execvp(\'id\', [\'id\'])"', 't-warn']
+    ]);
+  }
+
+  /* ---------- defensive / SOC inspection ---------- */
+  function cmdLastlog() {
+    addLines([
+      ['Menampilkan data login terakhir.', 't-dim'],
+      ['Username     Port           Dari            Terakhir Login', ''],
+      ['webadmin     pts/1          45.155.205.11   12/Feb 2026 03:16:55  [ATTACKER]', 't-hot'],
+      ['webadmin     pts/0          192.168.1.50    12/Feb 2026 04:01:22  [legit]', ''],
+      ['student      pts/0          192.168.1.50    12/Feb 2026 04:02:10', '']
+    ]);
+  }
+  function cmdLast(args) {
+    addLines([
+      ['webadmin  pts/1        45.155.205.11   Thu Feb 12 03:16 - 03:17  (00:00)   [ATTACKER]', 't-hot'],
+      ['webadmin  pts/0        192.168.1.50    Thu Feb 12 04:01   still logged in', ''],
+      ['student   pts/0        192.168.1.50    Thu Feb 12 04:02   still logged in', ''],
+      ['reboot    system boot  6.1.0-lab       Wed Feb 11 21:34   still running', 't-dim']
+    ]);
+  }
+  function cmdJournalctl(args) {
+    var unit = null;
+    for (var i = 0; i < args.length; i++) {
+      if (args[i] === '-u') { unit = args[i + 1]; i++; }
+      else if (args[i].indexOf('-') !== 0) unit = args[i];
+    }
+    var full = [];
+    if (unit && (unit === 'ssh' || unit === 'sshd')) {
+      full = (readFileLines('/var/log/auth.log') || []).filter(function (l) { return /sshd/.test(l); });
+    } else {
+      full = (readFileLines('/var/log/auth.log') || []).concat(readFileLines('/var/log/syslog') || []);
+    }
+    addLine('-- Logs begin at Wed 2026-02-11 21:34:12 +07, end at ' + new Date().toLocaleTimeString() + ' --', 't-dim');
+    full.slice(-18).forEach(function (l) { addLine(l === '' ? ' ' : l); });
+  }
+  function cmdSs(args) {
+    addLines([
+      ['State   Recv-Q Send-Q  Local Address:Port       Peer Address:Port', 't-dim'],
+      ['ESTAB   0      0       192.168.1.100:53218      45.155.205.11:4444   [attacker/C2]', 't-hot'],
+      ['ESTAB   0      0       192.168.1.100:22         192.168.1.50:51234    [ssh webadmin]', ''],
+      ['LISTEN  0      128     0.0.0.0:22               0.0.0.0:*', 't-dim'],
+      ['LISTEN  0      511     0.0.0.0:80               0.0.0.0:*', 't-dim']
+    ]);
+  }
+  function cmdIptables(args) {
+    var s = args.join(' ');
+    if (s.indexOf('-L') !== -1) {
+      addLines([
+        ['Chain INPUT (policy DROP)', ''],
+        ['target     prot opt source               destination', 't-dim']
+      ]);
+      S.fw.rules.forEach(function (r) { addLine('DROP       all  --  ' + r.padEnd(20) + '0.0.0.0/0', 't-ok'); });
+      addLines([
+        ['Chain FORWARD (policy DROP)', ''],
+        ['target     prot opt source               destination', 't-dim'],
+        ['Chain OUTPUT (policy ACCEPT)', ''],
+        ['target     prot opt source               destination', 't-dim']
+      ]);
+      return;
+    }
+    var m = s.match(/-A INPUT -s (\S+)/);
+    if (m) {
+      var ip = m[1];
+      if (S.fw.rules.indexOf(ip) === -1) S.fw.rules.push(ip);
+      addLine('DROP semua lalu lintas dari ' + ip + ' (simulasi iptables, host edge).', 't-ok');
+      return;
+    }
+    addLine('usage (simulasi): iptables -L -n  |  iptables -A INPUT -s <ip> -j DROP', 't-hot');
+  }
+  function cmdUfw(args) {
+    var s = args.join(' ');
+    if (/status/.test(s)) {
+      addLines([
+        ['Status: aktif (simulasi)', 't-ok'],
+        ['To                         Action      From', ''],
+        ['--                         ------      ----', ''],
+        ['22/tcp                     ALLOW       192.168.1.0/24', ''],
+        ['80,443/tcp                 ALLOW       Anywhere', ''],
+        ['3306                       DENY        Anywhere    # mysql dikunci default', 't-dim']
+      ]);
+      S.fw.rules.forEach(function (r) { addLine('Anywhere                   DENY        ' + r + '   # blokir insiden', 't-warn'); });
+      return;
+    }
+    var m = s.match(/deny from (\S+)/);
+    if (m) {
+      var ip = m[1];
+      if (S.fw.rules.indexOf(ip) === -1) S.fw.rules.push(ip);
+      addLine('IP ' + ip + ' ditambahkan ke daftar blokir ufw (simulasi).', 't-ok');
+      return;
+    }
+    addLine('usage (simulasi): ufw status verbose  |  ufw deny from <ip>', 't-hot');
+  }
+  function cmdCrontab(args) {
+    if (args[0] === '-l') {
+      var f = resolvePath(normalize('/etc/crontab'));
+      (f && f.content || '').split('\n').forEach(function (l) { addLine(l === '' ? ' ' : l); });
+      return;
+    }
+    addLine('usage (sandbox): crontab -l  (membaca /etc/crontab)', 't-hot');
+  }
+  function cmdExit() {
+    addLines([
+      ['[C-SHELL] logout disimulasikan — kamu tetap di sandbox.', 't-dim'],
+      ['Biarkan sandbox terbuka untuk melanjutkan lab atau ketik  reset.', 't-comment']
+    ]);
+  }
+
   /* ---------- missions & flags ---------- */
   var FLAGS = [
     { v: 'FLAG{lab-web-01}', name: 'Eksploitasi Web — lab-web-01', hint: 'sqlmap + dump, lalu cat lab/flag-web.txt' },
     { v: 'FLAG{blue-team}', name: 'Deteksi Bruteforce — SOC', hint: 'analisis /var/log/auth.log, lalu cat lab/flag-blue.txt' },
-    { v: 'FLAG{dmz-internal}', name: 'Pivoting DMZ — lab-internal-01', hint: 'petakan 10.0.5.7 (ftp), lalu cat lab/flag-internal.txt' }
+    { v: 'FLAG{dmz-internal}', name: 'Pivoting DMZ — lab-internal-01', hint: 'petakan 10.0.5.7 (ftp), lalu cat lab/flag-internal.txt' },
+    { v: 'FLAG{pwn-root}', name: 'Privilege Escalation — root lab-web-01', hint: 'ssh webadmin@lab-web-01 lalu sudo -l; baca /root/root.txt' }
   ];
   var SCORE_KEY = 'cg_lab_score_v2';
   function loadScore() {
@@ -1234,6 +1663,7 @@
 
   /* ---------- hash / encoding ---------- */
   function fileContent(a) {
+    if (canRead(a) === null) return null;
     var f = resolvePath(normalize(a.charAt(0) === '/' ? a : S.cwd + '/' + a));
     return f ? f.content : null;
   }
@@ -1268,10 +1698,39 @@
     catch (e) { addLine('calc: expression error', 't-hot'); }
   }
   function cmdMan(args) {
-    var t = args[0];
-    if (t === 'nmap') { addLine('nmap [opsi] target\n  -sV  deteksi versi layanan\n  -p   port tertentu (mis. -p80,443)\n  --open hanya port terbuka\n  -sn  ping sweep (host discovery)'); return; }
-    if (t === 'sqlmap') { addLine('sqlmap -u "URL" [opsi]\n  --dbs    daftar database\n  --tables tabel database\n  --dump   ekstrak data'); return; }
-    addLine('man: belum ada halaman untuk "' + t + '". Coba: help');
+    var MAN = {
+      nmap: 'nmap [opsi] target\n' +
+        '  -sV   deteksi versi layanan (kunci enumeration)\n' +
+        '  -p    port tertentu (mis. -p80,443 atau -p-)\n' +
+        '  --open  hanya port terbuka\n' +
+        '  -sn   ping sweep (host discovery)\n' +
+        '  peta service+versi -> feed ke searchsploit / nikto',
+      sqlmap: 'sqlmap -u "URL" [opsi]\n' +
+        '  --dbs     daftar database\n' +
+        '  --tables  tabel pada database\n' +
+        '  --dump    ekstrak data (bukti dampak, batasi sampel)\n' +
+        '  --batch   jalankan tanpa prompt interaktif\n' +
+        '  alur: --dbs -> --tables -> --dump, lalu simpan > evidence',
+      hydra: 'hydra -l <user> | -L <users> -P <wordlist> <service>://<host>\n' +
+        '  service: ssh ftp smb rdp http-get (lab: ssh/ftp)\n' +
+        '  cek lab: -P /opt/lab/wordlists/passwords.txt',
+      john: 'john <file-hashes>\n  memecahkan MD5 dari lab/hashes.txt atau dump sqlmap\n  cek juga: hashcat -m 0 <file>',
+      hashcat: 'hashcat -m 0 <hashes.txt> | --show\n  mode -m 0 = MD5 (sandbox). wordlist kredensial lab terbatas.',
+      gobuster: 'gobuster dir -u http://host -w <wordlist>\n  wordlist: /opt/lab/wordlists/directory.txt\n  temukan path tersembunyi (admin/, uploads/, backup/...)',
+      nikto: 'nikto -h http://host\n  scan kerentanan web: misconfig, header hilang, directory listing.',
+      linpeas: 'linpeas\n  enumerasi privesc satu klik: sudo, cron, SUID, capabilities,\n  kredensial bocor, koneksi C2. Rujuk GTFOBins untuk vektor.',
+      find: 'find / -perm -4000 2>/dev/null  (daftar SUID root)\n  GTFOBins: find binary SUID -> find . -exec /bin/sh -p \\; -quit',
+      getcap: 'getcap -r / 2>/dev/null\n  daftar file dengan capabilities (cap_setuid bisa = root via python3).',
+      iptables: 'iptables -L -n                    (lihat aturan)\n  iptables -A INPUT -s <ip> -j DROP (containment cepat)',
+      ufw: 'ufw status verbose\n  ufw deny from <ip>             (blokir sumber insiden)',
+      ss: 'ss -tunp\n  status socket aktif; cari ESTABLISHED mencurigakan ke IP asing.',
+      journalctl: 'journalctl -u ssh | tail   (log sshd systemd)\n  bandingkan dengan /var/log/auth.log untuk triage.',
+      last: 'last | head        (riwayat login sukses)\n  lastlog           (login terakhir tiap akun)',
+      ssh: 'ssh [user@]host   contoh: ssh webadmin@lab-web-01\n  kredensial hasil crack (chicken) -> post-exploit & privesc'
+    };
+    var t = args.join(' ');
+    if (MAN[t]) { addLine(MAN[t]); return; }
+    addLine('man: belum ada halaman untuk "' + t + '". Coba: help | man nmap | man sqlmap', 't-comment');
   }
   function cmdTutorial() {
     addLines([
@@ -1280,8 +1739,9 @@
       ['1. Lihat peta target :  cat lab/targets.txt', ''],
       ['2. Scan lab-web-01    :  nmap 192.168.1.10 -sV', ''],
       ['3. Uji SQLi           :  sqlmap -u "http://lab-web-01/search?id=1" --dbs', ''],
-      ['4. Deteksi brute-force:  grep "Failed password" /var/log/auth.log', ''],
-      ['5. Buktikan hash      :  sha256sum lab/flag-web.txt', 't-comment']
+      ['4. Deteksi brute-force:  grep "Failed password" /var/log/auth.log | sort | uniq -c', ''],
+      ['5. Analisis login      :  lastlog && last | head', ''],
+      ['6. Buktikan hash       :  sha256sum lab/flag-web.txt', 't-comment']
     ]);
   }
   function cmdReset() {
@@ -1345,7 +1805,7 @@
     CMD.calc = { fn: cmdCalc, desc: 'kalkulator aman' };
     CMD.man = { fn: cmdMan, desc: 'bantuan perintah' };
     CMD.reset = { fn: cmdReset, desc: 'reset sandbox' };
-    CMD.exit = { fn: function () { addLine('exit: ini sandbox, boleh tetap di sini :) ketik help', 't-dim'); }, desc: 'keluar' };
+    CMD.exit = { fn: cmdExit, desc: 'keluar' };
 
     /* pro lab tools (registered pro tools) */
     CMD.hydra = { fn: cmdHydra, desc: 'brute-force login (simulasi)' };
@@ -1360,26 +1820,116 @@
     CMD.lastb = { fn: cmdLastb, desc: 'login gagal terakhir (SOC)' };
     CMD.flag = { fn: cmdFlag, desc: 'verifikasi flag misi' };
     CMD.score = { fn: cmdScore, desc: 'lihat skor lab' };
+
+    /* log-processing & enumeration */
+    CMD.sort = { fn: cmdSort, desc: 'urutkan baris (support -r -n -u)' };
+    CMD.uniq = { fn: cmdUniq, desc: 'hapus duplikat (-c hitung)' };
+    CMD.cut = { fn: cmdCut, desc: 'ambil kolom (-d delim -f)' };
+    CMD.awk = { fn: cmdAwk, desc: "proses teks '{print $n}'" };
+    CMD.linpeas = { fn: cmdLinpeas, desc: 'enum privesc (simulasi)' };
+    CMD.getcap = { fn: cmdGetcap, desc: 'list capabilities (simulasi)' };
+    CMD.lastlog = { fn: cmdLastlog, desc: 'login terakhir tiap akun (SOC)' };
+    CMD.last = { fn: cmdLast, desc: 'riwayat login (SOC)' };
+    CMD.journalctl = { fn: cmdJournalctl, desc: 'log systemd (-u ssh)' };
+    CMD.ss = { fn: cmdSs, desc: 'status socket aktif (SOC)' };
+    CMD.iptables = { fn: cmdIptables, desc: 'manajemen firewall (simulasi)' };
+    CMD.ufw = { fn: cmdUfw, desc: 'manajemen firewall (simulasi)' };
+    CMD.crontab = { fn: cmdCrontab, desc: 'lihat job cron (-l)' };
   }
 
-  /* ---------- main exec ---------- */
-  function runRaw(line, opts) {
+  /* ---------- main exec (pipes, redirection, chaining) ---------- */
+  function splitTopLevel(str, ch) {
+    var out = [], cur = '', q = '', i, c;
+    for (i = 0; i < str.length; i++) {
+      c = str[i];
+      if (q) { cur += c; if (c === q) q = ''; continue; }
+      if (c === '"' || c === "'") { q = c; cur += c; continue; }
+      if (c === ch) { out.push(cur); cur = ''; continue; }
+      cur += c;
+    }
+    out.push(cur);
+    return out.map(function (s) { return s.trim(); });
+  }
+
+  function runStage(raw) {
+    raw = raw.trim();
+    if (!raw) return Promise.resolve(true);
+    var toks = tokenize(expandLine(raw));
+    var rd = stripRedirect(toks);
+    var name = rd.toks[0];
+    name = S.aliases[name] ? tokenize(S.aliases[name] + ' ' + rd.toks.slice(1).join(' '))[0] : name;
+    var args = rd.toks.slice(1);
+    if (rd.inF != null) {
+      var inf = resolvePath(normalize(rd.inF.charAt(0) === '/' ? rd.inF : S.cwd + '/' + rd.inF));
+      _inp = (inf && inf.content != null) ? (inf.content || '').split('\n') : null;
+    }
+    var cmd = CMD[name];
+    if (!cmd) { cmdUnknown(name); return Promise.resolve(false); }
+    var silentBefore = _silent;
+    if (rd.outOp) _silent = true;
+    var res;
+    try { res = cmd.fn(args); }
+    catch (e) { addLine(name + ': error internal: ' + e.message, 't-hot'); _silent = silentBefore; _inp = null; _cap = null; return Promise.resolve(false); }
+    var p = (res && typeof res.then === 'function') ? res : Promise.resolve();
+    return p.then(function () {
+      if (rd.outOp) {
+        // tampilkan error redirection walau tahap diam (mis. direktori tak ada)
+        var prevSilent = _silent;
+        _silent = false;
+        writeFileSt(rd.outF, _cap || [], rd.outOp === '>>');
+        _silent = prevSilent;
+      }
+      var ok = (S.lastStatus === 0);
+      S.lastStatus = 0;
+      _silent = silentBefore;
+      return ok;
+    }).catch(function () { _silent = silentBefore; return false; });
+  }
+
+  function runPipe(raw) {
+    var stages = splitTopLevel(raw, '|').filter(function (s) { return s; });
+    if (!stages.length) return Promise.resolve(true);
+    var prev = null;
+    return stages.reduce(function (p, st, i) {
+      return p.then(function () {
+        _inp = (i === 0) ? null : prev;
+        _cap = [];
+        // hanya output tahap terakhir yang di-render; tahap antara di-redirect melalui _cap
+        var isLast = (i === stages.length - 1);
+        if (!isLast) _silent = true;
+        return runStage(st).then(function (ok) {
+          prev = (_cap || []).map(function (l) { return l[0]; });
+          if (!isLast) _silent = false;
+          return ok;
+        });
+      });
+    }, Promise.resolve(true)).then(function (ok) {
+      _inp = null; _cap = null; _silent = false;
+      return ok;
+    });
+  }
+
+  function execute(line) {
     line = (line || '').trim();
-    if (!line) return;
+    if (!line) return Promise.resolve(true);
     S.hist.push(line);
     S.histPos = S.hist.length;
-    var toks = tokenize(line);
-    var name = toks[0];
-    name = S.aliases[name] ? tokenize(S.aliases[name] + ' ' + toks.slice(1).join(' '))[0] : name;
-    var args = toks.slice(1);
-    var cmd = CMD[name];
-    if (cmd) { try { cmd.fn(args); } catch (e) { addLine(name + ': error internal: ' + e.message, 't-hot'); } }
-    else cmdUnknown(name);
+    var parts = splitChains(line);
+    var idx = 0;
+    function next() {
+      if (idx >= parts.length) return Promise.resolve(true);
+      var part = parts[idx]; idx++;
+      return runPipe(part.raw).then(function (ok) {
+        if (part.sep === '&&' && !ok) return ok;
+        return next();
+      });
+    }
+    return next();
   }
   function runLine(line) {
     if (!bodyEl) return;
     addLine(promptText() + ' ' + line, 't-cmd');
-    runRaw(line);
+    execute(line);
   }
 
   /* ---------- autocomplete ---------- */
