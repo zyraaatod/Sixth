@@ -1,3 +1,7 @@
 # token pribadi — JANGAN PERNAH di-commit/push
 this is perconal token, don't push this file.txt
 don't push this file.txt
+
+# artifact lokal
+__pycache__/
+*.pyc

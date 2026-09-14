@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+  <meta name="referrer" content="no-referrer">
   <meta name="description" content="Defensive Security — Blue Team, operasi SOC, incident response 6 fase, SIEM & EDR, hardening, threat intelligence, malware analysis, forensik digital, dan kuis interaktif.">
   <title>Defensive Security — CyberGuard Academy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,9 +97,11 @@
         <a href="#malware"><span>07</span>Malware &amp; Forensik</a>
         <a href="#framework"><span>08</span>Framework Blue Team</a>
         <a href="#soclab"><span>09</span>Simulasi SOC</a>
-        <a href="#praktik"><span>10</span>Lab Blue Team</a>
-        <a href="#studikasus"><span>11</span>Studi Kasus Penuh</a>
-        <a href="#quiz"><span>12</span>Kuis</a>
+        <a href="#d2s"><span>10</span>Data Collection → Securing</a>
+        <a href="#praktik"><span>11</span>Lab Blue Team</a>
+        <a href="#studikasus"><span>12</span>Studi Kasus Penuh</a>
+        <a href="#simulasi"><span>13</span>Simulasi Penuh</a>
+        <a href="#quiz"><span>14</span>Kuis</a>
       </aside>
 
       <!-- ============ CONTENT ============ -->
@@ -498,11 +502,269 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
           </div>
         </section>
 
+        <!-- ============ DATA COLLECTION → SECURING ============ -->
+        <section class="section" id="d2s">
+          <div class="sec-head">
+            <span class="sec-num">10 — data collection &amp; securing</span>
+            <h2 class="sec-title">Dari Data Collection sampai <span class="accent">Mengamankan Sistem</span></h2>
+            <p class="sec-sub">Inti praktik modul blue team: bagaimana <b>pengumpulan data keamanan</b> yang benar menuntun ke <b>pengamanan sistem</b> yang nyata. Alurnya selalu <b>tahu aset → kumpulkan telemetri → deteksi &amp; analisis → neutralisasi → kuatkan</b>. Data yang tidak dikumpulkan tidak bisa diamankan — dan data yang tidak diamankan tidak berguna saat serangan. Tiap noktah yang bisa dijalankan punya tombol <b>Jalankan</b>, sisanya transkrip siap salin.</p>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--txt)">Blok A — Data Collection: Bangun Fondasi Visibilitas</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>1. Inventaris Aset — Belum Tahu Punya Apa, Jangan Deteksi</h3>
+              <p>Anak tangga pertama visibilitas adalah <strong>inventarisasi aset</strong>: host mana yang ada, layanan apa yang berjalan, dan di mana posisinya. Tanpa peta aset, telemetri tidak dapat dipetakan dan alert kehilangan konteks. Di kotak (katakanlah sandbox), <code class="inline">/etc/hosts</code> dan <code class="inline">lab/targets.txt</code> memegang peran peta aset — baca keduanya sebagai langkah pertama setiap sesi.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="cat /etc/hosts && cat lab/targets.txt"><svg><use href="#ic-terminal"/></svg>Peta Aset</button>
+                <code class="run-hint">cat /etc/hosts && cat lab/targets.txt</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>2. Telemetri Terpusat — Satu Sumber untuk Semua Log</h3>
+              <p>Log yang hanya ada di mesin asal mudah dihapus penyerang. Kumpulkan ke satu tempat (SIEM/ELK) dengan <em>sumber minimum</em>: firewall, autentikasi, EDR, DNS, dan proxy — lalu <strong>normalisasi format</strong> (timestamp, field) agar bisa dikorelasikan. Validasi ujung-ke-ujung: jangan berhenti di "forwarder terpasang", pastikan event benar-benar tiba di indeks.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">telemetry-sources.yaml</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># kumpulan sumber telemetri minimum yang wajib masuk SIEM</span>
+firewall/nat : accept/deny (log source utama jangkauan)
+authentication: EventCode 4624/4625, /var/log/auth.log
+endpoint      : Sysmon via Winlogbeat forwarder (proses, file, net, reg)
+dns           : query log (nama domain, TTL, sumber)
+proxy         : url + user agent + user (untuk deteksi C2/phishing)
+<span class="t-comment"># validasi pengiriman log (jangan berhenti di 'terpasang')</span>
+<span class="t-cmd">$</span> ./winlogbeat test output -c winlogbeat.yml
+<span class="t-dim">elasticsearch: localhost:9200 ... connection ok  (event masuk indeks)</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>3. Prioritasi Data Volatil — Ambil yang Paling Rapuh Lebih Dulu</h3>
+              <p>Saat insiden membara, urutannya mengikuti <strong>order of volatility</strong>: memory dan koneksi aktif hilang begitu mesin dimatikan, sedangkan disk menunggu. Kumpulkan live state dulu (<code class="inline">ss</code>, <code class="inline">ps</code>, sesi login), lalu baru matikan dan <em>image</em> disk dengan write blocker — bukan sebaliknya.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">order-of-volatility.md</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># TABLE — urutan volatilitas: paling rapuh DIKELUARKAN PERTAMA</span>
+1  live memory (RAM)      memdump   -- bukti proses &amp; artefak fileless
+2  proses &amp; koneksi       ps -ef, ss -tunap, netstat — C2 &amp; lateral aktif
+3  sesi login aktif       who, w, lastlog, journalctl -u ssh
+4  file temporer/swap     /tmp, pagefile.sys, hiberfil.sys
+5  disk                    image (dd / FTK Imager + write blocker)
+<span class="t-warn">[!] matikan mesin = menghancurkan memory, proses, dan koneksi — golden rule IR</span></pre></div>
+            </div>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--txt)">Blok B — Deteksi &amp; Analisis: Data Jadi Temuan</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>4. Query SIEM — Bahasa Analis: SPL, KQL, Lucene</h3>
+              <p>Data terpusat tidak berguna tanpa bahasa query. Analis menguasai pola pencarian lintas sumber: <code class="inline">index=</code> di Splunk, field query di Elastic. Pola inti: pencarian berdasarkan field (<code class="inline">EventCode</code>, <code class="inline">user</code>, <code class="inline">src_ip</code>), agregasi (<code class="inline">stats count</code>), lalu penyaringan lonjakan. Kuasai dulu pola memburu, baru membangun rule yang berkualitas.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">siem-query.spl</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># Splunk — semua logon sukses user tertentu (EventCode 4624)</span>
+index=security EventCode=4624 AccountName=webadmin
+| stats count by src_ip, _time
+| sort - _time
+
+<span class="t-comment"># Splunk — lonjakan logon gagal dari satu IP (pola brute/spray)</span>
+index=security EventCode=4625
+| stats count by src_ip
+| where count &gt; 10
+| sort - count
+
+<span class="t-comment"># Elasticsearch — aktivitas PowerShell mencurigakan (logging 4104)</span>
+event.code:4104 AND process.name:powershell.exe AND NOT process.path:"C:\\Windows\\System32\\"</pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>5. Parent-Child Process — Membaca Rantai Serangan</h3>
+              <p>Investasi EDR yang khas dimulai dari <strong>rantai parent→child</strong>: makro dokumen (<code class="inline">winword.exe</code>) meluncurnya <code class="inline">powershell.exe</code>, lalu reverse shell. Chain yang tidak lazim adalah sinyal dropper. Query osquery/EDR menggabungkan tabel proses berdasarkan <code class="inline">parent</code> untuk menemukan pola ini lebih cepat daripada membaca file satu per satu.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">parent-child.sql</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># osquery — cari child mencurigakan lahir dari aplikasi office/PDF</span>
+SELECT a.pid, a.name, b.name AS parent, a.path, a.cmdline
+FROM processes a
+LEFT JOIN processes b ON a.parent = b.pid
+WHERE b.name IN ('winword.exe','excel.exe','outlook.exe','acrobat.exe','WWAHost.exe')
+  AND a.name IN ('powershell.exe','cmd.exe','cscript.exe','wscript.exe','mshta.exe');
+
+<span class="t-ok">[+] pola khas: winword.exe → powershell.exe → reverse shell — buru ke tempat lain</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>6. Deteksi Credential Dumping — Awasi Akses ke lsass</h3>
+              <p>Mimikatz dan sejenisnya membaca <code class="inline">lsass.exe</code> tanpa disadari signature. Deteksi berbasis perilaku melihat <strong>Permission granted</strong> yang tidak biasa terhadap proses itu (Sysmon EventID 10, <code class="inline">PROCESS_ALL_ACCESS</code>). Mitigasi lapis pertama: Credential Guard + least privilege — tak ada yang bisa dibaca bila kredensial terisolasi dan analis tidak login admin.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">sigma-lsass.yaml</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># SIGMA Rule — akses terbaca ke LSASS (mimikatz/procdump/dumps)</span>
+title: Credential Dumping - Access to LSASS Memory
+logsource:
+  product: windows
+  service: sysmon
+detection:
+  selection:
+    EventID: 10                    # Sysmon ProcessAccess
+    TargetImage|endswith: '\lsass.exe'
+    GrantedAccess: '0x1FFFFF'      # PROCESS_ALL_ACCESS
+  condition: selection
+level: high
+<span class="t-dim"># + lapisan: EventCode 4624 anomaly, dump memory oleh svc.exe/yang tak wajar</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>7. Timeline — Tulang Punggung Rekonstruksi Insiden</h3>
+              <p>Timeline yang benar menjawab <em>apa, kapan, siapa, lewat apa</em>. Normalisasikan timestamp ke zona waktu seragam (NTP wajib selaras), urutkan seluruh event terkait, dan jadikan satu garis waktu. Di sandbox, korelasi lintas sumber (auth + web + IDS) terlihat ketika semua baris duduk dalam urutan waktu yang sama — di sinilah korelasi <em>lintas silo</em> berharga.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">timeline.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-cmd">$</span> cat lab/ioc-list.txt                                  <span class="t-comment"># IOC ringkas</span>
+<span class="t-cmd">$</span> grep 'Accepted password' /var/log/auth.log
+<span class="t-dim">Feb 12 03:16:55 webadmin@pts/1 from 45.155.205.11  (brute berhasil)</span>
+<span class="t-cmd">$</span> grep sqlmap /var/log/access.log                        <span class="t-comment"># lapis aplikasi</span>
+<span class="t-dim">03:18:02 GET /index.php?id=1 OR '1'='1  UA: sqlmap/1.7</span>
+<span class="t-cmd">$</span> cat /var/log/suricata/fast.log                         <span class="t-comment"># lapis jaringan</span>
+<span class="t-hot">03:22:10 ET MALWARE Metasploit Mettle 192.168.1.100 -&gt; 45.155.205.11:4444</span>
+<span class="t-ok">[+] timeline: brute 03:16 → SQLi 03:18 → C2 03:22 — scope kompromi tercatat</span></pre></div>
+            </div>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--txt)">Blok C — Mengamankan: Neutralisasi lalu Kuatkan</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>8. Containment — Hentikan Perdarahan Tanpa Menghancurkan Bukti</h3>
+              <p>Containment yang cerdas menghentikan penyebaran sambil membiarkan forensik berjalan: block IP penyerang di dua lapis (host + edge), isolasi host terkompromi dari jaringan, cabut akses akun, tanpa mematikan mesin sebelum bukti volatl direkam. Hindari aksi destruktif seperti format atau reboot sebelum bukti aman.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ufw deny from 45.155.205.11 && iptables -A INPUT -s 45.155.205.11 -j DROP"><svg><use href="#ic-terminal"/></svg>Blokir IP Penyerang</button>
+                <code class="run-hint">ufw deny from 45.155.205.11 && iptables -A INPUT -s 45.155.205.11 -j DROP</code>
+              </div>
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="ufw status verbose && iptables -L -n"><svg><use href="#ic-terminal"/></svg>Verifikasi Aturan</button>
+                <code class="run-hint">ufw status verbose && iptables -L -n</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>9. Eradication — Menghapus Akar Masalah, Bukan Cuma File</h3>
+              <p>Menghapus <em>satu</em> malware bukan menghapus kompromi: persistence (registry Run, scheduled task, service, cron, <code class="inline">.bashrc</code>) dan backdoor lain harus ikut dibersihkan, kredensial yang terekspos di-reset, dan vektor masuk di-patch. Eradication belum selesai sampai sistem benar-benar bersih dan diverifikasi ulang.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">eradication-checklist.md</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># checklist gambar — bukan sekadar hapus file malware</span>
+1. hapus malware &amp; artefak (verifikasi hash di VirusTotal/sandbox)
+2. tutup persistence: Registry Run, scheduled task, service, cron, .bashrc
+3. reset SELURUH kredensial terekspos (user + service account + token)
+4. cabut user/backdoor baru &amp; SSH key liar yang masuk scope
+5. patch vektor awal (versi usang, port terbuka, kredensial default)
+6. verifikasi: rescan endpoint + korelasi ulang log beberapa hari ke depan</pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>10. Verifikasi Backup &amp; Restore — Garis Hidup Terakhir yang Teruji</h3>
+              <p>Backup yang tidak pernah diuji adalah janji kosong. Jadikan <strong>3-2-1 + immutable/air-gapped</strong> (ransomware modern menghapus backup yang terjangkau), lalu lakukan <em>restore drill</em> terjadwal: pulihkan ke lingkungan uji, verifikasi integritas dan aplikasi berjalan, ukur apakah RTO/RPO tercapai. Hanya pulihkan ke produksi setelah backup terbukti bersih — bukan asumsi.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">restore-drill.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-cmd">$</span> restic -r s3:s3://corp-backup/immutable snapshots
+<span class="t-dim">ID_1  2026-02-11 02:00  web01.sql · /var/www                       (snapshot bersih)</span>
+<span class="t-comment"># uji restore ke lingkungan uji, BUKAN langsung produksi</span>
+<span class="t-cmd">$</span> restic restore latest:prod --target /tmp/restore-test
+<span class="t-cmd">$</span> sha256sum /tmp/restore-test/var/www/app.jar   <span class="t-comment"># bandingkan dgn golden hash</span>
+<span class="t-ok">[+] aplikasi hidup, data utuh, RTO tercapai — backup LAYAK dipakai</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>11. Hardening Default-Deny — Menutup Permukaan Secara Sistematis</h3>
+              <p>Mengamankan sistem berarti mengurangi permukaan serangan, bukan sekadar menambal. Prinsip inti: <strong>default-deny</strong> — firewall menolak lalu membuka port esensial secara eksplisit, layanan yang tak dipakai dimatikan, kredensial default diganti. Lihat <code class="inline">iptables -L -n</code> untuk memeriksa kebijakan aktif lab: INPUT/FORWARD <code class="inline">DROP</code>, sehingga hanya yang di-allow yang masuk.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line">
+                <button class="run-btn" type="button" data-run="iptables -L -n"><svg><use href="#ic-terminal"/></svg>Periksa Kebijakan Firewall</button>
+                <code class="run-hint">iptables -L -n</code>
+              </div>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">default-deny.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># pola kebijakan sehat: DROP secara default, buka yang esensial eksplisit</span>
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT            <span class="t-comment"># atau DROP + allowlist egress</span>
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -p tcp --dport 22  -s 10.0.0.0/8     -j ACCEPT  <span class="t-comment"># SSH internal</span>
+iptables -A INPUT -p tcp --dport 443 -s 0.0.0.0/0      -j ACCEPT  <span class="t-comment"># TLS publik</span>
+<span class="t-comment"># ingat SSH keras: PermitRootLogin no, PasswordAuthentication no, AllowUsers</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>12. Rotasi Kredensial — Setelah Insiden, Reset Tuntas</h3>
+              <p>Reset bukan hanya akun yang terlihat dipakai: seluruh kredensial yang terekspos (user, service account, tiket Kerberos, token) harus dirotasi, termasuk password admin lokal via LAPS agar unik per host. Tiket curian di-buang (<code class="inline">klist purge</code>), lalu kebijakan dipatuhi: kredensial layanan dikelola rahasia dan dimonitor.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">rotate-creds.sh</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-cmd">$</span> net user webadmin sup3r-N3w-P@ss! /domain        <span class="t-comment"># user terkompromi</span>
+<span class="t-cmd">$</span> klist purge                                        <span class="t-comment"># buang tiket Kerberos curian</span>
+<span class="t-cmd">$</span> gpupdate /force                                   <span class="t-comment"># dorong kebijakan baru</span>
+<span class="t-comment"># service account: reset password + update SPN, restart service terkait</span>
+<span class="t-cmd">$</span> setspn -S http/app corp.local svc_app &amp;&amp; sc restart app
+<span class="t-comment"># admin lokal: LAPS otomatis rotasi unik per host — putus lateral PtH lokal</span></pre></div>
+            </div>
+          </div>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <h3>13. Baseline &amp; Anomaly Detection — Yang Normal Dulu, Baru Yang Aneh</h3>
+              <p>Tanpa profil normal, mustahil menyatakan sesuatu aneh. Bangun <strong>baseline</strong> (jumlah login, volume egress, pola privilege) selama 7–30 hari, lalu tanda-tanda deviasi jadi bahan keputusan. Combined baseline + Sigma untuk rule deterministik, dan anomaly/UEBA untuk yang fluktuatif — keduanya saling melengkapi.</p>
+            </div>
+            <div class="terminal" style="margin:0">
+              <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">baseline-anomaly.md</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+              <div class="term-body"><pre><span class="t-comment"># contoh profil baseline vs sinyal anomali</span>
+METRIK        | BASELINE (normal)          | ANOMALI (tanda?)
+logins        | 08:00–17:00, ~8/session  | 03:00 dari IP asing → TINGGI
+data egress   | &lt; 50 MB/hari               | 2 GB malam ke cloud tak dikenal → KRITIS
+privilege     | jarang, terjadwal         | user baru naik Domain Admin → KRITIS
+dns queries   | entropi rendah             | pola random subdomain tiap 60s → C2
+<span class="t-dim"># rule deterministik (Sigma/SPL) memberi keputusan; anomaly memberi arah hunting</span></pre></div>
+            </div>
+          </div>
+
+          <div class="alert alert-info" style="margin-top:26px">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Data collection dan securing adalah satu napas</strong><p>Tanpa inventaris dan telemetri yang terpusat, analisis menjadi buta; tanpa neutralisasi (containment → eradication) dan penguatan (hardening, rotasi, backup teruji, baseline), sistem kembali rentan. Skema lengkap dari alert sampai recovery ada di <a href="#praktik">Lab Blue Team</a>, dan lawan dari semua teknik di sini dipelajari di <a href="offensive.html">Offensive</a>.</p></div>
+          </div>
+        </section>
+
         <!-- QUIZ -->
         <!-- ============ PRAKTIKUM ============ -->
         <section class="section" id="praktik">
           <div class="sec-head">
-            <span class="sec-num">10 — lab blue team</span>
+            <span class="sec-num">11 — lab blue team</span>
             <h2 class="sec-title">Lab Blue Team: <span class="accent">Satu Skema Insiden End-to-End</span></h2>
             <p class="sec-sub">Jam 03:19. SIEM kamu membunyikan alarm: <strong>SQL injection</strong> terhadap lab-web-01 dari IP asing. Kamu analis SOC shift malam — tangani dari triage sampai laporan, noktah demi noktah: <b>alert → analisis → bukti → IOC → containment → forensik → pulih &amp; belajar</b>. Klik <b>Jalankan</b> berurutan di terminal sandbox; semua data berasal dari log lab.</p>
           </div>
@@ -647,7 +909,7 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
 
         <section class="section" id="studikasus">
           <div class="sec-head">
-            <span class="sec-num">11 — studi kasus penuh</span>
+            <span class="sec-num">12 — studi kasus penuh</span>
             <h2 class="sec-title">Contoh Penuh: Satu Insiden di <span class="accent">Tujuh Lapis OSI</span></h2>
             <p class="sec-sub">Skenario yang sama — SQL injection dari <code class="inline">45.155.205.11</code> terhadap <code class="inline">lab-web-01</code> — kini ditelusuri <b>dari awal sampai akhir</b>, naik dari kabel menuju aplikasi, dari sisi pertahanan: <b>frame di kabel (physical) → MAC (data link) → alert IDS &amp; firewall (network) → port C2 (transport) → sesi SSH penyerang (session) → integritas &amp; payload tersandi (presentation) → korelasi log &amp; containment (application)</b>. Seluruh investigasinya tertulis utuh di <b>transkrip penuh</b> di bawah — bukti asli dari log sandbox — dan kamu boleh menjalankan ulang tiap langkah lewat tombol <b>Jalankan</b> pada tiap lapis.</p>
           </div>
@@ -793,9 +1055,79 @@ FAST PATTERN: nama domain terdiri dari karakter acak, banyak query,
           </div>
         </section>
 
+<section class="section" id="simulasi">
+          <div class="sec-head">
+            <span class="sec-num">13 — simulasi penuh</span>
+            <h2 class="sec-title">Praktek Penuh: <span class="accent">Alert → Validasi → Blokir → Rekap</span></h2>
+            <p class="sec-sub">Satu proses tanggap insiden yang <strong>berkesinambungan</strong> — hasil tiap langkah langsung menuntun langkah berikutnya: alert IDS muncul → kita <strong>langsung</strong> validasi di log → konfirmasi akun ditembus → kumpulkan IOC → <strong>langsung blokir</strong> sumbernya → verifikasi → rekap. Jalankan tombol secara urut, atau salin transkrip sesi penuh di bawah.</p>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0 6px;">
+            <span class="tag tag-rec">alert IDS</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-amber">validasi log</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-off">konfirmasi insiden</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-rec">IOC + bukti</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-off">blokir sumber</span><span style="color:var(--mute)">&#8594;</span>
+            <span class="tag tag-def">verifikasi + rekap</span>
+          </div>
+
+          <div class="alert alert-info" style="margin-top:18px">
+            <svg><use href="#ic-info"/></svg>
+            <div><strong>Aset dan kejadian</strong><p>SIEM menyalakan alert untuk <code class="inline">lab-web-01 (192.168.1.10)</code>. Artefak tersedia apa adanya di sandbox: <code class="inline">/var/log/suricata/fast.log</code>, <code class="inline">/var/log/auth.log</code>, <code class="inline">/var/log/access.log</code>, dan <code class="inline">lab/ioc-list.txt</code>. Kamu sebagai analis meneruskan satu alur sampai tuntas.</p></div>
+          </div>
+
+          <h3 style="margin:34px 0 8px;color:var(--text)"><span class="tag tag-def">One-shot flow</span>&nbsp;&nbsp;Jalankan Berurutan — Konfirmasi Langsung dari Artefak</h3>
+
+          <div class="praktik">
+            <div class="praktik-explain">
+              <p><strong>Alurnya cuma satu:</strong> lihat <code class="inline">suricata/fast.log</code> (ada koneksi mencurigakan ke <code class="inline">45.155.205.11</code>) → <strong>langsung</strong> validasi <code class="inline">auth.log</code>: banyak login <em>gagal</em> dari IP itu, lalu satu <em>berhasil</em> — insiden terkonfirmasi → cek <code class="inline">access.log</code> (pola SQLi) → catat IOC + kunci bukti (<code class="inline">sha256sum</code>) → <strong>langsung blokir</strong> IP-nya di ufw + iptables → verifikasi aturan → klaim + rekap. Tidak ada analisis yang berdiri sendiri di antara aksi.</p>
+              <p><strong>Yang tetap dijaga saat latihan:</strong> blokir dilakukan di dua lapis (host + edge) sekaligus sebagai satu ketukan, dan hash bukti diambil <em>sebelum</em> blokir — bukan sesi terpisah.</p>
+            </div>
+            <div class="praktik-play">
+              <div class="run-line"><span class="qnum">1</span><button class="run-btn" type="button" data-run="cat /var/log/suricata/fast.log"><svg><use href="#ic-terminal"/></svg>Alert IDS Dulu</button><code class="run-hint">cat /var/log/suricata/fast.log</code></div>
+              <div class="run-line"><span class="qnum">2</span><button class="run-btn" type="button" data-run="grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c"><svg><use href="#ic-terminal"/></svg>Spam Login per IP</button><code class="run-hint">grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c</code></div>
+              <div class="run-line"><span class="qnum">3</span><button class="run-btn" type="button" data-run="grep 'Accepted password' /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>Ada yang Masuk?</button><code class="run-hint">grep 'Accepted password' /var/log/auth.log</code></div>
+              <div class="run-line"><span class="qnum">4</span><button class="run-btn" type="button" data-run="grep sqlmap /var/log/access.log"><svg><use href="#ic-terminal"/></svg>Pola SQLi di Web</button><code class="run-hint">grep sqlmap /var/log/access.log</code></div>
+              <div class="run-line"><span class="qnum">5</span><button class="run-btn" type="button" data-run="cat lab/ioc-list.txt && sha256sum /var/log/auth.log"><svg><use href="#ic-terminal"/></svg>IOC + Kunci Bukti</button><code class="run-hint">cat lab/ioc-list.txt && sha256sum /var/log/auth.log</code></div>
+              <div class="run-line"><span class="qnum">6</span><button class="run-btn" type="button" data-run="ufw deny from 45.155.205.11 && iptables -A INPUT -s 45.155.205.11 -j DROP"><svg><use href="#ic-terminal"/></svg>Langsung Blokir IP</button><code class="run-hint">ufw deny from 45.155.205.11 && iptables -A INPUT -s 45.155.205.11 -j DROP</code></div>
+              <div class="run-line"><span class="qnum">7</span><button class="run-btn" type="button" data-run="ufw status verbose && iptables -L -n"><svg><use href="#ic-terminal"/></svg>Verifikasi Blokir</button><code class="run-hint">ufw status verbose && iptables -L -n</code></div>
+              <div class="run-line"><span class="qnum">8</span><button class="run-btn" type="button" data-run="flag FLAG{blue-team} && score"><svg><use href="#ic-terminal"/></svg>Rekap Selesai</button><code class="run-hint">flag FLAG{blue-team} && score</code></div>
+            </div>
+          </div>
+
+          <div class="terminal" style="margin-top:6px">
+            <div class="term-bar"><span class="tdot tdot-r"></span><span class="tdot tdot-y"></span><span class="tdot tdot-g"></span><span class="term-title">satu sesi penuh — salin dan ikuti alurnya</span><button class="term-copy" type="button"><svg style="width:13px;height:13px"><use href="#ic-copy"/></svg>Salin</button></div>
+            <div class="term-body"><pre><span class="t-cmd">analyst@cyberguard:~$</span> cat /var/log/suricata/fast.log
+<span class="t-hot">[x] ET MALWARE Metasploit stage1 192.168.1.100 -&gt; 45.155.205.11:4444</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> <span class="t-comment"># koneksi keluar ke IP penyerang — validasi sekarang</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c
+<span class="t-dim">  487 45.155.205.11</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> grep 'Accepted password' /var/log/auth.log
+<span class="t-hot">Feb 12 03:16:55 Accepted password for webadmin from 45.155.205.11</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> <span class="t-comment"># satu keberhasilan = insiden, bukan sekadar noise</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> grep sqlmap /var/log/access.log
+<span class="t-hot">03:18:02 GET /index.php?id=1 OR '1'='1   UA: sqlmap/1.7</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> cat lab/ioc-list.txt &amp;&amp; sha256sum /var/log/auth.log
+<span class="t-dim">IOC: 45.155.205.11 · webadmin · sqlmap UA · 03:16–03:22</span>
+<span class="t-dim">976e758b...7fb5 auth.log  (bukti terkunci)</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> ufw deny from 45.155.205.11 &amp;&amp; iptables -A INPUT -s 45.155.205.11 -j DROP
+<span class="t-ok">IP 45.155.205.11 ditambahkan ke blokir ufw &amp; iptables (2 lapis)</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> ufw status verbose &amp;&amp; iptables -L -n
+<span class="t-ok">Anywhere  DENY  45.155.205.11   # blokir insiden</span>
+<span class="t-ok">Chain INPUT: DROP 45.155.205.11 terpasang</span>
+<span class="t-cmd">analyst@cyberguard:~$</span> flag FLAG{blue-team} &amp;&amp; score
+<span class="t-ok">Misi blue team: alert→validasi→blokir→verifikasi — TUNTAS</span></pre></div>
+          </div>
+
+          <div class="alert alert-success" style="margin-top:26px">
+            <svg><use href="#ic-shield-check"/></svg>
+            <div><strong>Itu dia satu proses</strong><p>Alert IDS memicu pencarian, pencarian memastikan insiden, bukti dikunci, IP langsung diblokir di dua lapis, lalu diverifikasi — semuanya satu rantai aksi tanpa sela. Lawan dari alur ini justru dibedah di <a href="offensive.html#simulasi">Praktek Offensive</a>: mereka nmap → ssh → root; kita alert → validasi → blokir.</p></div>
+          </div>
+        </section>
+
         <section class="section" id="quiz">
           <div class="sec-head">
-            <span class="sec-num">12 — uji pemahaman</span>
+            <span class="sec-num">14 — uji pemahaman</span>
             <h2 class="sec-title">Kuis Singkat: <span class="accent">Seberapa Siap Bertahan?</span></h2>
             <p class="sec-sub">Lima pertanyaan untuk memvalidasi pemahamanmu tentang operasi blue team. Pilih jawaban dan baca umpan baliknya.</p>
           </div>

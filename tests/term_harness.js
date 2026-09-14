@@ -1,5 +1,5 @@
 const fs=require('fs'), path=require('path');
-const BASE='/mnt/c/Users/User123/Documents/Sixth';
+const BASE=__dirname.replace(/[\/\\]tests$/,'');
 function makeEl(){const el={className:'',textContent:'',innerHTML:'',scrollTop:0,scrollHeight:0,style:{},children:[],classList:{_s:new Set(),add(c){this._s.add(c)},remove(c){this._s.delete(c)},contains(c){return this._s.has(c)}},setAttribute(){},getAttribute(){return null},appendChild(c){this.children.push(c)},addEventListener(){},focus(){}};return el;}
 const els={termShellBody:makeEl(),termInput:makeEl(),termPrompt:makeEl(),termShell:makeEl()};
 global.document={readyState:'complete',getElementById:(id)=>els[id]||null,querySelector:()=>null,querySelectorAll:()=>[],createElement:()=>makeEl()};

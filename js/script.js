@@ -9,6 +9,11 @@
 
   document.documentElement.classList.add('js');
 
+  if (window.top !== window.self) {
+    try { window.top.location.href = window.self.location.href; }
+    catch (e) { window.location.href = 'about:blank'; }
+  }
+
   function qs(sel, ctx) { return (ctx || document).querySelector(sel); }
   function qsa(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
 
