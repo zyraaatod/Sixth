@@ -390,4 +390,92 @@
       });
     });
   });
-})();
+
+  /* ================= LEARNING PATH ================= */
+  function initLearningPath() {
+    var box = qs('#learning-path');
+    if (!box) return;
+    var KEY = 'cyberguard_path';
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+
+    var cards = qsa('[data-path-card]', box);
+    var labels = qsa('.path-list label', box);
+
+    function persist() {
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+    }
+
+    function render() {
+      var allTotal = 0;
+      var allDone = 0;
+      cards.forEach(function (card) {
+        var key = card.getAttribute('data-key');
+        var checks = qsa('[data-path-check]', card);
+        var done = 0;
+        checks.forEach(function (cb) {
+          var vals = saved[key] || [];
+          cb.checked = vals.indexOf(cb.getAttribute('data-idx')) !== -1;
+          if (cb.checked) done++;
+        });
+        var fill = qs('[data-path-fill]', card);
+        var label = qs('[data-path-label]', card);
+        if (fill) {
+          var pct = checks.length ? Math.round((done / checks.length) * 100) : 0;
+          fill.style.width = pct + '%';
+          fill.textContent = pct + '%';
+        }
+        if (label) label.textContent = done + '/' + checks.length + ' langkah selesai';
+        var lis = qsa('li', card);
+        lis.forEach(function (li) {
+          var cb = qs('input[type=checkbox]', li);
+          li.classList.toggle('done', !!(cb && cb.checked));
+        });
+        allTotal += checks.length;
+        allDone += done;
+      });
+      var gbar = qs('[data-path-global]', box);
+      var glabel = qs('[data-path-global-label]', box);
+      var gpct = allTotal ? Math.round((allDone / allTotal) * 100) : 0;
+      if (gbar) {
+        gbar.style.width = gpct + '%';
+        gbar.textContent = gpct + '%';
+      }
+      if (glabel) glabel.textContent = gpct + '%';
+    }
+
+    labels.forEach(function (label) {
+      label.addEventListener('change', function () {
+        var cb = qs('input[type=checkbox]', label);
+        var card = label.closest('[data-path-card]');
+        if (!cb || !card) return;
+        var key = card.getAttribute('data-key');
+        var idx = cb.getAttribute('data-idx');
+        var vals = saved[key] || [];
+        if (cb.checked) {
+          if (vals.indexOf(idx) === -1) vals.push(idx);
+        } else {
+          vals = vals.filter(function (v) { return v !== idx; });
+        }
+        saved[key] = vals;
+        persist();
+        render();
+      });
+    });
+
+    var resetBtn = qs('[data-path-reset]', box);
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        saved = {};
+        persist();
+        render();
+      });
+    }
+
+    render();
+  }
+
+  initLearningPath();
+
+  initLearningPath();
+})();    /* end: CyberGuard learning path */

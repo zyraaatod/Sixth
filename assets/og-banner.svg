@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070b14"/>
+      <stop offset="1" stop-color="#0d1424"/>
+    </linearGradient>
+    <linearGradient id="txt" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#34d399" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="8" fill="url(#line)"/>
+  <rect x="0" y="622" width="1200" height="8" fill="url(#line)"/>
+  <circle cx="1060" cy="120" r="260" fill="#1c2942" opacity="0.35"/>
+  <circle cx="120" cy="560" r="240" fill="#1c2942" opacity="0.3"/>
+  <rect x="92" y="14" width="58" height="58" rx="13" fill="#0d1424" stroke="#26365a"/>
+  <path d="M121 26l22 10v17c0 14-9 24-22 27-13-3-22-13-22-27V36z" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M111 43l7 7 12-14" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="176" y="54" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" fill="#e8f1ff">CYBERGUARD ACADEMY</text>
+  <text x="120" y="200" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="900" fill="#ffffff">
+    Menangkan <tspan fill="url(#txt)">Pertempuran</tspan>
+  </text>
+  <text x="120" y="286" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="900" fill="#ffffff">
+    di <tspan fill="url(#txt)">Dunia Digital</tspan>
+  </text>
+  <text x="120" y="360" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="400" fill="#8fa1bd">
+    Platform pembelajaran keamanan siber berbahasa Indonesia — dari nol sampai profesional.
+  </text>
+  <rect x="120" y="430" width="300" height="6" rx="3" fill="url(#line)"/>
+  <text x="120" y="520" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="26" fill="#5b6b85">
+    zyraaatod.github.io/Sixth · Fundamental → Offense → Defense → Karier
+  </text>
+</svg>

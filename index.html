@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
   <meta name="referrer" content="no-referrer">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CyberGuard Academy">
+  <meta property="og:title" content="CyberGuard Academy — Pusat Pembelajaran Keamanan Siber">
+  <meta property="og:description" content="Jalur belajar keamanan siber dari nol sampai siap kerja: fundamental, offensive, defensive, tools, metodologi pentest, hingga karier.">
+  <meta property="og:image" content="https://zyraaatod.github.io/Sixth/assets/og-banner.svg">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="description" content="CyberGuard Academy — platform pembelajaran keamanan siber terlengkap: fundamental, tools, offensive & defensive security, metodologi pentest, dan jalur karir.">
   <title>CyberGuard Academy — Pusat Pembelajaran Keamanan Siber</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -72,6 +79,7 @@
         <li><a class="nav-link" href="tools.html">Tools</a></li>
         <li><a class="nav-link" href="quiz.html">Kuis</a></li>
         <li><a class="nav-link" href="careers.html">Karir</a></li>
+        <li><a class="nav-link" href="writeups.html">Write-Ups</a></li>
       </ul>
       <button class="term-btn" type="button" data-term-toggle aria-label="Buka terminal"><svg><use href="#ic-terminal"/></svg></button>
       </div>
@@ -100,6 +108,70 @@
   </header>
 
   <div class="container">
+
+    <!-- ============ JALUR BELAJAR ============ -->
+    <section class="section" id="learning-path">
+      <div class="sec-head">
+        <span class="sec-num">00 — jalur belajar</span>
+        <h2 class="sec-title">Learning <span class="accent">Path</span></h2>
+        <p class="sec-sub">Tandai setiap langkah, progress-mu disimpan otomatis di browser (localStorage). Mulai dari level yang cocok — tidak ada paksaan untuk mematuhi urutan.</p>
+      </div>
+      <div class="path-overall">
+        <div class="lb"><span>progres keseluruhan</span><span data-path-global-label>0%</span></div>
+        <div class="path-bar"><span class="path-fill" data-path-global></span></div>
+      </div>
+      <div class="path-grid">
+
+        <article class="card path-card reveal" data-path-card data-key="lvl1">
+          <div class="path-head">
+            <span class="tag tag-perm">Level 1</span>
+            <span class="path-name">Fondasi</span>
+          </div>
+          <div class="path-bar"><span class="path-fill" data-path-fill></span></div>
+          <p class="path-label" data-path-label>0/4 langkah selesai</p>
+          <ul class="path-list">
+            <li><label><input type="checkbox" data-path-check data-idx="0"><span>Kuasi modul <a href="fundamentals.html">Fundamental Keamanan</a></span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="1"><span>Pahami 60+ <a href="tools.html">Tools Keamanan</a></span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="2"><span>Lolos 25 soal <a href="quiz.html">Kuis Fundamental</a></span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="3"><span>Lolos 20 soal <a href="quiz.html">Kuis Tools</a></span></label></li>
+          </ul>
+        </article>
+
+        <article class="card path-card reveal" data-path-card data-key="lvl2">
+          <div class="path-head">
+            <span class="tag tag-rec">Level 2</span>
+            <span class="path-name">Serangan (Offense)</span>
+          </div>
+          <div class="path-bar"><span class="path-fill" data-path-fill></span></div>
+          <p class="path-label" data-path-label>0/4 langkah selesai</p>
+          <ul class="path-list">
+            <li><label><input type="checkbox" data-path-check data-idx="0"><span>Pahami <a href="methodology.html">Metodologi Pentest</a></span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="1"><span>Pelajari <a href="offensive.html">Modul Offensive</a></span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="2"><span>Tuntaskan <a href="offensive.html#simulasi">Lab Serangan</a> (nmap → SSH → root → pivot)</span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="3"><span>Bandingkan dengan <a href="writeups.html#off">Write-Up Offensive</a></span></label></li>
+          </ul>
+        </article>
+
+        <article class="card path-card reveal" data-path-card data-key="lvl3">
+          <div class="path-head">
+            <span class="tag tag-def">Level 3</span>
+            <span class="path-name">Pertahanan &amp; Karir</span>
+          </div>
+          <div class="path-bar"><span class="path-fill" data-path-fill></span></div>
+          <p class="path-label" data-path-label>0/4 langkah selesai</p>
+          <ul class="path-list">
+            <li><label><input type="checkbox" data-path-check data-idx="0"><span>Pelajari <a href="defensive.html">Modul Defensive</a></span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="1"><span>Tuntaskan <a href="defensive.html#simulasi">Lab Blue Team</a> (alert → validasi → blokir)</span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="2"><span>Bandingkan dengan <a href="writeups.html#def">Write-Up Blue Team</a></span></label></li>
+            <li><label><input type="checkbox" data-path-check data-idx="3"><span>Susun roadmap di <a href="careers.html">Jalur Karir</a></span></label></li>
+          </ul>
+        </article>
+
+      </div>
+      <div class="path-reset">
+        <button type="button" data-path-reset>Reset progres belajar</button>
+      </div>
+    </section>
 
     <!-- ============ MODUL ============ -->
     <section class="section">
@@ -391,6 +463,7 @@ persistence &#8594; cleanup            <span class="t-dim">recovery &amp; lesson
           <li><a href="methodology.html">Metodologi Pentest</a></li>
           <li><a href="careers.html">Jalur Karir &amp; Sertifikasi</a></li>
           <li><a href="quiz.html">Kuis Interaktif</a></li>
+          <li><a href="writeups.html">Lab Write-Ups (Solusi)</a></li>
         </ul>
       </div>
       <div>

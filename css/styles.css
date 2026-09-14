@@ -1159,3 +1159,25 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .run-btn:hover { border-color: var(--cyan); background: rgba(56, 189, 248, 0.12); }
 .run-btn svg { width: 14px; height: 14px; }
 .run-hint { font-family: var(--mono); font-size: 0.72rem; color: var(--mute); line-height: 1.6; }
+/* ============ LEARNING PATH ============ */
+.path-overall { max-width: 560px; margin: 6px auto 26px; }
+.path-overall .lb { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--mute); margin-bottom: 6px; font-family: var(--mono); }
+.path-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
+.path-card { display: flex; flex-direction: column; gap: 14px; }
+.path-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.path-name { font-weight: 800; color: var(--text); font-size: 1.05rem; letter-spacing: 0.02em; }
+.path-label { font-family: var(--mono); font-size: 0.74rem; color: var(--mute); }
+.path-bar { height: 10px; border-radius: 999px; background: var(--bg-3); border: 1px solid var(--border); overflow: hidden; }
+.path-fill { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--lime)); transition: width 0.4s ease; font-size: 0.58rem; line-height: 10px; text-align: right; padding-right: 4px; color: #04121f; font-family: var(--mono); font-weight: 700; overflow: hidden; white-space: nowrap; }
+.path-list { list-style: none; display: flex; flex-direction: column; gap: 10px; padding: 0; margin: 0; }
+.path-list li { display: flex; align-items: flex-start; gap: 9px; }
+.path-list label { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; line-height: 1.45; font-size: 0.9rem; color: var(--dim); }
+.path-list input[type="checkbox"] { appearance: none; min-width: 17px; height: 17px; border: 1.6px solid var(--border-2); border-radius: 5px; background: var(--bg-2); margin-top: 2px; flex: none; cursor: pointer; position: relative; transition: 0.15s; }
+.path-list input[type="checkbox"]:checked { background: var(--cyan); border-color: var(--cyan); }
+.path-list input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 4px; top: 0; width: 5px; height: 9px; border: solid #06121f; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.path-list li.done label span { color: var(--mute); text-decoration: line-through; }
+.path-list a { color: var(--cyan); text-decoration: none; border-bottom: 1px dashed var(--border-2); }
+.path-list a:hover { color: var(--lime); border-color: var(--lime); }
+.path-reset { text-align: center; margin-top: 22px; }
+.path-reset button { background: none; border: 1px solid var(--border-2); color: var(--mute); font-family: var(--mono); font-size: 0.76rem; padding: 7px 14px; border-radius: 8px; cursor: pointer; transition: 0.15s; }
+.path-reset button:hover { color: var(--rose); border-color: var(--rose); }
